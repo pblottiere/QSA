@@ -1,0 +1,20 @@
+version: '2'
+services:
+  qgisserver:
+    image: opengisch/qgis-server:3.28-jammy
+    volumes:
+      - ./projects/qgis:/io/data
+      - ./data:/data
+    environment:
+      - QGIS_USER=1000
+      - QGIS_SERVER_LOG_LEVEL=0
+    ports:
+      - "4012:80"
+  mapproxy:
+    image: kartoza/mapproxy:stable
+    environment:
+      - MULTI_MAPPROXY=true
+    volumes:
+      - ./projects/mapproxy/:/multi_mapproxy
+    ports:
+      - "4011:8080"

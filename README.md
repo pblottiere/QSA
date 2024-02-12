@@ -7,6 +7,11 @@ MapProxy.
 
 ### API
 
+Renderers:
+
+- `[GET] /api/renderers` : list of renderers
+- `[GET] /api/renderers/<geometry>/<renderer>/properties` : list of supported properties
+
 Projects:
 
 - `[GET] /api/projects/` : list projects
@@ -35,15 +40,9 @@ Styles:
 - `[GET] /api/projects/<project_name>/styles/<style_name>` : get style metadata
 - `[POST] /api/projects/<project_name>/styles` : add style to project
     - `name` : name of the style
-    - `symbology` : symbology (only `single symbol` is supported for now)
-    - `type` : vector type (only `line` and `polygon` are supported for now)
-      - `line`
-        - `color` : line color `#RRGGBB`
-        - `width` : line width in mm
-      - `polygon`
-        - `color` : fill color `#RRGGBBAA`
-        - `stroke_color` : stroke color `#RRGGBB`
-        - `stroke_width` : stroke width in mm
+    - `symbology` : symbology (only `single_symbol` is supported for now)
+    - `geometry` : vector type (only `line` and `polygon` are supported for now)
+    - `properties` : simple symbol properties
 - `[DELETE] /api/projects/<project_name>/styles/<style_name>` : remove style
 
 
@@ -76,7 +75,7 @@ Create an empty project named `project0`:
 $ curl "http://<ip>:<port>/api/projects/" \
   -X POST \
   -H 'Content-Type: application/json' \
-  -d '{"name":"project0"}'
+  -d '{"name":"project0", "author":"pblottiere"}'
 ````
 
 List project:

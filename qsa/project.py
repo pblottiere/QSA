@@ -5,16 +5,19 @@ from pathlib import Path
 from flask import current_app
 
 from qgis.PyQt.QtCore import Qt
-from qgis.PyQt.QtGui import QColor
 from qgis.core import (
     QgsSymbol,
     QgsProject,
     QgsMapLayer,
     QgsWkbTypes,
+    QgsFillSymbol,
+    QgsLineSymbol,
     QgsVectorLayer,
     QgsFeatureRenderer,
     QgsReadWriteContext,
     QgsSingleSymbolRenderer,
+    QgsSimpleFillSymbolLayer,
+    QgsSimpleLineSymbolLayer,
 )
 from qgis.PyQt.QtXml import QDomDocument, QDomNode
 
@@ -98,14 +101,18 @@ class QSAProject:
         project.read(self._qgis_project.as_posix())
         layers = project.mapLayersByName(name)
         if layers:
+            layer = layers[0]
+
             infos = {}
-            infos["name"] = layers[0].name()
-            infos["type"] = layers[0].type().name
-            infos["source"] = layers[0].source()
-            infos["crs"] = layers[0].crs().authid()
-            infos["current_style"] = layers[0].styleManager().currentStyle()
-            infos["styles"] = layers[0].styleManager().styles()
-            infos["bbox"] = layers[0].extent().asWktCoordinates()
+            infos["valid"] = layer.isValid()
+            infos["name"] = layer.name()
+            infos["type"] = layer.type().name.lower()
+            infos["geometry"] = QgsWkbTypes.displayString(layer.wkbType())
+            infos["source"] = layer.source()
+            infos["crs"] = layer.crs().authid()
+            infos["current_style"] = layer.styleManager().currentStyle()
+            infos["styles"] = layer.styleManager().styles()
+            infos["bbox"] = layer.extent().asWktCoordinates()
             return infos
         return {}
 
@@ -127,17 +134,14 @@ class QSAProject:
 
         if style_name not in layer.styleManager().styles():
             vl = QgsVectorLayer()
-            rc = vl.loadNamedStyle(
-                style_path.as_posix()
-            )  # set "default" style
+            vl.loadNamedStyle(style_path.as_posix())  # set "default" style
 
-            rc = layer.styleManager().addStyle(
+            layer.styleManager().addStyle(
                 style_name, vl.styleManager().style("default")
             )
 
         if current:
-            rc = layer.styleManager().setCurrentStyle(style_name)
-
+            layer.styleManager().setCurrentStyle(style_name)
             mp = QSAMapProxy(self.name)
             mp.clear_cache(layer_name)
 
@@ -198,6 +202,9 @@ class QSAProject:
         crs.createFromId(epsg_code)
         vl.setCrs(crs)
 
+        if not vl.isValid():
+            return False
+
         project = QgsProject()
         project.read(self._qgis_project.as_posix())
 
@@ -223,34 +230,40 @@ class QSAProject:
     def add_style(
         self,
         name: str,
-        type: str,
+        geom: str,
         symbology: str,
-        color: str,
-        width: float,
-        stroke_color: str,
-        stroke_width: float,
+        properties: dict,
     ) -> bool:
         r = None
         vl = QgsVectorLayer()
 
-        if symbology == "single symbol" and type == "line":
+        if symbology != "single_symbol":
+            return False
+
+        if geom == "line":
             r = QgsSingleSymbolRenderer(
                 QgsSymbol.defaultSymbol(QgsWkbTypes.LineGeometry)
             )
-            r.symbol().setWidth(width)
-            r.symbol().setColor(QColor(color))
-        elif symbology == "single symbol" and type == "polygon":
+
+            props = QgsSimpleLineSymbolLayer().properties()
+            for key in properties.keys():
+                if key not in props:
+                    return False
+
+            symbol = QgsLineSymbol.createSimple(properties)
+            r.setSymbol(symbol)
+        elif geom == "polygon":
             r = QgsSingleSymbolRenderer(
                 QgsSymbol.defaultSymbol(QgsWkbTypes.PolygonGeometry)
             )
-            r.symbol().setColor(QColor(color))  # fill color
 
-            r.symbol().symbolLayer(0).setStrokeColor(
-                QColor(stroke_color)
-            )
-            r.symbol().symbolLayer(0).setStrokeWidth(
-                stroke_width
-            )
+            props = QgsSimpleFillSymbolLayer().properties()
+            for key in properties.keys():
+                if key not in props:
+                    return False
+
+            symbol = QgsFillSymbol.createSimple(properties)
+            r.setSymbol(symbol)
 
         if r:
             vl.setRenderer(r)
