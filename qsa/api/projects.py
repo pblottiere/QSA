@@ -1,8 +1,5 @@
 # coding: utf8
 
-__contact__ = "info@hytech-imaging.fr"
-__copyright__ = "Copyright (c) 2023 Hytech Imaging"
-
 from flask import Blueprint, jsonify, request
 
 from ..project import QSAProject
