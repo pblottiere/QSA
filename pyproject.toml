@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "qsa"
+version = "0.0.0"
+description = "QGIS Server Administration"
+authors = ["Paul Blottiere <blottiere.paul@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = ">=3.11"
+flask = "3.0.0"
+click = "8.1.7"
+pyyaml = "^6.0.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+'qsa' = 'qsa.cli:run'
