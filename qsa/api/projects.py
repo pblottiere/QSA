@@ -112,6 +112,16 @@ def project_layer_update_style(name, layer_name):
         return {"error": "Project does not exist"}, 415
 
 
+@projects.get("/<name>/layers/<layer_name>/map/url")
+def project_layer_map_url(name, layer_name):
+    project = QSAProject(name)
+    if project.exists():
+        getmap = WMS.getmap_url(name, layer_name)
+        return jsonify({"url": getmap}), 201
+    else:
+        return {"error": "Project does not exist"}, 415
+
+
 @projects.get("/<name>/layers/<layer_name>/map")
 def project_layer_map(name, layer_name):
     project = QSAProject(name)
