@@ -1,11 +1,20 @@
 # coding: utf8
 
-from flask import Blueprint, jsonify, request
+import shutil
+import requests
+from flask import send_file, Blueprint, jsonify, request
 
+from ..wms import WMS
 from ..project import QSAProject
 
 
 projects = Blueprint("projects", __name__)
+
+
+def str_to_bool(s: str) -> bool:
+    if s in ["True", "TRUE", "true", 1]:
+        return True
+    return False
 
 
 @projects.get("/")
@@ -93,7 +102,9 @@ def project_layer_update_style(name, layer_name):
         data = request.get_json()
         if "current" not in data or "name" not in data:
             return {"error": "Invalid parameters"}, 415
-        current = eval(data["current"])
+
+        current = str_to_bool(data["current"])
+
         style_name = data["name"]
         rc, msg = project.layer_update_style(layer_name, style_name, current)
         if not rc:
@@ -103,42 +114,88 @@ def project_layer_update_style(name, layer_name):
         return {"error": "Project does not exist"}, 415
 
 
+@projects.get("/<name>/layers/<layer_name>/map/url")
+def project_layer_map_url(name, layer_name):
+    project = QSAProject(name)
+    if project.exists():
+        getmap = WMS.getmap_url(name, layer_name)
+        return jsonify({"url": getmap}), 201
+    else:
+        return {"error": "Project does not exist"}, 415
+
+
+@projects.get("/<name>/layers/<layer_name>/map")
+def project_layer_map(name, layer_name):
+    project = QSAProject(name)
+    if project.exists():
+        url = WMS.getmap(name, layer_name)
+        r = requests.get(url, stream=True)
+
+        png = "/tmp/map.png"
+        with open(png, 'wb') as out_file:
+            shutil.copyfileobj(r.raw, out_file)
+
+        return send_file(png, mimetype='image/png')
+    else:
+        return {"error": "Project does not exist"}, 415
+
+
 @projects.post("/<name>/styles")
 def project_add_style(name):
     project = QSAProject(name)
     if project.exists():
         data = request.get_json()
-        if "name" not in data or "type" not in data or "symbology" not in data:
+
+        if (
+            "name" not in data
+            or "symbol" not in data
+            or "symbology" not in data
+        ):
             return {"error": "Invalid parameters"}, 415
 
-        line_width = -1
-        if data["type"] == "line":
-            if "width" not in data or "color" not in data:
-                return {"error": "Invalid parameters"}, 415
-            line_width = data["width"]
-
-        polygon_stroke_width = -1
-        polygon_stroke_color = -1
-        if data["type"] == "polygon":
-            if (
-                "color" not in data
-                or "stroke_color" not in data
-                or "stroke_width" not in data
-            ):
-                return {"error": "Invalid parameters"}, 415
-            polygon_stroke_color = data["stroke_color"]
-            polygon_stroke_width = data["stroke_width"]
+        # legacy support
+        symbology = data["symbology"]
+        if symbology == "single symbol":
+            symbology = "single_symbol"
 
         rc = project.add_style(
             data["name"],
-            data["type"],
+            data["symbol"],
             data["symbology"],
-            data["color"],
-            line_width,
-            polygon_stroke_color,
-            polygon_stroke_width,
+            data["properties"],
         )
         return jsonify(rc), 201
+    else:
+        return {"error": "Project does not exist"}, 415
+
+
+@projects.get("/<name>/styles/default")
+def project_default_styles(name):
+    project = QSAProject(name)
+    if project.exists():
+        infos = project.default_styles()
+        return jsonify(infos), 201
+    else:
+        return {"error": "Project does not exist"}, 415
+
+
+@projects.post("/<name>/styles/default")
+def project_update_default_style(name):
+    project = QSAProject(name)
+    if project.exists():
+        data = request.get_json()
+        if (
+            "geometry" not in data
+            or "symbology" not in data
+            or "symbol" not in data
+            or "style" not in data
+        ):
+            return {"error": "Invalid parameters"}, 415
+
+        project.style_update(
+            data["geometry"], data["symbology"], data["symbol"], data["style"]
+        )
+        return jsonify(True), 201
     else:
         return {"error": "Project does not exist"}, 415
 
@@ -157,8 +214,8 @@ def project_add_layer(name):
     project = QSAProject(name)
     if project.exists():
         data = request.get_json()
-        project.add_layer(data["datasource"], data["name"], data["crs"])
-        return jsonify(True), 201
+        rc = project.add_layer(data["datasource"], data["name"], data["crs"])
+        return jsonify(rc), 201
     else:
         return {"error": "Project does not exist"}, 415
 

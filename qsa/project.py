@@ -1,20 +1,24 @@
 # coding: utf8
 
 import shutil
+import sqlite3
 from pathlib import Path
 from flask import current_app
 
 from qgis.PyQt.QtCore import Qt
-from qgis.PyQt.QtGui import QColor
 from qgis.core import (
     QgsSymbol,
     QgsProject,
     QgsMapLayer,
     QgsWkbTypes,
+    QgsFillSymbol,
+    QgsLineSymbol,
     QgsVectorLayer,
     QgsFeatureRenderer,
     QgsReadWriteContext,
     QgsSingleSymbolRenderer,
+    QgsSimpleFillSymbolLayer,
+    QgsSimpleLineSymbolLayer,
 )
 from qgis.PyQt.QtXml import QDomDocument, QDomNode
 
@@ -27,6 +31,25 @@ RENDERER_TAG_NAME = "renderer-v2"  # constant from core/symbology/renderer.h
 class QSAProject:
     def __init__(self, name: str) -> None:
         self.name: str = name
+
+    @property
+    def sqlite_db(self) -> Path:
+        p = self._qgis_project_dir / "qsa.db"
+        if not p.exists():
+            con = sqlite3.connect(p)
+            cur = con.cursor()
+            cur.execute(
+                "CREATE TABLE styles_default(geometry, symbology, symbol, style)"
+            )
+            cur.execute(
+                "INSERT INTO styles_default VALUES('line', 'single_symbol', 'line', 'default')"
+            )
+            cur.execute(
+                "INSERT INTO styles_default VALUES('polygon', 'single_symbol', 'fill', 'default')"
+            )
+            con.commit()
+            con.close()
+        return p
 
     @staticmethod
     def projects() -> list:
@@ -68,6 +91,15 @@ class QSAProject:
         m["crs"] = p.crs().authid()
         return m
 
+    def style_default(self, symbol: str) -> bool:
+        con = sqlite3.connect(self.sqlite_db.as_posix())
+        cur = con.cursor()
+        sql = f"SELECT style FROM styles_default WHERE symbol = '{symbol}'"
+        res = cur.execute(sql)
+        default_style = res.fetchone()[0]
+        con.close()
+        return default_style
+
     def style(self, name: str) -> dict:
         if name not in self.styles:
             return {}
@@ -82,30 +114,74 @@ class QSAProject:
             renderer_node, QgsReadWriteContext()
         )
         symbol = renderer.symbol()
+        props = symbol.symbolLayer(0).properties()
 
-        type = QgsSymbol.symbolTypeToString(symbol.type()).lower()
+        geom = "line"
+        symbol = QgsSymbol.symbolTypeToString(symbol.type()).lower()
+        if symbol == "fill":
+            geom = "polygon"
 
         m = {}
+        m["symbology"] = "single_symbol"
         m["name"] = name
-        m["type"] = type
-        m["width"] = symbol.width()
-        m["color"] = symbol.color().name()
+        m["symbol"] = symbol
+        m["geometry"] = geom
+        m["properties"] = props
 
         return m
+
+    def default_style_for_symbol(self, symbol: str) -> str:
+        con = sqlite3.connect(self.sqlite_db.as_posix())
+        cur = con.cursor()
+        res = cur.execute(
+            f"SELECT style FROM styles_default WHERE symbol = '{symbol}'"
+        )
+        s = res.fetchone()[0]
+        con.close()
+        return s
+
+    def style_update(
+        self, geometry: str, symbology: str, symbol: str, style: str
+    ) -> None:
+        con = sqlite3.connect(self.sqlite_db.as_posix())
+        cur = con.cursor()
+        sql = f"UPDATE styles_default SET style = '{style}' WHERE symbol = '{symbol}'"
+        cur.execute(sql)
+        con.commit()
+        con.close()
+
+    def default_styles(self) -> list:
+        s = {}
+
+        s["polygon"] = {"single_symbol": {}}
+        s["line"] = {"single_symbol": {}}
+
+        s["polygon"]["single_symbol"]["fill"] = self.default_style_for_symbol(
+            "fill"
+        )
+        s["line"]["single_symbol"]["line"] = self.default_style_for_symbol(
+            "line"
+        )
+
+        return s
 
     def layer(self, name: str) -> dict:
         project = QgsProject()
         project.read(self._qgis_project.as_posix())
         layers = project.mapLayersByName(name)
         if layers:
+            layer = layers[0]
+
             infos = {}
-            infos["name"] = layers[0].name()
-            infos["type"] = layers[0].type().name
-            infos["source"] = layers[0].source()
-            infos["crs"] = layers[0].crs().authid()
-            infos["current_style"] = layers[0].styleManager().currentStyle()
-            infos["styles"] = layers[0].styleManager().styles()
-            infos["bbox"] = layers[0].extent().asWktCoordinates()
+            infos["valid"] = layer.isValid()
+            infos["name"] = layer.name()
+            infos["type"] = layer.type().name.lower()
+            infos["geometry"] = QgsWkbTypes.displayString(layer.wkbType())
+            infos["source"] = layer.source()
+            infos["crs"] = layer.crs().authid()
+            infos["current_style"] = layer.styleManager().currentStyle()
+            infos["styles"] = layer.styleManager().styles()
+            infos["bbox"] = layer.extent().asWktCoordinates()
             return infos
         return {}
 
@@ -127,17 +203,14 @@ class QSAProject:
 
         if style_name not in layer.styleManager().styles():
             vl = QgsVectorLayer()
-            rc = vl.loadNamedStyle(
-                style_path.as_posix()
-            )  # set "default" style
+            vl.loadNamedStyle(style_path.as_posix())  # set "default" style
 
-            rc = layer.styleManager().addStyle(
+            layer.styleManager().addStyle(
                 style_name, vl.styleManager().style("default")
             )
 
         if current:
-            rc = layer.styleManager().setCurrentStyle(style_name)
-
+            layer.styleManager().setCurrentStyle(style_name)
             mp = QSAMapProxy(self.name)
             mp.clear_cache(layer_name)
 
@@ -198,12 +271,25 @@ class QSAProject:
         crs.createFromId(epsg_code)
         vl.setCrs(crs)
 
+        if not vl.isValid():
+            return False
+
+        # create project
         project = QgsProject()
         project.read(self._qgis_project.as_posix())
 
         project.addMapLayer(vl)
         project.setCrs(crs)
         project.write()
+
+        # set default style
+        geometry = vl.geometryType().name.lower()
+        symbol = "line"
+        if geometry == "polygon":
+            symbol = "fill"
+        default_style = self.style_default(symbol)
+
+        self.layer_update_style(name, default_style, True)
 
         # add layer in mapproxy config file
         bbox = list(
@@ -223,34 +309,40 @@ class QSAProject:
     def add_style(
         self,
         name: str,
-        type: str,
+        symbol: str,
         symbology: str,
-        color: str,
-        width: float,
-        stroke_color: str,
-        stroke_width: float,
+        properties: dict,
     ) -> bool:
         r = None
         vl = QgsVectorLayer()
 
-        if symbology == "single symbol" and type == "line":
+        if symbology != "single_symbol":
+            return False
+
+        if symbol == "line":
             r = QgsSingleSymbolRenderer(
                 QgsSymbol.defaultSymbol(QgsWkbTypes.LineGeometry)
             )
-            r.symbol().setWidth(width)
-            r.symbol().setColor(QColor(color))
-        elif symbology == "single symbol" and type == "polygon":
+
+            props = QgsSimpleLineSymbolLayer().properties()
+            for key in properties.keys():
+                if key not in props:
+                    return False
+
+            symbol = QgsLineSymbol.createSimple(properties)
+            r.setSymbol(symbol)
+        elif symbol == "fill":
             r = QgsSingleSymbolRenderer(
                 QgsSymbol.defaultSymbol(QgsWkbTypes.PolygonGeometry)
             )
-            r.symbol().setColor(QColor(color))  # fill color
 
-            r.symbol().symbolLayer(0).setStrokeColor(
-                QColor(stroke_color)
-            )
-            r.symbol().symbolLayer(0).setStrokeWidth(
-                stroke_width
-            )
+            props = QgsSimpleFillSymbolLayer().properties()
+            for key in properties.keys():
+                if key not in props:
+                    return False
+
+            symbol = QgsFillSymbol.createSimple(properties)
+            r.setSymbol(symbol)
 
         if r:
             vl.setRenderer(r)

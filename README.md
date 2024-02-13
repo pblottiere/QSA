@@ -7,6 +7,11 @@ MapProxy.
 
 ### API
 
+Renderers:
+
+- `[GET] /api/symbology/vector/line/single_symbol/line/properties` : list of supported properties
+- `[GET] /api/symbology/vector/polygon/single_symbol/fill/properties` : list of supported properties
+
 Projects:
 
 - `[GET] /api/projects/` : list projects
@@ -20,11 +25,13 @@ Layers:
 
 - `[GET] /api/projects/<project_name>/layers` : list layers in project
 - `[GET] /api/projects/<project_name>/layers/<layer_name>` : get layer info (type, CRS, name, ...)
+- `[GET] /api/projects/<project_name>/layers/<layer_name>/map` : GetMap image with default parameters
+- `[GET] /api/projects/<project_name>/layers/<layer_name>/map/url` : GetMap URL with default parameters
 - `[POST] /api/projects/<project_name>/layers` : add layer in project
     - `name` : name of the layer
     - `datasource` : datasource (http url, filesystem path, ...)
     - `crs` : EPSG code
-- `[POST] /api/projects/<project_name>/layers/<layer_name>/style` : add style to layer
+- `[POST] /api/projects/<project_name>/layers/<layer_name>/style` : add style to layer and/or update current style used for rendering
     - `name` : name of the style
     - `current` : `True` to set as default, `False` otherwise
 - `[DELETE] /api/projects/<project_name>/layers/<layer_name>` : remove layer
@@ -32,18 +39,18 @@ Layers:
 Styles:
 
 - `[GET] /api/projects/<project_name>/styles` : list styles in project
+- `[GET] /api/projects/<project_name>/styles/default` : list default styles in project
+- `[POST] /api/projects/<project_name>/styles/default` : set default style
+    - `symbology` : symbology (only `single_symbol` is supported for now)
+    - `geometry` : geometry type (`line` or `polygon`)
+    - `symbol` : symbol type (`line` or `fill`)
+    - `name` : name of the style
 - `[GET] /api/projects/<project_name>/styles/<style_name>` : get style metadata
 - `[POST] /api/projects/<project_name>/styles` : add style to project
     - `name` : name of the style
-    - `symbology` : symbology (only `single symbol` is supported for now)
-    - `type` : vector type (only `line` and `polygon` are supported for now)
-      - `line`
-        - `color` : line color `#RRGGBB`
-        - `width` : line width in mm
-      - `polygon`
-        - `color` : fill color `#RRGGBBAA`
-        - `stroke_color` : stroke color `#RRGGBB`
-        - `stroke_width` : stroke width in mm
+    - `symbology` : symbology (only `single_symbol` is supported for now)
+    - `symbol` : only `line` and `fill` are supported for now
+    - `properties` : simple symbol properties
 - `[DELETE] /api/projects/<project_name>/styles/<style_name>` : remove style
 
 
@@ -68,6 +75,22 @@ $ qsa qsa.yml
 ```
 
 
+### Tests
+
+Unit tests:
+
+```` console
+$ pytest tests/api.py
+````
+
+Integration tests:
+
+```` console
+$ QSA_HOST=127.0.0.1 QSA_PORT=5000 QSA_GPKG=/tmp/data.gpkg pytest tests/api.py
+$ ls /tmp/qsa*
+/tmp/qsa_test_project0_layer0_style_fill.png  /tmp/qsa_test_project0_layer1_style_line.png
+````
+
 ### Examples
 
 Create an empty project named `project0`:
@@ -76,7 +99,7 @@ Create an empty project named `project0`:
 $ curl "http://<ip>:<port>/api/projects/" \
   -X POST \
   -H 'Content-Type: application/json' \
-  -d '{"name":"project0"}'
+  -d '{"name":"project0", "author":"pblottiere"}'
 ````
 
 List project:
