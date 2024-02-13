@@ -34,7 +34,7 @@ class QSAProject:
 
     @property
     def sqlite_db(self) -> Path:
-        p = QSAProject._qgis_projects_dir() / "qsa.db"
+        p = self._qgis_project_dir / "qsa.db"
         if not p.exists():
             con = sqlite3.connect(p)
             cur = con.cursor()
