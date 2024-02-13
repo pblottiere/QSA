@@ -1,6 +1,8 @@
 # coding: utf8
 
-from flask import Blueprint, jsonify, request
+import shutil
+import requests
+from flask import send_file, Blueprint, jsonify, request
 
 from ..wms import WMS
 from ..project import QSAProject
@@ -126,8 +128,14 @@ def project_layer_map_url(name, layer_name):
 def project_layer_map(name, layer_name):
     project = QSAProject(name)
     if project.exists():
-        getmap = WMS.getmap(name, layer_name)
-        return jsonify({"url": getmap}), 201
+        url = WMS.getmap(name, layer_name)
+        r = requests.get(url, stream=True)
+
+        png = "/tmp/map.png"
+        with open(png, 'wb') as out_file:
+            shutil.copyfileobj(r.raw, out_file)
+
+        return send_file(png, mimetype='image/png')
     else:
         return {"error": "Project does not exist"}, 415
 
