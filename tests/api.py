@@ -15,7 +15,7 @@ from qsa.api.symbology import symbology
 app.register_blueprint(projects, url_prefix="/api/projects")
 app.register_blueprint(symbology, url_prefix="/api/symbology")
 
-GPKG = Path(__file__).parent.parent / "examples/data/data.gpkg"
+GPKG = Path(__file__).parent / "data.gpkg"
 
 TEST_PROJECT_0 = "qsa_test_project0"
 TEST_PROJECT_1 = "qsa_test_project1"
@@ -63,6 +63,9 @@ class TestClient:
 
             self.delete(f"/api/projects/{TEST_PROJECT_0}")
             self.delete(f"/api/projects/{TEST_PROJECT_1}")
+
+            if "QSA_GPKG" in os.environ:
+                GPKG = os.environ["QSA_GPKG"]
 
     def post(self, url, data):
         if self.is_flask_client:
