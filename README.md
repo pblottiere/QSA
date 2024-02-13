@@ -25,6 +25,8 @@ Layers:
 
 - `[GET] /api/projects/<project_name>/layers` : list layers in project
 - `[GET] /api/projects/<project_name>/layers/<layer_name>` : get layer info (type, CRS, name, ...)
+- `[GET] /api/projects/<project_name>/layers/<layer_name>/map` : GetMap image with default parameters
+- `[GET] /api/projects/<project_name>/layers/<layer_name>/map/url` : GetMap URL with default parameters
 - `[POST] /api/projects/<project_name>/layers` : add layer in project
     - `name` : name of the layer
     - `datasource` : datasource (http url, filesystem path, ...)
@@ -85,6 +87,8 @@ Integration tests:
 
 ```` console
 $ QSA_HOST=127.0.0.1 QSA_PORT=5000 QSA_GPKG=/tmp/data.gpkg pytest tests/api.py
+$ ls /tmp/qsa*
+/tmp/qsa_test_project0_layer0_style_fill.png  /tmp/qsa_test_project0_layer1_style_line.png
 ````
 
 ### Examples

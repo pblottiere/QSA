@@ -330,7 +330,13 @@ class APITestCase(unittest.TestCase):
         data["name"] = "style_line"
         data["symbology"] = "single_symbol"
         data["symbol"] = "line"
-        data["properties"] = {"line_width": 0.5}
+        data["properties"] = {
+            "line_width": 0.75,
+            "line_style": "dash",
+            "customdash": "10;3",
+            "use_custom_dash": "1",
+            "line_color": "#0055FF",
+        }
         p = self.app.post(f"/api/projects/{TEST_PROJECT_0}/styles", data)
         self.assertTrue(p.get_json())
 
@@ -339,7 +345,12 @@ class APITestCase(unittest.TestCase):
         data["name"] = "style_fill"
         data["symbology"] = "single_symbol"
         data["symbol"] = "fill"
-        data["properties"] = {"outline_width": 0.5}
+        data["properties"] = {
+            "color": "#00BBBB",
+            "style": "cross",
+            "outline_width": 0.16,
+            "outline_color": "#002222",
+        }
         p = self.app.post(f"/api/projects/{TEST_PROJECT_0}/styles", data)
         self.assertTrue(p.get_json())
 
@@ -386,7 +397,7 @@ class APITestCase(unittest.TestCase):
         data = {}
         data["name"] = "layer1"
         data["datasource"] = f"{GPKG}|layername=lines"
-        data["crs"] = 32637
+        data["crs"] = 4326
         p = self.app.post(f"/api/projects/{TEST_PROJECT_0}/layers", data)
         self.assertTrue(p.get_json())
 
@@ -400,6 +411,23 @@ class APITestCase(unittest.TestCase):
         j = p.get_json()
         self.assertEqual(j["styles"], ["default", "style_line"])
         self.assertEqual(j["current_style"], "style_line")
+
+        if not self.app.is_flask_client:
+            r = self.app.get(
+                f"/api/projects/{TEST_PROJECT_0}/layers/layer0/map"
+            )
+            with open(
+                f"/tmp/{TEST_PROJECT_0}_layer0_style_fill.png", "wb"
+            ) as out_file:
+                out_file.write(r.resp.content)
+
+            r = self.app.get(
+                f"/api/projects/{TEST_PROJECT_0}/layers/layer1/map"
+            )
+            with open(
+                f"/tmp/{TEST_PROJECT_0}_layer1_style_line.png", "wb"
+            ) as out_file:
+                out_file.write(r.resp.content)
 
         # remove last project
         p = self.app.delete(f"/api/projects/{TEST_PROJECT_0}")
