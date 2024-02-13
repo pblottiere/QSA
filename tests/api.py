@@ -280,7 +280,6 @@ class APITestCase(unittest.TestCase):
         data["symbol"] = "line"
         data["style"] = "style_line"
         p = self._post("/api/projects/project0/styles/default", data)
-        print(p.data)
         self.assertTrue(p.get_json())
 
         # check default style
@@ -292,6 +291,32 @@ class APITestCase(unittest.TestCase):
                 "polygon": {"single_symbol": {"fill": "style_fill"}},
             },
         )
+
+        # add layer
+        data = {}
+        data["name"] = "layer0"
+        data["datasource"] = f"{GPKG}|layername=polygons"
+        data["crs"] = 4326
+        p = self._post("/api/projects/project0/layers", data)
+        self.assertTrue(p.get_json())
+
+        data = {}
+        data["name"] = "layer1"
+        data["datasource"] = f"{GPKG}|layername=lines"
+        data["crs"] = 32637
+        p = self._post("/api/projects/project0/layers", data)
+        self.assertTrue(p.get_json())
+
+        # check if default style is applied when adding a new layer in the project
+        p = self.app.get("/api/projects/project0/layers/layer0")
+        j = p.get_json()
+        self.assertEqual(j["styles"], ["default", "style_fill"])
+        self.assertEqual(j["current_style"], "style_fill")
+
+        p = self.app.get("/api/projects/project0/layers/layer1")
+        j = p.get_json()
+        self.assertEqual(j["styles"], ["default", "style_line"])
+        self.assertEqual(j["current_style"], "style_line")
 
 
 if __name__ == "__main__":

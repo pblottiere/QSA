@@ -274,8 +274,6 @@ class QSAProject:
         if not vl.isValid():
             return False
 
-        # set default style
-
         # create project
         project = QgsProject()
         project.read(self._qgis_project.as_posix())
@@ -283,6 +281,15 @@ class QSAProject:
         project.addMapLayer(vl)
         project.setCrs(crs)
         project.write()
+
+        # set default style
+        geometry = vl.geometryType().name.lower()
+        symbol = "line"
+        if geometry == "polygon":
+            symbol = "fill"
+        default_style = self.style_default(symbol)
+
+        self.layer_update_style(name, default_style, True)
 
         # add layer in mapproxy config file
         bbox = list(
