@@ -1,6 +1,6 @@
 qgisserver:
     url: "http://qgisserver/ogc/"
-    projects: "./projects/qgis"
+    projects: "/tmp/qsa/projects/qgis"
 
 mapproxy:
-    projects: "./projects/mapproxy"
+    projects: "/tmp/qsa/projects/mapproxy"
