@@ -88,13 +88,13 @@ class APITestCase(unittest.TestCase):
         j = p.get_json()
         self.assertTrue("line_width" in j)
 
-    def test_vector_renderers_polygon(self):
+    def test_vector_renderers_fill(self):
         # list renderers for line geometries
-        p = self.app.get("/api/renderers/vector/polygon")
+        p = self.app.get("/api/renderers/vector/fill")
         self.assertEqual(p.get_json(), ["single_symbol"])
 
-        # list renderers for polygon geometries
-        p = self.app.get("/api/renderers/polygon/single_symbol/properties")
+        # list renderers for fill geometries
+        p = self.app.get("/api/renderers/fill/single_symbol/properties")
         j = p.get_json()
         self.assertTrue("outline_style" in j)
 
@@ -144,7 +144,7 @@ class APITestCase(unittest.TestCase):
         # layer metadata
         p = self.app.get("/api/projects/project0/layers/layer1")
         j = p.get_json()
-        self.assertEqual(j["geometry"], "MultiLineString")
+        self.assertEqual(j["type"], "vector")
 
         # remove layer0
         p = self.app.delete("/api/projects/project0/layers/layer0")
@@ -174,7 +174,7 @@ class APITestCase(unittest.TestCase):
         data = {}
         data["name"] = "style_line"
         data["symbology"] = "single_symbol"
-        data["geometry"] = "line"
+        data["symbol"] = "line"
         data["properties"] = {"line_width": 0.5}
         p = self.app.post(
             "/api/projects/project0/styles",
@@ -183,11 +183,11 @@ class APITestCase(unittest.TestCase):
         )
         self.assertTrue(p.get_json())
 
-        # add polygon style to project
+        # add fill style to project
         data = {}
-        data["name"] = "style_polygon"
+        data["name"] = "style_fill"
         data["symbology"] = "single_symbol"
-        data["geometry"] = "polygon"
+        data["symbol"] = "fill"
         data["properties"] = {"outline_width": 0.5}
         p = self.app.post(
             "/api/projects/project0/styles",
@@ -198,20 +198,20 @@ class APITestCase(unittest.TestCase):
 
         # 2 styles
         p = self.app.get("/api/projects/project0/styles")
-        self.assertEqual(p.get_json(), ["style_line", "style_polygon"])
+        self.assertEqual(p.get_json(), ["style_line", "style_fill"])
 
         # style line metadata
         p = self.app.get("/api/projects/project0/styles/style_line")
         j = p.get_json()
         self.assertTrue(j["properties"]["line_width"], 0.75)
 
-        # style polygon metadata
-        p = self.app.get("/api/projects/project0/styles/style_polygon")
+        # style fill metadata
+        p = self.app.get("/api/projects/project0/styles/style_fill")
         j = p.get_json()
         self.assertTrue(j["properties"]["outline_width"], 0.75)
 
         # remove style
-        p = self.app.delete('/api/projects/project0/styles/style_polygon')
+        p = self.app.delete('/api/projects/project0/styles/style_fill')
         self.assertTrue(p.get_json())
 
         # 1 style
