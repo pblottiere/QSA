@@ -8,10 +8,10 @@ app = Flask(__name__)
 
 from qsa.config import Config
 from qsa.api.projects import projects
-from qsa.api.renderers import renderers
+from qsa.api.symbology import symbology
 
 app.register_blueprint(projects, url_prefix="/api/projects")
-app.register_blueprint(renderers, url_prefix="/api/renderers")
+app.register_blueprint(symbology, url_prefix="/api/symbology")
 
 GPKG = Path(__file__).parent.parent / "examples/data/data.gpkg"
 
@@ -77,23 +77,19 @@ class APITestCase(unittest.TestCase):
         self.assertTrue("creation_datetime" in j)
         self.assertEqual(j["author"], "pblottiere")
 
-    def test_vector_renderers_line(self):
-        # list renderers for line geometries
-        p = self.app.get("/api/renderers/vector/line")
-        self.assertEqual(p.get_json(), ["single_symbol"])
-
+    def test_vector_symbology_line(self):
         # access symbol properties
-        p = self.app.get("/api/renderers/line/single_symbol/properties")
+        p = self.app.get(
+            "/api/symbology/vector/line/single_symbol/line/properties"
+        )
         j = p.get_json()
         self.assertTrue("line_width" in j)
 
-    def test_vector_renderers_fill(self):
-        # list renderers for line geometries
-        p = self.app.get("/api/renderers/vector/fill")
-        self.assertEqual(p.get_json(), ["single_symbol"])
-
-        # list renderers for fill geometries
-        p = self.app.get("/api/renderers/fill/single_symbol/properties")
+    def test_vector_symbology_fill(self):
+        # list symbology for fill geometries
+        p = self.app.get(
+            "/api/symbology/vector/polygon/single_symbol/fill/properties"
+        )
         j = p.get_json()
         self.assertTrue("outline_style" in j)
 
@@ -225,12 +221,77 @@ class APITestCase(unittest.TestCase):
         self.assertEqual(j["current_style"], "style_line")
 
         # remove style
-        p = self.app.delete('/api/projects/project0/styles/style_fill')
+        p = self.app.delete("/api/projects/project0/styles/style_fill")
         self.assertTrue(p.get_json())
 
         # 1 style
         p = self.app.get("/api/projects/project0/styles")
         self.assertEqual(p.get_json(), ["style_line"])
+
+    def test_default_style(self):
+        # add project
+        data = {}
+        data["name"] = "project0"
+        data["author"] = "pblottiere"
+        p = self._post("/api/projects/", data)
+        self.assertTrue(p.get_json())
+
+        # default styles
+        p = self.app.get("/api/projects/project0/styles/default")
+        self.assertEqual(
+            p.get_json(),
+            {
+                "line": {"single_symbol": {"line": "default"}},
+                "polygon": {"single_symbol": {"fill": "default"}},
+            },
+        )
+
+        # add line style to project
+        data = {}
+        data["name"] = "style_line"
+        data["symbology"] = "single_symbol"
+        data["symbol"] = "line"
+        data["properties"] = {"line_width": 0.5}
+        p = self._post("/api/projects/project0/styles", data)
+        self.assertTrue(p.get_json())
+
+        # add fill style to project
+        data = {}
+        data["name"] = "style_fill"
+        data["symbology"] = "single_symbol"
+        data["symbol"] = "fill"
+        data["properties"] = {"outline_width": 0.5}
+        p = self._post("/api/projects/project0/styles", data)
+        self.assertTrue(p.get_json())
+
+        # set default styles for polygons/fill symbol
+        data = {}
+        data["symbology"] = "single_symbol"
+        data["geometry"] = "polygon"
+        data["symbol"] = "fill"
+        data["style"] = "style_fill"
+        p = self._post("/api/projects/project0/styles/default", data)
+        self.assertTrue(p.get_json())
+
+        # set default styles for line/line symbol
+        data = {}
+        data["symbology"] = "single_symbol"
+        data["geometry"] = "line"
+        data["symbol"] = "line"
+        data["style"] = "style_line"
+        p = self._post("/api/projects/project0/styles/default", data)
+        print(p.data)
+        self.assertTrue(p.get_json())
+
+        # check default style
+        p = self.app.get("/api/projects/project0/styles/default")
+        self.assertEqual(
+            p.get_json(),
+            {
+                "line": {"single_symbol": {"line": "style_line"}},
+                "polygon": {"single_symbol": {"fill": "style_fill"}},
+            },
+        )
 
 
 if __name__ == "__main__":

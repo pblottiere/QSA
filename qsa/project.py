@@ -1,6 +1,7 @@
 # coding: utf8
 
 import shutil
+import sqlite3
 from pathlib import Path
 from flask import current_app
 
@@ -30,6 +31,25 @@ RENDERER_TAG_NAME = "renderer-v2"  # constant from core/symbology/renderer.h
 class QSAProject:
     def __init__(self, name: str) -> None:
         self.name: str = name
+
+    @property
+    def sqlite_db(self) -> Path:
+        p = QSAProject._qgis_projects_dir() / "qsa.db"
+        if not p.exists():
+            con = sqlite3.connect(p)
+            cur = con.cursor()
+            cur.execute(
+                "CREATE TABLE styles_default(geometry, symbology, symbol, style)"
+            )
+            cur.execute(
+                "INSERT INTO styles_default VALUES('line', 'single_symbol', 'line', 'default')"
+            )
+            cur.execute(
+                "INSERT INTO styles_default VALUES('polygon', 'single_symbol', 'fill', 'default')"
+            )
+            con.commit()
+            con.close()
+        return p
 
     @staticmethod
     def projects() -> list:
@@ -71,6 +91,15 @@ class QSAProject:
         m["crs"] = p.crs().authid()
         return m
 
+    def style_default(self, symbol: str) -> bool:
+        con = sqlite3.connect(self.sqlite_db.as_posix())
+        cur = con.cursor()
+        sql = f"SELECT style FROM styles_default WHERE symbol = '{symbol}'"
+        res = cur.execute(sql)
+        default_style = res.fetchone()[0]
+        con.close()
+        return default_style
+
     def style(self, name: str) -> dict:
         if name not in self.styles:
             return {}
@@ -85,16 +114,56 @@ class QSAProject:
             renderer_node, QgsReadWriteContext()
         )
         symbol = renderer.symbol()
+        props = symbol.symbolLayer(0).properties()
 
-        type = QgsSymbol.symbolTypeToString(symbol.type()).lower()
+        geom = "line"
+        symbol = QgsSymbol.symbolTypeToString(symbol.type()).lower()
+        if symbol == "fill":
+            geom = "polygon"
 
         m = {}
+        m["symbology"] = "single_symbol"
         m["name"] = name
-        m["type"] = type
-        m["width"] = symbol.width()
-        m["color"] = symbol.color().name()
+        m["symbol"] = symbol
+        m["geometry"] = geom
+        m["properties"] = props
 
         return m
+
+    def default_style_for_symbol(self, symbol: str) -> str:
+        con = sqlite3.connect(self.sqlite_db.as_posix())
+        cur = con.cursor()
+        res = cur.execute(
+            f"SELECT style FROM styles_default WHERE symbol = '{symbol}'"
+        )
+        s = res.fetchone()[0]
+        con.close()
+        return s
+
+    def style_update(
+        self, geometry: str, symbology: str, symbol: str, style: str
+    ) -> None:
+        con = sqlite3.connect(self.sqlite_db.as_posix())
+        cur = con.cursor()
+        sql = f"UPDATE styles_default SET style = '{style}' WHERE symbol = '{symbol}'"
+        cur.execute(sql)
+        con.commit()
+        con.close()
+
+    def default_styles(self) -> list:
+        s = {}
+
+        s["polygon"] = {"single_symbol": {}}
+        s["line"] = {"single_symbol": {}}
+
+        s["polygon"]["single_symbol"]["fill"] = self.default_style_for_symbol(
+            "fill"
+        )
+        s["line"]["single_symbol"]["line"] = self.default_style_for_symbol(
+            "line"
+        )
+
+        return s
 
     def layer(self, name: str) -> dict:
         project = QgsProject()
@@ -205,6 +274,9 @@ class QSAProject:
         if not vl.isValid():
             return False
 
+        # set default style
+
+        # create project
         project = QgsProject()
         project.read(self._qgis_project.as_posix())
 
@@ -230,7 +302,7 @@ class QSAProject:
     def add_style(
         self,
         name: str,
-        geom: str,
+        symbol: str,
         symbology: str,
         properties: dict,
     ) -> bool:
@@ -240,7 +312,7 @@ class QSAProject:
         if symbology != "single_symbol":
             return False
 
-        if geom == "line":
+        if symbol == "line":
             r = QgsSingleSymbolRenderer(
                 QgsSymbol.defaultSymbol(QgsWkbTypes.LineGeometry)
             )
@@ -252,7 +324,7 @@ class QSAProject:
 
             symbol = QgsLineSymbol.createSimple(properties)
             r.setSymbol(symbol)
-        elif geom == "polygon":
+        elif symbol == "fill":
             r = QgsSingleSymbolRenderer(
                 QgsSymbol.defaultSymbol(QgsWkbTypes.PolygonGeometry)
             )

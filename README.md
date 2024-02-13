@@ -9,8 +9,8 @@ MapProxy.
 
 Renderers:
 
-- `[GET] /api/renderers` : list of renderers
-- `[GET] /api/renderers/<geometry>/<renderer>/properties` : list of supported properties
+- `[GET] /api/symbology/vector/line/single_symbol/line/properties` : list of supported properties
+- `[GET] /api/symbology/vector/polygon/single_symbol/fill/properties` : list of supported properties
 
 Projects:
 
@@ -29,7 +29,7 @@ Layers:
     - `name` : name of the layer
     - `datasource` : datasource (http url, filesystem path, ...)
     - `crs` : EPSG code
-- `[POST] /api/projects/<project_name>/layers/<layer_name>/style` : add style to layer
+- `[POST] /api/projects/<project_name>/layers/<layer_name>/style` : add style to layer and/or update current style used for rendering
     - `name` : name of the style
     - `current` : `True` to set as default, `False` otherwise
 - `[DELETE] /api/projects/<project_name>/layers/<layer_name>` : remove layer
@@ -37,11 +37,17 @@ Layers:
 Styles:
 
 - `[GET] /api/projects/<project_name>/styles` : list styles in project
+- `[GET] /api/projects/<project_name>/styles/default` : list default styles in project
+- `[POST] /api/projects/<project_name>/styles/default` : set default style
+    - `symbology` : symbology (only `single_symbol` is supported for now)
+    - `geometry` : geometry type (`line` or `polygon`)
+    - `symbol` : symbol type (`line` or `fill`)
+    - `name` : name of the style
 - `[GET] /api/projects/<project_name>/styles/<style_name>` : get style metadata
 - `[POST] /api/projects/<project_name>/styles` : add style to project
     - `name` : name of the style
     - `symbology` : symbology (only `single_symbol` is supported for now)
-    - `geometry` : vector type (only `line` and `polygon` are supported for now)
+    - `symbol` : only `line` and `fill` are supported for now
     - `properties` : simple symbol properties
 - `[DELETE] /api/projects/<project_name>/styles/<style_name>` : remove style
 

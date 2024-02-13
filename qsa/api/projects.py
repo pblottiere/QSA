@@ -9,6 +9,12 @@ from ..project import QSAProject
 projects = Blueprint("projects", __name__)
 
 
+def str_to_bool(s: str) -> bool:
+    if s in ["True", "TRUE", "true", 1]:
+        return True
+    return False
+
+
 @projects.get("/")
 def projects_list():
     p = []
@@ -95,9 +101,7 @@ def project_layer_update_style(name, layer_name):
         if "current" not in data or "name" not in data:
             return {"error": "Invalid parameters"}, 415
 
-        current = False
-        if data["current"] in ["True", "TRUE", "true", 1]:
-            current = True
+        current = str_to_bool(data["current"])
 
         style_name = data["name"]
         rc, msg = project.layer_update_style(layer_name, style_name, current)
@@ -126,7 +130,7 @@ def project_add_style(name):
 
         if (
             "name" not in data
-            or "geometry" not in data
+            or "symbol" not in data
             or "symbology" not in data
         ):
             return {"error": "Invalid parameters"}, 415
@@ -138,11 +142,42 @@ def project_add_style(name):
 
         rc = project.add_style(
             data["name"],
-            data["geometry"],
+            data["symbol"],
             data["symbology"],
             data["properties"],
         )
         return jsonify(rc), 201
+    else:
+        return {"error": "Project does not exist"}, 415
+
+
+@projects.get("/<name>/styles/default")
+def project_default_styles(name):
+    project = QSAProject(name)
+    if project.exists():
+        infos = project.default_styles()
+        return jsonify(infos), 201
+    else:
+        return {"error": "Project does not exist"}, 415
+
+
+@projects.post("/<name>/styles/default")
+def project_update_default_style(name):
+    project = QSAProject(name)
+    if project.exists():
+        data = request.get_json()
+        if (
+            "geometry" not in data
+            or "symbology" not in data
+            or "symbol" not in data
+            or "style" not in data
+        ):
+            return {"error": "Invalid parameters"}, 415
+
+        project.style_update(
+            data["geometry"], data["symbology"], data["symbol"], data["style"]
+        )
+        return jsonify(True), 201
     else:
         return {"error": "Project does not exist"}, 415
 
