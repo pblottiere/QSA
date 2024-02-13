@@ -18,5 +18,5 @@ class WMS:
 
     @staticmethod
     def getmap(project, layer):
-        url = f"{current_app.config['CONFIG'].qgisserver_url}/{project}/{WMS.getmap_url}"
+        url = f"{current_app.config['CONFIG'].qgisserver_url}/{project}/{WMS.getmap_url()}"
         return url
