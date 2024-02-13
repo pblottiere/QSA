@@ -16,6 +16,8 @@ app.register_blueprint(projects, url_prefix="/api/projects")
 app.register_blueprint(symbology, url_prefix="/api/symbology")
 
 GPKG = Path(__file__).parent / "data.gpkg"
+if "QSA_GPKG" in os.environ:
+    GPKG = os.environ["QSA_GPKG"]
 
 TEST_PROJECT_0 = "qsa_test_project0"
 TEST_PROJECT_1 = "qsa_test_project1"
@@ -63,9 +65,6 @@ class TestClient:
 
             self.delete(f"/api/projects/{TEST_PROJECT_0}")
             self.delete(f"/api/projects/{TEST_PROJECT_1}")
-
-            if "QSA_GPKG" in os.environ:
-                GPKG = os.environ["QSA_GPKG"]
 
     def post(self, url, data):
         if self.is_flask_client:
@@ -271,13 +270,17 @@ class APITestCase(unittest.TestCase):
         data = {}
         data["current"] = False
         data["name"] = "style_fill"
-        p = self.app.post(f"/api/projects/{TEST_PROJECT_0}/layers/layer0/style", data)
+        p = self.app.post(
+            f"/api/projects/{TEST_PROJECT_0}/layers/layer0/style", data
+        )
         self.assertTrue(p.get_json())
 
         data = {}
         data["current"] = True
         data["name"] = "style_line"
-        p = self.app.post(f"/api/projects/{TEST_PROJECT_0}/layers/layer1/style", data)
+        p = self.app.post(
+            f"/api/projects/{TEST_PROJECT_0}/layers/layer1/style", data
+        )
         self.assertTrue(p.get_json())
 
         # check style for layers
@@ -292,7 +295,9 @@ class APITestCase(unittest.TestCase):
         self.assertEqual(j["current_style"], "style_line")
 
         # remove style
-        p = self.app.delete(f"/api/projects/{TEST_PROJECT_0}/styles/style_fill")
+        p = self.app.delete(
+            f"/api/projects/{TEST_PROJECT_0}/styles/style_fill"
+        )
         self.assertTrue(p.get_json())
 
         # 1 style
@@ -344,7 +349,9 @@ class APITestCase(unittest.TestCase):
         data["geometry"] = "polygon"
         data["symbol"] = "fill"
         data["style"] = "style_fill"
-        p = self.app.post(f"/api/projects/{TEST_PROJECT_0}/styles/default", data)
+        p = self.app.post(
+            f"/api/projects/{TEST_PROJECT_0}/styles/default", data
+        )
         self.assertTrue(p.get_json())
 
         # set default styles for line/line symbol
@@ -353,7 +360,9 @@ class APITestCase(unittest.TestCase):
         data["geometry"] = "line"
         data["symbol"] = "line"
         data["style"] = "style_line"
-        p = self.app.post(f"/api/projects/{TEST_PROJECT_0}/styles/default", data)
+        p = self.app.post(
+            f"/api/projects/{TEST_PROJECT_0}/styles/default", data
+        )
         self.assertTrue(p.get_json())
 
         # check default style

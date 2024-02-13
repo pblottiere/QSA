@@ -73,6 +73,20 @@ $ qsa qsa.yml
 ```
 
 
+### Tests
+
+Unit tests:
+
+```` console
+$ pytest tests/api.py
+````
+
+Integration tests:
+
+```` console
+$ QSA_HOST=127.0.0.1 QSA_PORT=5000 QSA_GPKG=/tmp/data.gpkg pytest tests/api.py
+````
+
 ### Examples
 
 Create an empty project named `project0`:
