@@ -14,11 +14,13 @@ from qgis.core import (
     QgsFillSymbol,
     QgsLineSymbol,
     QgsVectorLayer,
+    QgsMarkerSymbol,
     QgsFeatureRenderer,
     QgsReadWriteContext,
     QgsSingleSymbolRenderer,
     QgsSimpleFillSymbolLayer,
     QgsSimpleLineSymbolLayer,
+    QgsSimpleMarkerSymbolLayer,
 )
 from qgis.PyQt.QtXml import QDomDocument, QDomNode
 
@@ -46,6 +48,9 @@ class QSAProject:
             )
             cur.execute(
                 "INSERT INTO styles_default VALUES('polygon', 'single_symbol', 'fill', 'default')"
+            )
+            cur.execute(
+                "INSERT INTO styles_default VALUES('point', 'single_symbol', 'marker', 'default')"
             )
             con.commit()
             con.close()
@@ -155,12 +160,16 @@ class QSAProject:
 
         s["polygon"] = {"single_symbol": {}}
         s["line"] = {"single_symbol": {}}
+        s["point"] = {"single_symbol": {}}
 
         s["polygon"]["single_symbol"]["fill"] = self.default_style_for_symbol(
             "fill"
         )
         s["line"]["single_symbol"]["line"] = self.default_style_for_symbol(
             "line"
+        )
+        s["point"]["single_symbol"]["marker"] = self.default_style_for_symbol(
+            "marker"
         )
 
         return s
@@ -342,6 +351,18 @@ class QSAProject:
                     return False
 
             symbol = QgsFillSymbol.createSimple(properties)
+            r.setSymbol(symbol)
+        elif symbol == "marker":
+            r = QgsSingleSymbolRenderer(
+                QgsSymbol.defaultSymbol(QgsWkbTypes.PointGeometry)
+            )
+
+            props = QgsSimpleMarkerSymbolLayer().properties()
+            for key in properties.keys():
+                if key not in props:
+                    return False
+
+            symbol = QgsMarkerSymbol.createSimple(properties)
             r.setSymbol(symbol)
 
         if r:
