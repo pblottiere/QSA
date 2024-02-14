@@ -382,7 +382,8 @@ class APITestCase(unittest.TestCase):
         data["properties"] = {
             "color": "#00BBBB",
             "name": "star",
-            "size": 6
+            "size": 6,
+            "angle": 45
         }
         p = self.app.post(f"/api/projects/{TEST_PROJECT_0}/styles", data)
         self.assertTrue(p.get_json())
