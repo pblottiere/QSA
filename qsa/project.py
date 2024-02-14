@@ -296,6 +296,8 @@ class QSAProject:
         symbol = "line"
         if geometry == "polygon":
             symbol = "fill"
+        elif geometry == "point":
+            symbol = "marker"
         default_style = self.style_default(symbol)
 
         self.layer_update_style(name, default_style, True)
