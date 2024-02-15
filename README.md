@@ -11,6 +11,7 @@ Renderers:
 
 - `[GET] /api/symbology/vector/line/single_symbol/line/properties` : list of supported properties
 - `[GET] /api/symbology/vector/polygon/single_symbol/fill/properties` : list of supported properties
+- `[GET] /api/symbology/vector/point/single_symbol/marker/properties` : list of supported properties
 
 Projects:
 
