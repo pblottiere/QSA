@@ -160,6 +160,14 @@ class APITestCase(unittest.TestCase):
         j = p.get_json()
         self.assertTrue("outline_style" in j)
 
+    def test_vector_symbology_marker(self):
+        # list symbology for marker geometries
+        p = self.app.get(
+            "/api/symbology/vector/point/single_symbol/marker/properties"
+        )
+        j = p.get_json()
+        self.assertTrue("outline_style" in j)
+
     def test_layers(self):
         # add project
         data = {}
@@ -183,26 +191,37 @@ class APITestCase(unittest.TestCase):
         data = {}
         data["name"] = "layer1"
         data["datasource"] = f"{GPKG}|layername=lines"
-        data["crs"] = 32637
+        data["crs"] = 4326
         p = self.app.post(f"/api/projects/{TEST_PROJECT_0}/layers", data)
         self.assertTrue(p.get_json())
 
-        # 2 layers
+        data = {}
+        data["name"] = "layer2"
+        data["datasource"] = f"{GPKG}|layername=points"
+        data["crs"] = 4326
+        p = self.app.post(f"/api/projects/{TEST_PROJECT_0}/layers", data)
+        self.assertTrue(p.get_json())
+
+        # 3 layers
         p = self.app.get(f"/api/projects/{TEST_PROJECT_0}/layers")
-        self.assertEqual(p.get_json(), ["layer0", "layer1"])
+        self.assertEqual(p.get_json(), ["layer0", "layer1", "layer2"])
 
         # layer metadata
         p = self.app.get(f"/api/projects/{TEST_PROJECT_0}/layers/layer1")
         j = p.get_json()
         self.assertEqual(j["type"], "vector")
 
+        p = self.app.get(f"/api/projects/{TEST_PROJECT_0}/layers/layer2")
+        j = p.get_json()
+        self.assertEqual(j["valid"], True)
+
         # remove layer0
         p = self.app.delete(f"/api/projects/{TEST_PROJECT_0}/layers/layer0")
         self.assertTrue(p.get_json())
 
-        # 1 layer
+        # 2 layer
         p = self.app.get(f"/api/projects/{TEST_PROJECT_0}/layers")
-        self.assertEqual(p.get_json(), ["layer1"])
+        self.assertEqual(p.get_json(), ["layer1", "layer2"])
 
         # remove last project
         p = self.app.delete(f"/api/projects/{TEST_PROJECT_0}")
@@ -322,6 +341,7 @@ class APITestCase(unittest.TestCase):
             {
                 "line": {"single_symbol": {"line": "default"}},
                 "polygon": {"single_symbol": {"fill": "default"}},
+                "point": {"single_symbol": {"marker": "default"}},
             },
         )
 
@@ -354,6 +374,20 @@ class APITestCase(unittest.TestCase):
         p = self.app.post(f"/api/projects/{TEST_PROJECT_0}/styles", data)
         self.assertTrue(p.get_json())
 
+        # add marker style to project
+        data = {}
+        data["name"] = "style_marker"
+        data["symbology"] = "single_symbol"
+        data["symbol"] = "marker"
+        data["properties"] = {
+            "color": "#00BBBB",
+            "name": "star",
+            "size": 6,
+            "angle": 45
+        }
+        p = self.app.post(f"/api/projects/{TEST_PROJECT_0}/styles", data)
+        self.assertTrue(p.get_json())
+
         # set default styles for polygons/fill symbol
         data = {}
         data["symbology"] = "single_symbol"
@@ -376,6 +410,17 @@ class APITestCase(unittest.TestCase):
         )
         self.assertTrue(p.get_json())
 
+        # set default styles for point/marker symbol
+        data = {}
+        data["symbology"] = "single_symbol"
+        data["geometry"] = "point"
+        data["symbol"] = "marker"
+        data["style"] = "style_marker"
+        p = self.app.post(
+            f"/api/projects/{TEST_PROJECT_0}/styles/default", data
+        )
+        self.assertTrue(p.get_json())
+
         # check default style
         p = self.app.get(f"/api/projects/{TEST_PROJECT_0}/styles/default")
         self.assertEqual(
@@ -383,6 +428,7 @@ class APITestCase(unittest.TestCase):
             {
                 "line": {"single_symbol": {"line": "style_line"}},
                 "polygon": {"single_symbol": {"fill": "style_fill"}},
+                "point": {"single_symbol": {"marker": "style_marker"}},
             },
         )
 
@@ -401,6 +447,13 @@ class APITestCase(unittest.TestCase):
         p = self.app.post(f"/api/projects/{TEST_PROJECT_0}/layers", data)
         self.assertTrue(p.get_json())
 
+        data = {}
+        data["name"] = "layer2"
+        data["datasource"] = f"{GPKG}|layername=points"
+        data["crs"] = 4326
+        p = self.app.post(f"/api/projects/{TEST_PROJECT_0}/layers", data)
+        self.assertTrue(p.get_json())
+
         # check if default style is applied when adding a new layer in the project
         p = self.app.get(f"/api/projects/{TEST_PROJECT_0}/layers/layer0")
         j = p.get_json()
@@ -413,6 +466,7 @@ class APITestCase(unittest.TestCase):
         self.assertEqual(j["current_style"], "style_line")
 
         if not self.app.is_flask_client:
+            # save polygon layer as png
             r = self.app.get(
                 f"/api/projects/{TEST_PROJECT_0}/layers/layer0/map"
             )
@@ -421,11 +475,21 @@ class APITestCase(unittest.TestCase):
             ) as out_file:
                 out_file.write(r.resp.content)
 
+            # save line layer as png
             r = self.app.get(
                 f"/api/projects/{TEST_PROJECT_0}/layers/layer1/map"
             )
             with open(
                 f"/tmp/{TEST_PROJECT_0}_layer1_style_line.png", "wb"
+            ) as out_file:
+                out_file.write(r.resp.content)
+
+            # save point layer as png
+            r = self.app.get(
+                f"/api/projects/{TEST_PROJECT_0}/layers/layer2/map"
+            )
+            with open(
+                f"/tmp/{TEST_PROJECT_0}_layer2_style_marker.png", "wb"
             ) as out_file:
                 out_file.write(r.resp.content)
 
