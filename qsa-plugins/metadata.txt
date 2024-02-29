@@ -1,0 +1,40 @@
+# This file contains metadata for your plugin. Since
+# version 2.0 of QGIS this is the proper way to supply
+# information about a plugin. The old method of
+# embedding metadata in __init__.py will
+# is no longer supported since version 2.0.
+
+# This file should be included when you package your plugin.# Mandatory items:
+
+[general]
+name=qsa
+qgisMinimumVersion=3.0
+description=Performance Monitoring
+version=1.0.1
+author=Paul Blottiere
+email=blottiere.paul@gmail.com
+
+about=Monitors RAM and CPU.
+
+server=True
+
+tracker=https://github.com/pblottiere/snail/issues
+repository=https://github.com/pblottiere/snail
+# End of mandatory metadata
+
+# Recommended items:
+
+# Uncomment the following line and add your changelog:
+# changelog=
+
+# Tags are comma separated with spaces allowed
+tags=python
+
+homepage=https://github.com/pblottiere/snail
+category=Plugins
+icon=icon.png
+# experimental flag
+experimental=False
+
+# deprecated flag (applies to the whole plugin, not just a single version)
+deprecated=False

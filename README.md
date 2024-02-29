@@ -1,6 +1,10 @@
 # QGIS Server Administration
 
-**Disclaimer : WIP!**
+
+QSA is a REST API for administrating QGIS Server projects and cache.
+
+
+## Why?
 
 QSA is a server providing a REST API for administrating QGIS Server paired with
 MapProxy.
@@ -53,6 +57,17 @@ Styles:
     - `symbol` : only `line` and `fill` are supported for now
     - `properties` : simple symbol properties
 - `[DELETE] /api/projects/<project_name>/styles/<style_name>` : remove style
+
+Instances:
+
+- `[GET] /api/instances/` : list of QGIS Server instances registered
+- `[GET] /api/instances/<instance>` : basic info about QGIS Server (versions, ...)
+- `[GET] /api/instances/<instance>/environment` : environment variables
+- `[GET] /api/instances/<instance>/providers` : providers
+- `[GET] /api/instances/<instance>/settings` : settings
+- `[GET] /api/instances/<instance>/projects` : list of project in cache
+- `[GET] /api/instances/<instance>/plugins` : list of plugins
+- `[GET] /api/instances/<instance>/plugins/<plugin>` : plugin information
 
 
 ### Installation
