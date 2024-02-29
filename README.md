@@ -55,6 +55,23 @@ Styles:
 - `[DELETE] /api/projects/<project_name>/styles/<style_name>` : remove style
 
 
+### Installation
+
+QSA is not on PyPI (yet), so you need to install it manually. If PyQGIS is
+installed on your system:
+
+```` console
+$ virtualenv --system-site-packages -p /usr/bin/python3 venv
+$ . venv/bin/activate
+(venv)$ pip install poetry
+(venv)$ poetry install
+(venv)$ qsa --help
+Usage: qsa [OPTIONS] CFG
+
+Options:
+  --help  Show this message and exit.
+````
+
 ### Configuration
 
 YAML configuration file `qsa.yml`:
