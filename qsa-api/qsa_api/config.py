@@ -10,6 +10,12 @@ class Config:
             self.cfg = yaml.safe_load(file)
 
     @property
+    def admin_port(self) -> int:
+        if "qgisserver" in self.cfg and "admin_port" in self.cfg["qgisserver"]:
+            return self.cfg["qgisserver"]["admin_port"]
+        return -1
+
+    @property
     def qgisserver_url(self) -> str:
         return self.cfg["qgisserver"]["url"]
 

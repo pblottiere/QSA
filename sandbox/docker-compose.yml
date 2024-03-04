@@ -1,0 +1,21 @@
+version: '2'
+services:
+  qgisserver:
+    image: opengisch/qgis-server:3.28-jammy
+    volumes:
+      - ./projects/qgis:/io/data
+    environment:
+      - QGIS_USER=1000
+      - QGIS_SERVER_LOG_LEVEL=0
+    ports:
+      - "4012:80"
+  qsa:
+    image: pblottiere/qsa
+    entrypoint: "qsa /qsa.yml"
+    build:
+      context: ..
+      dockerfile: sandbox/Dockerfile
+    volumes:
+      - ./projects/:/projects
+    ports:
+      - "5000:5000"
