@@ -38,8 +38,8 @@ TODO
 
 Create a project:
 
-``` json
-curl "http://localhost/api/projects/" \
+``` shell
+$ curl "http://localhost/api/projects/" \
      -X POST \
      -H 'Content-Type: application/json' \
      -d '{
@@ -71,8 +71,8 @@ TODO
 
 Add a vector layer based on AWS S3 bucket:
 
-```` json
-curl "http://localhost/api/projects/my_project/layers" \
+```` shell
+$ curl "http://localhost/api/projects/my_project/layers" \
   -X POST \
   -H 'Content-Type: application/json' \
   -d '{

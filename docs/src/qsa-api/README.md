@@ -1,6 +1,7 @@
 # QSA REST API
 
-Server providing a REST API for managing QGIS Server.
+[Flask](https://flask.palletsprojects.com/en/3.0.x/) WSGI server providing a
+REST API for managing QGIS Server.
 
 Features:
 
@@ -11,4 +12,5 @@ Features:
 Optional features:
 
 - Cache management with MapProxy
-- Interaction with online QGIS Server instances (depends on [QSA plugin](qsa-plugin/))
+- Interaction with online QGIS Server instances (depends on [QSA
+  plugin](qsa-plugin/))

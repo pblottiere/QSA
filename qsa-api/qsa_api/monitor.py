@@ -4,7 +4,7 @@ import socket
 from threading import Thread, Lock
 from socketserver import ThreadingMixIn
 
-from qsa_api.config import Config
+from qsa_api.config import QSAConfig
 
 
 class QSAMonitorThread(Thread):
@@ -30,9 +30,9 @@ class QSAMonitorThread(Thread):
 
 class QSAMonitor:
 
-    def __init__(self, cfg: Config) -> None:
+    def __init__(self, cfg: QSAConfig) -> None:
         self.monitor : Thread
-        self.port : int = cfg.admin_port
+        self.port : int = cfg.monitoring_port
 
         self._lock = Lock()
         self._conns : list[Thread] = []

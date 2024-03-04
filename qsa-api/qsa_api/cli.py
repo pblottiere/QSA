@@ -4,7 +4,7 @@ import click
 from flask import Flask
 from pathlib import Path
 
-from qsa_api.config import Config
+from qsa_api.config import QSAConfig
 from qsa_api.monitor import QSAMonitor
 from qsa_api.api.projects import projects
 from qsa_api.api.symbology import symbology
@@ -12,7 +12,7 @@ from qsa_api.api.instances import instances
 
 
 class QSA:
-    def __init__(self, cfg: Config, monitor: QSAMonitor) -> None:
+    def __init__(self, cfg: QSAConfig, monitor: QSAMonitor) -> None:
         self.app = Flask(__name__)
         self.app.config["CONFIG"] = cfg
         self.app.config["MONITOR"] = monitor
@@ -25,12 +25,13 @@ class QSA:
 
 
 @click.command()
-@click.argument("cfg_file")
-def run(cfg_file):
-    cfg = Config(Path(cfg_file))
+def run():
+    cfg = QSAConfig()
+    if not cfg.is_valid:
+        return
 
     monitor = None
-    if cfg.admin_port:
+    if cfg.monitoring_port:
         monitor = QSAMonitor(cfg)
         monitor.start()
 

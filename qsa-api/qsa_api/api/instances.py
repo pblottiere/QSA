@@ -10,6 +10,9 @@ instances = Blueprint("instances", __name__)
 def instances_list():
     monitor = current_app.config["MONITOR"]
 
+    if not monitor:
+        return {"error": "QGIS Server monitoring is not activated"}, 415
+
     conns = []
     print(monitor.conns)
     for con in monitor.conns:

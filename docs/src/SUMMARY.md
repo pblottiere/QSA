@@ -12,3 +12,4 @@
   - [Configuration](qsa-cli/configuration.md)
   - [Endpoints](qsa-cli/endpoints.md)
 - [Sandbox](SANDBOX.md)
+- [Funders](FUNDERS.md)

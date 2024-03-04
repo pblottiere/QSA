@@ -220,8 +220,10 @@ class QSAProject:
 
         if current:
             layer.styleManager().setCurrentStyle(style_name)
-            mp = QSAMapProxy(self.name)
-            mp.clear_cache(layer_name)
+
+            if self._mapproxy_enabled:
+                mp = QSAMapProxy(self.name)
+                mp.clear_cache(layer_name)
 
         project.write()
 
@@ -243,10 +245,11 @@ class QSAProject:
         rc = project.write()
 
         # remove layer in mapproxy config
-        mp = QSAMapProxy(self.name)
-        mp.read()
-        mp.remove_layer(name)
-        mp.write()
+        if self._mapproxy_enabled:
+            mp = QSAMapProxy(self.name)
+            mp.read()
+            mp.remove_layer(name)
+            mp.write()
 
         return rc
 
@@ -266,12 +269,14 @@ class QSAProject:
         project.write(self._qgis_project.as_posix())
 
         # create mapproxy config file
-        mp = QSAMapProxy(self.name)
-        mp.create()
+        if self._mapproxy_enabled:
+            mp = QSAMapProxy(self.name)
+            mp.create()
 
     def remove(self) -> None:
         shutil.rmtree(self._qgis_project_dir)
-        QSAMapProxy(self.name).remove()
+        if self._mapproxy_enabled:
+            QSAMapProxy(self.name).remove()
 
     def add_layer(self, datasource: str, name: str, epsg_code: int) -> bool:
         # add layer in qgis project
@@ -310,10 +315,11 @@ class QSAProject:
             )
         )
 
-        mp = QSAMapProxy(self.name)
-        mp.read()
-        mp.add_layer(name, bbox, epsg_code)
-        mp.write()
+        if self._mapproxy_enabled:
+            mp = QSAMapProxy(self.name)
+            mp.read()
+            mp.add_layer(name, bbox, epsg_code)
+            mp.write()
 
         return True
 
@@ -399,7 +405,11 @@ class QSAProject:
 
     @staticmethod
     def _qgis_projects_dir() -> Path:
-        return current_app.config["CONFIG"].qgisserver_projects
+        return Path(current_app.config["CONFIG"].qgisserver_projects)
+
+    @property
+    def _mapproxy_enabled(self) -> bool:
+        return bool(current_app.config["CONFIG"].mapproxy_projects)
 
     @property
     def _qgis_project_dir(self) -> Path:

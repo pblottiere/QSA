@@ -1,28 +1,27 @@
 # coding: utf8
 
-import yaml
-from pathlib import Path
+import os
 
 
-class Config:
-    def __init__(self, path: Path) -> None:
-        with open(path, "r") as file:
-            self.cfg = yaml.safe_load(file)
+class QSAConfig:
+    @property
+    def is_valid(self) -> bool:
+        if self.qgisserver_url and self.qgisserver_projects:
+            return True
+        return False
 
     @property
-    def admin_port(self) -> int:
-        if "qgisserver" in self.cfg and "admin_port" in self.cfg["qgisserver"]:
-            return self.cfg["qgisserver"]["admin_port"]
-        return -1
+    def monitoring_port(self) -> int:
+        return int(os.environ.get("QSA_QGISSEVER_MONITORING_PORT", "0"))
 
     @property
     def qgisserver_url(self) -> str:
-        return self.cfg["qgisserver"]["url"]
+        return os.environ.get("QSA_QGISSERVER_URL", "")
 
     @property
-    def qgisserver_projects(self) -> Path:
-        return Path(self.cfg["qgisserver"]["projects"])
+    def qgisserver_projects(self) -> str:
+        return os.environ.get("QSA_QGISSERVER_PROJECTS", "")
 
     @property
-    def mapproxy_projects(self) -> Path:
-        return Path(self.cfg["mapproxy"]["projects"])
+    def mapproxy_projects(self) -> str:
+        return os.environ.get("QSA_MAPPROXY_PROJECTS", "")

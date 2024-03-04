@@ -78,7 +78,7 @@ class QSAMapProxy:
 
     @staticmethod
     def _mapproxy_projects_dir() -> Path:
-        return current_app.config["CONFIG"].mapproxy_projects
+        return Path(current_app.config["CONFIG"].mapproxy_projects)
 
     @property
     def _qgisserver_url(self) -> str:
