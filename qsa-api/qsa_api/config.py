@@ -12,7 +12,7 @@ class QSAConfig:
 
     @property
     def monitoring_port(self) -> int:
-        return int(os.environ.get("QSA_QGISSEVER_MONITORING_PORT", "0"))
+        return int(os.environ.get("QSA_QGISSERVER_MONITORING_PORT", "0"))
 
     @property
     def qgisserver_url(self) -> str:

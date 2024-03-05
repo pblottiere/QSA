@@ -57,7 +57,7 @@ class QSAMonitor:
     def _start(self) -> None:
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        s.bind(('127.0.0.1', self.port))
+        s.bind(('0.0.0.0', self.port))
 
         while True:
             s.listen(5)

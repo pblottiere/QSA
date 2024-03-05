@@ -8,6 +8,8 @@ services:
     environment:
       - QGIS_USER=1000
       - QGIS_SERVER_LOG_LEVEL=0
+      - QSA_HOST="qsa"
+      - QSA_PORT=9999
   qsa:
     image: pblottiere/qsa
     entrypoint: "qsa"
