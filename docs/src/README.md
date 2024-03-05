@@ -17,5 +17,13 @@ Components:
 
 Features:
 * Cache management with MapProxy
-* Create and manage QGIS projects stored in PostgreSQL or on filesystem
-* Create and update vector and raster layers : symbology, theme, ...
+* Create and manage QGIS projects stored on filesystem
+* Create and update vector layers : symbology, theme, ...
+
+Roadmap:
+* Add more documentation
+* Add raster layer support
+* Add PostgreSQL support to store QGIS projects
+* Publish `qsa-cli` on PyPI
+* Publish a `qsa-api` Docker image on DockerHub
+* Publish `qsa-plugin` on QGIS plugin repository
