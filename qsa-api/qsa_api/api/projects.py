@@ -132,10 +132,10 @@ def project_layer_map(name, layer_name):
         r = requests.get(url, stream=True)
 
         png = "/tmp/map.png"
-        with open(png, 'wb') as out_file:
+        with open(png, "wb") as out_file:
             shutil.copyfileobj(r.raw, out_file)
 
-        return send_file(png, mimetype='image/png')
+        return send_file(png, mimetype="image/png")
     else:
         return {"error": "Project does not exist"}, 415
 

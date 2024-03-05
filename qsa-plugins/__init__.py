@@ -28,7 +28,7 @@ def f(iface, host: str, port: int) -> None:
 
     while True:
         try:
-            # data = s.recv(2000)
+            data = s.recv(2000)
             s.send(b"ACK")
         except Exception:
             s = auto_connect(s, host, port)

@@ -1,7 +1,7 @@
 # coding: utf8
 
+from flask import Blueprint
 from flask import current_app
-from flask import Blueprint, jsonify
 
 instances = Blueprint("instances", __name__)
 
@@ -14,10 +14,9 @@ def instances_list():
         return {"error": "QGIS Server monitoring is not activated"}, 415
 
     conns = []
-    print(monitor.conns)
-    for con in monitor.conns:
+    for uid in monitor.conns:
         info = {}
-        info["ip"] = con.ip
-        info["port"] = con.port
+        info["SERVER ID"] = uid
+        info["IP"] = monitor.conns[uid].ip
         conns.append(info)
     return conns

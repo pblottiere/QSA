@@ -1,8 +1,8 @@
 # coding: utf8
 
+import uuid
 import socket
 from threading import Thread, Lock
-from socketserver import ThreadingMixIn
 
 from qsa_api.config import QSAConfig
 
@@ -16,7 +16,7 @@ class QSAMonitorThread(Thread):
 
     def run(self):
         try:
-            while True :
+            while True:
                 data = self.con.recv(2048)
 
                 if not data:
@@ -29,23 +29,22 @@ class QSAMonitorThread(Thread):
 
 
 class QSAMonitor:
-
     def __init__(self, cfg: QSAConfig) -> None:
-        self.monitor : Thread
-        self.port : int = cfg.monitoring_port
+        self.monitor: Thread
+        self.port: int = cfg.monitoring_port
 
         self._lock = Lock()
-        self._conns : list[Thread] = []
+        self._conns: dict = {}
 
     @property
     def conns(self):
-        conns = []
+        conns = {}
         self._lock.acquire()
-        for con in self._conns:
-            if con.is_alive():
-                conns.append(con)
+        for uid in self._conns:
+            if self._conns[uid].is_alive():
+                conns[uid] = self._conns[uid]
             else:
-                con.join()
+                self._conns[uid].join()
         self._conns = conns
         self._lock.release()
         return self._conns
@@ -57,12 +56,12 @@ class QSAMonitor:
     def _start(self) -> None:
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        s.bind(('0.0.0.0', self.port))
+        s.bind(("0.0.0.0", self.port))
 
         while True:
             s.listen(5)
             try:
-                (con, (ip,port)) = s.accept()
+                (con, (ip, port)) = s.accept()
             except:
                 break
 
@@ -70,7 +69,8 @@ class QSAMonitor:
             thread.start()
 
             self._lock.acquire()
-            self._conns.append(thread)
+            uid = str(uuid.uuid4())[:8]
+            self._conns[uid] = thread
             self._lock.release()
 
         for t in self._conns:

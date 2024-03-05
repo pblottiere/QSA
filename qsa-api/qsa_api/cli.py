@@ -2,7 +2,6 @@
 
 import click
 from flask import Flask
-from pathlib import Path
 
 from qsa_api.config import QSAConfig
 from qsa_api.monitor import QSAMonitor
