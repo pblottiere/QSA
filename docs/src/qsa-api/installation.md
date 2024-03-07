@@ -1,6 +1,6 @@
 # QSA REST API Installation
 
-## From sources
+From sources:
 
 ```` shell
 $ cd qsa-api
@@ -10,6 +10,6 @@ $ .venv/bin/activate
 (venv)$ poetry install
 ````
 
-## Binary distributions
+Binary distributions:
 
 TODO : provide a docker image on Dockerhub

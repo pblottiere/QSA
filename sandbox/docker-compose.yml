@@ -17,11 +17,11 @@ services:
       context: ..
       dockerfile: sandbox/Dockerfile
     volumes:
-      - ./projects/:/projects
+      - ./projects/qgis:/projects
     ports:
       - "5000:5000"
     environment:
-      - QSA_QGISSERVER_URL="http://qgisserver"
-      - QSA_QGISSERVER_PROJECTS="/projects"
+      - QSA_QGISSERVER_URL=http://qgisserver
+      - QSA_QGISSERVER_PROJECTS=/projects
       - QSA_QGISSERVER_MONITORING_PORT=9999
-      - QSA_MAPPROXY_PROJECTS=""
+      - QSA_MAPPROXY_PROJECTS=

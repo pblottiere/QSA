@@ -1,1 +1,1 @@
-# Configuration
+# QSA cli configuration

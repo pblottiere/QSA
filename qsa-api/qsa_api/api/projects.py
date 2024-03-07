@@ -150,6 +150,7 @@ def project_add_style(name):
             "name" not in data
             or "symbol" not in data
             or "symbology" not in data
+            or "properties" not in data
         ):
             return {"error": "Invalid parameters"}, 415
 
@@ -186,14 +187,12 @@ def project_update_default_style(name):
         data = request.get_json()
         if (
             "geometry" not in data
-            or "symbology" not in data
-            or "symbol" not in data
             or "style" not in data
         ):
             return {"error": "Invalid parameters"}, 415
 
         project.style_update(
-            data["geometry"], data["symbology"], data["symbol"], data["style"]
+            data["geometry"], data["style"]
         )
         return jsonify(True), 201
     else:

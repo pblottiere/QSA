@@ -41,16 +41,16 @@ class QSAProject:
             con = sqlite3.connect(p)
             cur = con.cursor()
             cur.execute(
-                "CREATE TABLE styles_default(geometry, symbology, symbol, style)"
+                "CREATE TABLE styles_default(geometry, style)"
             )
             cur.execute(
-                "INSERT INTO styles_default VALUES('line', 'single_symbol', 'line', 'default')"
+                "INSERT INTO styles_default VALUES('line', 'default')"
             )
             cur.execute(
-                "INSERT INTO styles_default VALUES('polygon', 'single_symbol', 'fill', 'default')"
+                "INSERT INTO styles_default VALUES('polygon', 'default')"
             )
             cur.execute(
-                "INSERT INTO styles_default VALUES('point', 'single_symbol', 'marker', 'default')"
+                "INSERT INTO styles_default VALUES('point', 'default')"
             )
             con.commit()
             con.close()
@@ -96,10 +96,10 @@ class QSAProject:
         m["crs"] = p.crs().authid()
         return m
 
-    def style_default(self, symbol: str) -> bool:
+    def style_default(self, geometry: str) -> bool:
         con = sqlite3.connect(self.sqlite_db.as_posix())
         cur = con.cursor()
-        sql = f"SELECT style FROM styles_default WHERE symbol = '{symbol}'"
+        sql = f"SELECT style FROM styles_default WHERE geometry = '{geometry}'"
         res = cur.execute(sql)
         default_style = res.fetchone()[0]
         con.close()
@@ -135,22 +135,10 @@ class QSAProject:
 
         return m
 
-    def default_style_for_symbol(self, symbol: str) -> str:
+    def style_update(self, geometry: str, style: str) -> None:
         con = sqlite3.connect(self.sqlite_db.as_posix())
         cur = con.cursor()
-        res = cur.execute(
-            f"SELECT style FROM styles_default WHERE symbol = '{symbol}'"
-        )
-        s = res.fetchone()[0]
-        con.close()
-        return s
-
-    def style_update(
-        self, geometry: str, symbology: str, symbol: str, style: str
-    ) -> None:
-        con = sqlite3.connect(self.sqlite_db.as_posix())
-        cur = con.cursor()
-        sql = f"UPDATE styles_default SET style = '{style}' WHERE symbol = '{symbol}'"
+        sql = f"UPDATE styles_default SET style = '{style}' WHERE geometry = '{geometry}'"
         cur.execute(sql)
         con.commit()
         con.close()
@@ -158,19 +146,9 @@ class QSAProject:
     def default_styles(self) -> list:
         s = {}
 
-        s["polygon"] = {"single_symbol": {}}
-        s["line"] = {"single_symbol": {}}
-        s["point"] = {"single_symbol": {}}
-
-        s["polygon"]["single_symbol"]["fill"] = self.default_style_for_symbol(
-            "fill"
-        )
-        s["line"]["single_symbol"]["line"] = self.default_style_for_symbol(
-            "line"
-        )
-        s["point"]["single_symbol"]["marker"] = self.default_style_for_symbol(
-            "marker"
-        )
+        s["polygon"] = self.style_default("polygon")
+        s["line"] = self.style_default("line")
+        s["point"] = self.style_default("point")
 
         return s
 
@@ -298,12 +276,7 @@ class QSAProject:
 
         # set default style
         geometry = vl.geometryType().name.lower()
-        symbol = "line"
-        if geometry == "polygon":
-            symbol = "fill"
-        elif geometry == "point":
-            symbol = "marker"
-        default_style = self.style_default(symbol)
+        default_style = self.style_default(geometry)
 
         self.layer_update_style(name, default_style, True)
 

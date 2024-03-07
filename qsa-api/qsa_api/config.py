@@ -24,4 +24,4 @@ class QSAConfig:
 
     @property
     def mapproxy_projects(self) -> str:
-        return os.environ.get("QSA_MAPPROXY_PROJECTS", "")
+        return os.environ.get("QSA_MAPPROXY_PROJECTS", "").replace("\"", "")

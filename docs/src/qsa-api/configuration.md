@@ -1,7 +1,5 @@
 # QSA REST API configuration
 
-## Environment variables
-
 QSA web server can be configured thanks to the next environment variables:
 
 | Mandatory  | Environment variable            |         Description                               |

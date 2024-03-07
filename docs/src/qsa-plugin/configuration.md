@@ -1,10 +1,8 @@
 # QSA plugin configuration
 
-## Environment variables
-
-TODO
+The QSA plugin can be configured thanks to the next environment variables:
 
 | Mandatory  | Environment variable           |         Description              |
 |------------|--------------------------------|----------------------------------|
-| Yes        | `QSA_HOST`                     | TODO                             |
-| Yes        | `QSA_PORT`                     | TODO                             |
+| Yes        | `QSA_HOST`                     | QSA REST API host                |
+| Yes        | `QSA_PORT`                     | QSA REST API port                |
