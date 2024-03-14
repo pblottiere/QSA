@@ -14,4 +14,4 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
-'qsa' = 'qsa.cli:run'
+'qsa' = 'qsa.cli:cli'
