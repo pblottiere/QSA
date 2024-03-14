@@ -4,8 +4,8 @@ From sources:
 
 ```` shell
 $ cd qsa-api
-$ virtualenv venv
-$ .venv/bin/activate
+$ virtualenv --system-site-packages venv  # system aware for pyqgis
+$ . venv/bin/activate
 (venv)$ pip install poetry
 (venv)$ poetry install
 ````

@@ -8,9 +8,9 @@ from pathlib import Path
 
 app = Flask(__name__)
 
-from qsa.config import Config
-from qsa.api.projects import projects
-from qsa.api.symbology import symbology
+from qsa_api.config import QSAConfig
+from qsa_api.api.projects import projects
+from qsa_api.api.symbology import symbology
 
 app.register_blueprint(projects, url_prefix="/api/projects")
 app.register_blueprint(symbology, url_prefix="/api/symbology")
@@ -47,9 +47,9 @@ class TestClient:
             # prepare app client
             self.app = app.test_client()
 
-            self.app.application.config["CONFIG"] = Config(
-                Path(__file__).parent / "qsa.yml"
-            )
+            os.environ["QSA_QGISSERVER_URL"] = "http://qgisserver/ogc/"
+            os.environ["QSA_QGISSERVER_PROJECTS"] = "/tmp/qsa/projects/qgis"
+            self.app.application.config["CONFIG"] = QSAConfig()
             self.app.application.config["DEBUG"] = True
 
             # clear projects dir
