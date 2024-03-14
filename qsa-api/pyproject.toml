@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "qsa"
+name = "qsa-api"
 version = "0.0.0"
 description = "QGIS Server Administration"
 authors = ["Paul Blottiere <blottiere.paul@gmail.com>"]
@@ -15,4 +15,4 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
-'qsa' = 'qsa.cli:run'
+'qsa' = 'qsa_api.cli:run'

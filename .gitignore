@@ -6,3 +6,5 @@ poetry.lock
 tests/data/data.gpkg-shm
 tests/data/data.gpkg-wal
 examples
+docs/build
+sandbox/projects

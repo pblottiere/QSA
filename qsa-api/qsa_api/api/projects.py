@@ -132,10 +132,10 @@ def project_layer_map(name, layer_name):
         r = requests.get(url, stream=True)
 
         png = "/tmp/map.png"
-        with open(png, 'wb') as out_file:
+        with open(png, "wb") as out_file:
             shutil.copyfileobj(r.raw, out_file)
 
-        return send_file(png, mimetype='image/png')
+        return send_file(png, mimetype="image/png")
     else:
         return {"error": "Project does not exist"}, 415
 
@@ -150,6 +150,7 @@ def project_add_style(name):
             "name" not in data
             or "symbol" not in data
             or "symbology" not in data
+            or "properties" not in data
         ):
             return {"error": "Invalid parameters"}, 415
 
@@ -184,17 +185,10 @@ def project_update_default_style(name):
     project = QSAProject(name)
     if project.exists():
         data = request.get_json()
-        if (
-            "geometry" not in data
-            or "symbology" not in data
-            or "symbol" not in data
-            or "style" not in data
-        ):
+        if "geometry" not in data or "style" not in data:
             return {"error": "Invalid parameters"}, 415
 
-        project.style_update(
-            data["geometry"], data["symbology"], data["symbol"], data["style"]
-        )
+        project.style_update(data["geometry"], data["style"])
         return jsonify(True), 201
     else:
         return {"error": "Project does not exist"}, 415

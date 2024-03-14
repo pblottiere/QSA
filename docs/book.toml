@@ -1,0 +1,14 @@
+[book]
+authors = ["pblottiere"]
+language = "en"
+multilingual = false
+src = "src"
+title = "QSA Documentation"
+
+[build]
+build-dir = "./build"
+
+[output.html]
+curly-quotes = true
+additional-css = ["custom.css"]
+git-repository-url = "https://github.com/pblottiere/QSA"
