@@ -17,6 +17,10 @@ def cli():
 
 @cli.command()
 def ps():
+    """
+    List QGIS Server instances
+    """
+
     url = f"{QSA_URL}/api/instances"
     data = requests.get(url)
 
@@ -37,6 +41,10 @@ def ps():
 @cli.command()
 @click.argument("id")
 def inspect(id):
+    """
+    Returns metadata about a specific QGIS Server instance
+    """
+
     url = f"{QSA_URL}/api/instances/{id}"
     data = requests.get(url)
 
@@ -46,8 +54,11 @@ def inspect(id):
 @cli.command()
 @click.argument("id")
 def logs(id):
+    """
+    Returns logs of a specific QGIS Server instance
+    """
+
     url = f"{QSA_URL}/api/instances/{id}/logs"
     data = requests.get(url)
 
-    logs = base64.b64decode(data.json()["logs"]).decode("utf-8")
-    print(logs)
+    print(data.json()["logs"])

@@ -4,10 +4,12 @@ import os
 import sys
 import json
 import time
-import base64
+import struct
+import pickle
 import socket
 from osgeo import gdal
 from threading import Thread
+from datetime import datetime
 
 from qgis import PyQt
 from qgis.server import QgsConfigCache
@@ -18,11 +20,8 @@ LOG_MESSAGES = []
 
 
 def log_messages():
-    logs = str.encode("\n".join(LOG_MESSAGES))
-
     m = {}
-    m["logs"] = base64.b64encode(logs).decode("utf-8")
-
+    m["logs"] = "\n".join(LOG_MESSAGES)
     return m
 
 
@@ -73,7 +72,9 @@ def f(iface, host: str, port: int) -> None:
             elif b"logs" in data:
                 payload = log_messages()
 
-            s.send(str.encode(json.dumps(payload)))
+            ser = pickle.dumps(payload)
+            s.sendall(struct.pack('>I', len(ser)))
+            s.sendall(ser)
         except Exception as e:
             print(e, file=sys.stderr)
             s = auto_connect(s, host, port)
