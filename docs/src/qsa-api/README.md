@@ -11,6 +11,6 @@ Features:
 
 Optional features:
 
-- Cache management with MapProxy
 - Interaction with online QGIS Server instances (depends on [QSA
   plugin](qsa-plugin/))
+- Cache management with MapProxy

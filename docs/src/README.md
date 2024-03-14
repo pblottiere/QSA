@@ -16,11 +16,12 @@ Components:
 * [QSA cli](qsa-cli/): Command line tool
 
 Features:
-* Cache management with MapProxy
 * Create and manage QGIS projects stored on filesystem
 * Create and update vector layers : symbology, theme, ...
+* Inspect online QGIS Server instances
+* Cache management with MapProxy
 
-![Drag Racing](images/qsa_archi.png)
+![QSA](images/qsa_archi.png)
 
 Roadmap:
 * Add more documentation
