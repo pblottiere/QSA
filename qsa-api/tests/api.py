@@ -339,9 +339,9 @@ class APITestCase(unittest.TestCase):
         self.assertEqual(
             p.get_json(),
             {
-                "line": {"single_symbol": {"line": "default"}},
-                "polygon": {"single_symbol": {"fill": "default"}},
-                "point": {"single_symbol": {"marker": "default"}},
+                "line": "default",
+                "polygon": "default",
+                "point": "default",
             },
         )
 
@@ -426,9 +426,9 @@ class APITestCase(unittest.TestCase):
         self.assertEqual(
             p.get_json(),
             {
-                "line": {"single_symbol": {"line": "style_line"}},
-                "polygon": {"single_symbol": {"fill": "style_fill"}},
-                "point": {"single_symbol": {"marker": "style_marker"}},
+                "line": "style_line",
+                "polygon": "style_fill",
+                "point": "style_marker",
             },
         )
 
