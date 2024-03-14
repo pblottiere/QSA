@@ -1,0 +1,763 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>QSA Documentation</title>
+        <meta name="robots" content="noindex">
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        <link rel="stylesheet" href="custom.css">
+
+    </head>
+    <body class="sidebar-visible no-js">
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('light')
+            html.classList.add(theme);
+            var body = document.querySelector('body');
+            body.classList.remove('no-js')
+            body.classList.add('js');
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var body = document.querySelector('body');
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            body.classList.remove('sidebar-visible');
+            body.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="index.html">Introduction</a></li><li class="chapter-item expanded "><a href="qsa-api/index.html"><strong aria-hidden="true">1.</strong> QSA REST API</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="qsa-api/installation.html"><strong aria-hidden="true">1.1.</strong> Installation</a></li><li class="chapter-item expanded "><a href="qsa-api/configuration.html"><strong aria-hidden="true">1.2.</strong> Configuration</a></li><li class="chapter-item expanded "><a href="qsa-api/endpoints.html"><strong aria-hidden="true">1.3.</strong> Endpoints</a></li></ol></li><li class="chapter-item expanded "><a href="qsa-plugin/index.html"><strong aria-hidden="true">2.</strong> QSA plugin</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="qsa-plugin/installation.html"><strong aria-hidden="true">2.1.</strong> Installation</a></li><li class="chapter-item expanded "><a href="qsa-plugin/configuration.html"><strong aria-hidden="true">2.2.</strong> Configuration</a></li><li class="chapter-item expanded "><a href="qsa-plugin/usage.html"><strong aria-hidden="true">2.3.</strong> Usage</a></li></ol></li><li class="chapter-item expanded "><a href="qsa-cli/index.html"><strong aria-hidden="true">3.</strong> QSA cli</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="qsa-cli/installation.html"><strong aria-hidden="true">3.1.</strong> Installation</a></li><li class="chapter-item expanded "><a href="qsa-cli/configuration.html"><strong aria-hidden="true">3.2.</strong> Configuration</a></li><li class="chapter-item expanded "><a href="qsa-cli/commands.html"><strong aria-hidden="true">3.3.</strong> Commands</a></li></ol></li><li class="chapter-item expanded "><a href="sandbox/index.html"><strong aria-hidden="true">4.</strong> Sandbox</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="sandbox/inspect.html"><strong aria-hidden="true">4.1.</strong> Inspect QGIS Server instances</a></li><li class="chapter-item expanded "><a href="sandbox/projects.html"><strong aria-hidden="true">4.2.</strong> Manage projects</a></li><li class="chapter-item expanded "><a href="sandbox/layers.html"><strong aria-hidden="true">4.3.</strong> Manage layers</a></li><li class="chapter-item expanded "><a href="sandbox/styles.html"><strong aria-hidden="true">4.4.</strong> Manage styles</a></li></ol></li><li class="chapter-item expanded "><a href="FUNDERS.html"><strong aria-hidden="true">5.</strong> Funders</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">QSA Documentation</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/pblottiere/QSA" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <p>Welcome to QGIS Server Administration tool’s documentation.</p>
+<p><a href="https://docs.qgis.org/3.34/en/docs/server_manual/introduction.html">QGIS Server</a> is
+a map server-based on the QGIS core library and rendering engine which provides
+numerous classical services like WMS, WFS, WCS, WMTS and OGC API Features.
+While QGIS Desktop acts like a WYSIWYG tool for setting up projects, the need
+for a REST API is sometime necessary to configure and administrate QGIS Server
+: custom web client, cloud deployment, …. The aim of the QSA project is to
+provide such an API and tools.</p>
+<p>Components:</p>
+<ul>
+<li><a href="qsa-api/">QSA REST API</a>: Flask web server with a REST API for administrating QGIS Server</li>
+<li><a href="qsa-plugin/">QSA plugin</a>: QGIS Server plugin for introspection</li>
+<li><a href="qsa-cli/">QSA cli</a>: Command line tool</li>
+</ul>
+<p>Features:</p>
+<ul>
+<li>Create and manage QGIS projects stored on filesystem</li>
+<li>Create and update vector layers : symbology, theme, …</li>
+<li>Inspect online QGIS Server instances</li>
+<li>Cache management with MapProxy</li>
+</ul>
+<p><img src="images/qsa_archi.png" alt="QSA" /></p>
+<p>Roadmap:</p>
+<ul>
+<li>Add more documentation</li>
+<li>Add raster layer support</li>
+<li>Add PostgreSQL support to store QGIS projects</li>
+<li>Publish <code>qsa-cli</code> on PyPI</li>
+<li>Publish a <code>qsa-api</code> Docker image on DockerHub</li>
+<li>Publish <code>qsa-plugin</code> on QGIS plugin repository</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="qsa-rest-api"><a class="header" href="#qsa-rest-api">QSA REST API</a></h1>
+<p><code>qsa-api</code> is a <a href="https://flask.palletsprojects.com/en/3.0.x/">Flask</a> WSGI server
+providing a REST API for managing QGIS Server.</p>
+<p>Features:</p>
+<ul>
+<li>Create and manage projects stored on filesystem</li>
+<li>Add and update vector layers based on multiple datasources (AWS S3 buckets, …)</li>
+<li>Configure symbology and themes based on simple symbols parameters</li>
+</ul>
+<p>Optional features:</p>
+<ul>
+<li>Interaction with online QGIS Server instances (depends on <a href="qsa-api/qsa-plugin/">QSA
+plugin</a>)</li>
+<li>Cache management with MapProxy</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="qsa-rest-api--installation"><a class="header" href="#qsa-rest-api--installation">QSA REST API : installation</a></h1>
+<p>From sources:</p>
+<pre><code class="language-shell">$ cd qsa-api
+$ virtualenv --system-site-packages venv  # system aware for pyqgis
+$ . venv/bin/activate
+(venv)$ pip install poetry
+(venv)$ poetry install
+</code></pre>
+<p>Binary distributions:</p>
+<p>TODO : provide a docker image on Dockerhub</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="qsa-rest-api--configuration"><a class="header" href="#qsa-rest-api--configuration">QSA REST API : configuration</a></h1>
+<p>QSA web server can be configured thanks to the next environment variables:</p>
+<div class="table-wrapper"><table><thead><tr><th>Mandatory</th><th>Environment variable</th><th>Description</th></tr></thead><tbody>
+<tr><td>Yes</td><td><code>QSA_QGISSERVER_URL</code></td><td>QGIS Server URL</td></tr>
+<tr><td>Yes</td><td><code>QSA_QGISSERVER_PROJECTS</code></td><td>Storage location for QGIS projects</td></tr>
+<tr><td>No</td><td><code>QSA_QGISSERVER_MONITORING_PORT</code></td><td>Connection port for <code>qsa-plugin</code></td></tr>
+<tr><td>No</td><td><code>QSA_MAPPROXY_PROJECTS</code></td><td>Storage location for MapProxy configuration files</td></tr>
+</tbody></table>
+</div><div style="break-before: page; page-break-before: always;"></div><h1 id="qsa-rest-api--endpoints"><a class="header" href="#qsa-rest-api--endpoints">QSA REST API : endpoints</a></h1>
+<h2 id="project"><a class="header" href="#project">Project</a></h2>
+<p>A QSA project is defined by:</p>
+<ul>
+<li>a QGIS project</li>
+<li>a list of themes</li>
+<li>a MapProxy configuration file (if enabled)</li>
+</ul>
+<div class="table-wrapper"><table><thead><tr><th>Method</th><th>URL</th><th>Description</th></tr></thead><tbody>
+<tr><td>GET</td><td><code>/api/projects</code></td><td>List projects</td></tr>
+<tr><td>GET</td><td><code>/api/projects/{project}</code></td><td>List project’s metadata</td></tr>
+<tr><td>POST</td><td><code>/api/projects/</code></td><td>Create a project with <code>name</code> and <code>author</code></td></tr>
+<tr><td>DELETE</td><td><code>/api/projects/{project}</code></td><td>Remove a project</td></tr>
+</tbody></table>
+</div>
+<p>Examples:</p>
+<pre><code class="language-shell">$ curl "http://localhost/api/projects/" \
+     -X POST \
+     -H 'Content-Type: application/json' \
+     -d '{
+        "name":"my_project",
+        "author":"pblottiere"
+     }'
+</code></pre>
+<h2 id="layer"><a class="header" href="#layer">Layer</a></h2>
+<p>When a layer is added/removed to a QSA project, the corresponding QGIS project
+is updated. When MapProxy cache management is enabled, the configuration file is
+updated as well and the cache may be cleaned if necessary (for example when the
+current style is updated).</p>
+<p>Several themes can be associated with a layer like in QGIS Desktop, but only
+the current one is used when the <code>STYLE</code> parameter in OGC web services is
+empty.</p>
+<div class="table-wrapper"><table><thead><tr><th>Method</th><th>URL</th><th>Description</th></tr></thead><tbody>
+<tr><td>GET</td><td><code>/api/projects/{project}/layers</code></td><td>List layers in project</td></tr>
+<tr><td>GET</td><td><code>/api/projects/{project}/layers/{layer}</code></td><td>List layer’s metadata</td></tr>
+<tr><td>GET</td><td><code>/api/projects/{project}/layers/{layer}/map</code></td><td>WMS <code>GetMap</code> result with default parameters</td></tr>
+<tr><td>GET</td><td><code>/api/projects/{project}/layers/{layer}/map/url</code></td><td>WMS <code>GetMap</code> URL with default parameters</td></tr>
+<tr><td>POST</td><td><code>/api/projects/{project}/layers</code></td><td>Add layer to project with <code>name</code>, <code>datasource</code> and <code>crs</code></td></tr>
+<tr><td>POST</td><td><code>/api/projects/{project}/layers/{layer}/style</code></td><td>Add/Update layer’s style with <code>name</code> (style name) and <code>current</code> (<code>True</code> or <code>False</code>)</td></tr>
+<tr><td>DELETE</td><td><code>/api/projects/{project}/layers/{layer}</code></td><td>Remove layer from project</td></tr>
+</tbody></table>
+</div>
+<p>Examples:</p>
+<pre><code class="language-shell">$ curl "http://localhost/api/projects/my_project/layers" \
+  -X POST \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "crs": 4326,
+    "name":"my_layer",
+    "datasource":"/vsis3/my-storage/vector/my_layer.fgb",
+  }'
+</code></pre>
+<h2 id="symbology"><a class="header" href="#symbology">Symbology</a></h2>
+<p>Vector layers rendering can be configured with several kinds of symbols
+according to the geometry type. The <a href="https://docs.qgis.org/3.34/en/docs/user_manual/style_library/symbol_selector.html">symbol selector</a>
+in QGIS is very dense but for now, only Marker, Line and Fill simple symbols
+are supported. The <code>/api/symbology</code> endpoint allows to dynamically retrieve the
+corresponding parameters depending on QGIS Server version.</p>
+<div class="table-wrapper"><table><thead><tr><th>Method</th><th>URL</th><th>Description</th></tr></thead><tbody>
+<tr><td>GET</td><td><code>/api/symbology/vector/point/single_symbol/marker/properties</code></td><td>Marker simple symbol properties</td></tr>
+<tr><td>GET</td><td><code>/api/symbology/vector/line/single_symbol/line/properties</code></td><td>Line simple symbol properties</td></tr>
+<tr><td>GET</td><td><code>/api/symbology/vector/polygon/single_symbol/fill/properties</code></td><td>Polygon simple symbol properties</td></tr>
+</tbody></table>
+</div>
+<p>Examples:</p>
+<pre><code class="language-shell">$ curl "http://localhost:5000/api/symbology/vector/polygon/single_symbol/fill/properties" | jq
+{
+  "border_width_map_unit_scale": "3x:0,0,0,0,0,0",
+  "color": "0,0,255,255",
+  "joinstyle": "bevel",
+  "offset": "0,0",
+  "offset_map_unit_scale": "3x:0,0,0,0,0,0",
+  "offset_unit": "MM",
+  "outline_color": "35,35,35,255",
+  "outline_style": "solid (no, solid, dash, dot, dash dot, dash dot dot)",
+  "outline_width": "0.26",
+  "outline_width_unit": "MM",
+  "style": "solid"
+}
+</code></pre>
+<h2 id="style"><a class="header" href="#style">Style</a></h2>
+<p>A QSA style may be used through the <code>STYLE</code> OGC web services parameter to
+specify the rendering for a specific layer. Default styles may be defined and
+used when a layer is added to a project.</p>
+<div class="table-wrapper"><table><thead><tr><th>Method</th><th>URL</th><th>Description</th></tr></thead><tbody>
+<tr><td>GET</td><td><code>/api/projects/{project}/styles</code></td><td>List styles in project</td></tr>
+<tr><td>GET</td><td><code>/api/projects/{project}/styles/default</code></td><td>List default styles in project</td></tr>
+<tr><td>GET</td><td><code>/api/projects/{project}/styles/{style}</code></td><td>List style’s metadata</td></tr>
+<tr><td>POST</td><td><code>/api/projects/{project}/styles/{style}</code></td><td>Add style to project with <code>symbology</code> (only <code>single_symbol</code> is supported for now), <code>symbol</code>, <code>name</code> and symbology <code>properties</code></td></tr>
+<tr><td>POST</td><td><code>/api/projects/{project}/styles/default</code></td><td>Set default style for a specific geometry with <code>geometry</code> and <code>name</code></td></tr>
+<tr><td>DELETE</td><td><code>/api/projects/{project}/styles/{style}</code></td><td>Remove style from project</td></tr>
+</tbody></table>
+</div>
+<p>Examples:</p>
+<pre><code class="language-shell">$ curl "http://localhost:5000/api/projects/my_project/styles" \
+  -X POST \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "symbol": "marker",
+    "symbology": "single_symbol",
+    "name": "my_marker_style",
+    "properties": {
+      "color": "#112233"
+    }
+  }'
+</code></pre>
+<h2 id="instances"><a class="header" href="#instances">Instances</a></h2>
+<p>When <code>qsa-plugin</code> is installed, an <code>/api/instances</code> endpoint is available to
+retrieve information about QGIS Server underlying instances.</p>
+<div class="table-wrapper"><table><thead><tr><th>Method</th><th>URL</th><th>Description</th></tr></thead><tbody>
+<tr><td>GET</td><td><code>/api/instances</code></td><td>List online QGIS Server instances</td></tr>
+<tr><td>GET</td><td><code>/api/instances/{instance}</code></td><td>List QGIS Server instance metadata</td></tr>
+<tr><td>GET</td><td><code>/api/instances/{instance}/logs</code></td><td>Return logs of QGIS Server instance</td></tr>
+</tbody></table>
+</div><div style="break-before: page; page-break-before: always;"></div><h1 id="qsa-plugin"><a class="header" href="#qsa-plugin">QSA plugin</a></h1>
+<p><a href="https://docs.qgis.org/3.34/en/docs/server_manual/plugins.html">Python QGIS server plugin</a>
+which starts a dedicated thread with a TCP autoregistering client.</p>
+<p>Features:</p>
+<ul>
+<li>Return metadata, logs, … about QGIS Server without interfering with the rendering loop</li>
+<li>TODO : Influence the QGIS Server behavior through communication with the main thread</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="qsa-plugin--installation"><a class="header" href="#qsa-plugin--installation">QSA plugin : installation</a></h1>
+<p>Installation of QGIS Server’s plugins is documented in the official
+<a href="https://docs.qgis.org/3.34/en/docs/server_manual/plugins.html">QGIS Server Guide</a>.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="qsa-plugin--configuration"><a class="header" href="#qsa-plugin--configuration">QSA plugin : configuration</a></h1>
+<p>The QSA plugin can be configured thanks to the next environment variables:</p>
+<div class="table-wrapper"><table><thead><tr><th>Mandatory</th><th>Environment variable</th><th>Description</th></tr></thead><tbody>
+<tr><td>Yes</td><td><code>QSA_HOST</code></td><td>QSA REST API host</td></tr>
+<tr><td>Yes</td><td><code>QSA_PORT</code></td><td>QSA REST API port</td></tr>
+</tbody></table>
+</div><div style="break-before: page; page-break-before: always;"></div><h1 id="qsa-plugin--usage"><a class="header" href="#qsa-plugin--usage">QSA plugin : usage</a></h1>
+<p>The QSA plugin starts a TCP socket and tries to connect to the QSA REST API
+server every 5 seconds. The next messages are written in QGIS Server logs
+during the connection phase:</p>
+<pre><code class="language-console">Try to connect...
+Try to connect...
+Try to connect...
+Connected with QSA server
+</code></pre>
+<p>As soon as the plugin is connected to the QSA Server, you don’t need to worry
+about anything else.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="qsa-cli"><a class="header" href="#qsa-cli">QSA cli</a></h1>
+<p>Command line application dedicated to manage QGIS Server instances through the
+QSA REST API.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="qsa-cli--installation"><a class="header" href="#qsa-cli--installation">QSA cli : installation</a></h1>
+<p>From sources:</p>
+<pre><code class="language-console">$ cd qsa-cli
+$ . venv/bin/activate
+(venv)$ pip install poetry
+(venv)$ poetry install
+</code></pre>
+<p>Binary distributions:</p>
+<p>TODO : provide a package on PyPI</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="qsa-cli--configuration"><a class="header" href="#qsa-cli--configuration">QSA cli : configuration</a></h1>
+<p>The QSA cli tool can be configured thanks to the next environment variable:</p>
+<div class="table-wrapper"><table><thead><tr><th>Mandatory</th><th>Environment variable</th><th>Description</th></tr></thead><tbody>
+<tr><td>Yes</td><td><code>QSA_SERVER_URL</code></td><td>QSA REST API server URL</td></tr>
+</tbody></table>
+</div><div style="break-before: page; page-break-before: always;"></div><h1 id="qsa-cli--commands"><a class="header" href="#qsa-cli--commands">QSA cli : commands</a></h1>
+<p>Command’s names are inspired by <code>Docker</code>:</p>
+<pre><code class="language-console">$ qsa --help
+Usage: qsa [OPTIONS] COMMAND [ARGS]...
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  inspect  Returns metadata about a specific QGIS Server instance
+  logs     Returns logs of a specific QGIS Server instance
+  ps       List QGIS Server instances
+</code></pre>
+<p>Examples:</p>
+<pre><code class="language-console">$ qsa ps
+INSTANCE ID    IP          STATUS
+-------------  ----------  -----------------------
+336a0fc1       172.20.0.2  Binded 1315 seconds ago
+13097056       172.20.0.4  Binded 1315 seconds ago
+a523ee7a       172.20.0.5  Binded 1315 seconds ago
+d11e11a4       172.20.0.6  Binded 1315 seconds ago
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="sandbox"><a class="header" href="#sandbox">Sandbox</a></h1>
+<p>The sandbox directory provides a plug-and-play <code>Docker</code> environment to discover
+QSA tools.</p>
+<p>First, a QSA REST API server is set up with 4 QGIS Server instances:</p>
+<pre><code class="language-shell">$ cd sandbox
+$ docker-compose up --scale qgisserver=4 -d
+$ docker ps
+CONTAINER ID   IMAGE                              COMMAND                  CREATED       STATUS         PORTS                                       NAMES
+d2eaf6bdfae4   pblottiere/qsa                     "qsa"                    2 hours ago   Up 9 seconds   0.0.0.0:5000-&gt;5000/tcp, :::5000-&gt;5000/tcp   sandbox-qsa-1
+77fa87641b42   opengisch/qgis-server:3.30-jammy   "/bin/sh -c /usr/loc…"   2 hours ago   Up 9 seconds   80/tcp, 9993/tcp                            sandbox-qgisserver-6
+093346c82ea8   opengisch/qgis-server:3.30-jammy   "/bin/sh -c /usr/loc…"   2 hours ago   Up 9 seconds   80/tcp, 9993/tcp                            sandbox-qgisserver-8
+afd95ccaef9e   opengisch/qgis-server:3.30-jammy   "/bin/sh -c /usr/loc…"   2 hours ago   Up 9 seconds   80/tcp, 9993/tcp                            sandbox-qgisserver-7
+0b13f3d867c5   opengisch/qgis-server:3.30-jammy   "/bin/sh -c /usr/loc…"   2 hours ago   Up 8 seconds   80/tcp, 9993/tcp                            sandbox-qgisserver-1
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="sandbox--inspect-qgis-server-instances"><a class="header" href="#sandbox--inspect-qgis-server-instances">Sandbox : inspect QGIS Server instances</a></h1>
+<p><code>qsa-cli</code> allows to inspect online QGIS Server instances registered to
+<code>qsa-api</code> server, but it’s also possible to use the REST API.</p>
+<h3 id="list-online-instances"><a class="header" href="#list-online-instances">List online instances</a></h3>
+<p>To list these instances with <code>qsa-cli</code>:</p>
+<pre><code class="language-shell">$ qsa ps
+INSTANCE ID    IP          STATUS
+-------------  ----------  -----------------------
+6773ca08       172.20.0.2  Binded 1096 seconds ago
+4464d3c5       172.20.0.4  Binded 1096 seconds ago
+012083b9       172.20.0.5  Binded 1096 seconds ago
+c0047e66       172.20.0.6  Binded 1096 seconds ago
+</code></pre>
+<p>Or with the API:</p>
+<pre><code class="language-shell">$ curl http://localhost:5000/api/instances/ | jq
+{
+  "servers": [
+    {
+      "binded": 1217,
+      "id": "6773ca08",
+      "ip": "172.20.0.2"
+    },
+    {
+      "binded": 1217,
+      "id": "4464d3c5",
+      "ip": "172.20.0.4"
+    },
+    {
+      "binded": 1217,
+      "id": "012083b9",
+      "ip": "172.20.0.5"
+    },
+    {
+      "binded": 1217,
+      "id": "c0047e66",
+      "ip": "172.20.0.6"
+    }
+  ]
+}
+</code></pre>
+<h3 id="get-metadata"><a class="header" href="#get-metadata">Get metadata</a></h3>
+<p>To get some metadata about a specific QGIS Server instance with <code>qsa-cli</code>:</p>
+<pre><code class="language-shell">$ qsa inspect 4464d3c5
+{
+  "cache": {
+    "projects": []
+  },
+  "plugins": [
+    "qsa"
+  ],
+  "providers": [
+    "OGC API - Features data provider",
+    "WFS data provider",
+    "ArcGIS Feature Service data provider",
+    "ArcGIS Map Service data provider",
+    "COPC point cloud data provider",
+    "Delimited text data provider",
+    "EPT point cloud data provider",
+    "GDAL data provider",
+    "GPS eXchange format provider",
+    "SAP HANA spatial data provider",
+    "MDAL provider",
+    "Memory provider",
+    "Mesh memory provider",
+    "MSSQL spatial data provider",
+    "OGR data provider",
+    "PDAL point cloud data provider",
+    "PostgreSQL/PostGIS data provider",
+    "Postgres raster provider",
+    "SpatiaLite data provider",
+    "Vector tile provider",
+    "Virtual layer data provider",
+    "Virtual Raster data provider",
+    "OGC Web Coverage Service version 1.0/1.1 data provider",
+    "OGC Web Map Service version 1.3 data provider",
+    ""
+  ],
+  "versions": {
+    "gdal": "3.4.1",
+    "python": "3.10.6",
+    "qgis": "3.30.3",
+    "qt": "5.15.3"
+  }
+}
+</code></pre>
+<p>Or with the API <code>curl http://localhost:5000/api/instances/4464d3c5</code>.</p>
+<h3 id="fetch-the-log"><a class="header" href="#fetch-the-log">Fetch the log</a></h3>
+<p>A bad request to QGIS Server to have something in the log:</p>
+<pre><code class="language-shell">$ curl http://172.20.0.4/ogc/
+&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;ServerException&gt;Project file error. For OWS services: please provide a SERVICE and a MAP parameter pointing to a valid QGIS project file&lt;/ServerException&gt;
+</code></pre>
+<p>Then to fetch the log of the corresponding QGIS Server instance with <code>qsa-cli</code>:</p>
+<pre><code class="language-shell">$ qsa logs 4464d3c5
+Server plugin qsa loaded!
+Server python plugins loaded
+******************** New request ***************
+Request URL: http://172.20.0.4/ogc/?map=/io/data//.qgs
+Environment:
+------------------------------------------------
+SERVER_NAME: 172.20.0.4
+REQUEST_URI: /ogc/
+SCRIPT_NAME: /qgis/qgis_mapserv.fcgi
+HTTPS:
+REMOTE_ADDR: 172.20.0.1
+SERVER_PORT: 80
+QUERY_STRING: map=/io/data//.qgs
+REMOTE_USER:
+CONTENT_TYPE:
+REQUEST_METHOD: GET
+SERVER_PROTOCOL: HTTP/1.1
+MAP:/io/data//.qgs
+Error when loading project file '/io/data//.qgs': Unable to open /io/data//.qgs
+Trying URL path: '/ogc/' for '/'
+Trying URL path: '/ogc/' for '/wfs3'
+&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;ServerException&gt;Project file error. For OWS services: please provide a SERVICE and a MAP parameter pointing to a valid QGIS project file&lt;/ServerException&gt;
+
+Request finished in 3 ms
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="sandbox--manage-projects"><a class="header" href="#sandbox--manage-projects">Sandbox : manage projects</a></h1>
+<h3 id="create-and-delete-projects"><a class="header" href="#create-and-delete-projects">Create and delete projects</a></h3>
+<p>To create a project:</p>
+<pre><code class="language-shell">$ curl "http://localhost:5000/api/projects/" \
+    -X POST \
+    -H 'Content-Type: application/json' \
+    -d '{
+        "name":"my_project",
+        "author":"pblottiere"
+    }'
+true
+</code></pre>
+<p>In this case, a project has been created on the filesystem:</p>
+<pre><code class="language-shell">$ file projects/qgis/my_project/my_project.qgs
+QGIS XML document
+</code></pre>
+<p>To create another project and list available projects:</p>
+<pre><code class="language-shell">$ curl "http://localhost:5000/api/projects/" \
+    -X POST \
+    -H 'Content-Type: application/json' \
+    -d '{
+        "name":"my_project_2",
+        "author":"pblottiere"
+    }'
+true
+$ curl "http://localhost:5000/api/projects/"
+["my_project_2","my_project"]
+</code></pre>
+<p>To delete a project:</p>
+<pre><code class="language-shell">$ curl -X DELETE "http://localhost:5000/api/projects/my_project_2"
+true
+$ curl "http://localhost:5000/api/projects/"
+["my_project"]
+</code></pre>
+<p>To list project metadata:</p>
+<pre><code class="language-shell">$ curl http://localhost:5000/api/projects/my_project | jq
+{
+  "author": "pblottiere",
+  "creation_datetime": "2024-03-14T20:17:45",
+  "crs": ""
+}
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="sandbox--manage-layers"><a class="header" href="#sandbox--manage-layers">Sandbox : manage layers</a></h1>
+<p>Layers are based on the <code>data.gpkg</code> file mounted in the Docker containers.</p>
+<h3 id="add-layers"><a class="header" href="#add-layers">Add layers</a></h3>
+<p>To add a polygon layer to a project:</p>
+<pre><code class="language-shell">$ curl "http://localhost:5000/api/projects/my_project/layers" \
+  -X POST \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "crs": 4326,
+    "datasource":"/data.gpkg|layername=polygons",
+    "name":"polygons"
+  }'
+true
+</code></pre>
+<p>And a line layer:</p>
+<pre><code class="language-shell">$ curl "http://localhost:5000/api/projects/my_project/layers" \
+  -X POST \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "crs": 4326,
+    "datasource":"/data.gpkg|layername=lines",
+    "name":"lines"
+  }'
+true
+</code></pre>
+<h3 id="list-layers-and-get-metadata"><a class="header" href="#list-layers-and-get-metadata">List layers and get metadata</a></h3>
+<pre><code class="language-shell">$ curl "http://localhost:5000/api/projects/my_project/layers"
+["lines","polygons"]
+
+$ curl "http://localhost:5000/api/projects/my_project/layers/lines" | jq
+{
+  "bbox": "-117.62319839219100004 23.20820580488510032, -82.32264950769270229 46.18290982947510059",
+  "crs": "EPSG:4326",
+  "current_style": "default",
+  "geometry": "MultiLineString",
+  "name": "lines",
+  "source": "/data.gpkg|layername=lines",
+  "styles": [
+    "default"
+  ],
+  "type": "vector",
+  "valid": true
+}
+</code></pre>
+<h3 id="map-sample"><a class="header" href="#map-sample">Map sample</a></h3>
+<p>To execute a WMS <code>GetMap</code> request with basic parameters:</p>
+<pre><code class="language-shell">$ curl "http://localhost:5000/api/projects/my_project/layers/polygons/map" --output map.png
+</code></pre>
+<img src="sandbox/../images/map.png" width="300">
+<h3 id="delete-layers"><a class="header" href="#delete-layers">Delete layers</a></h3>
+<pre><code class="language-shell">$ curl -X DELETE "http://localhost:5000/api/projects/my_project/layers/lines"
+true
+
+$ curl "http://localhost:5000/api/projects/my_project/layers"
+["polygons"]
+</code></pre>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="sandbox--manage-styles"><a class="header" href="#sandbox--manage-styles">Sandbox : manage styles</a></h1>
+<h3 id="add-style-to-project"><a class="header" href="#add-style-to-project">Add style to project</a></h3>
+<p>To list available properties for the polygon single symbol renderer:</p>
+<pre><code class="language-shell">$ curl "http://localhost:5000/api/symbology/vector/polygon/single_symbol/fill/properties" | jq
+{
+  "border_width_map_unit_scale": "3x:0,0,0,0,0,0",
+  "color": "0,0,255,255",
+  "joinstyle": "bevel",
+  "offset": "0,0",
+  "offset_map_unit_scale": "3x:0,0,0,0,0,0",
+  "offset_unit": "MM",
+  "outline_color": "35,35,35,255",
+  "outline_style": "solid (no, solid, dash, dot, dash dot, dash dot dot)",
+  "outline_width": "0.26",
+  "outline_width_unit": "MM",
+  "style": "solid"
+}
+</code></pre>
+<p>To add a style for a polygon layer:</p>
+<pre><code class="language-shell">$ curl "http://localhost:5000/api/projects/my_project/styles" \
+  -X POST \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "symbol": "fill",
+    "symbology": "single_symbol",
+    "name": "my_fill_style",
+    "properties": {
+        "color": "#00BBBB",
+        "style": "cross",
+        "outline_width": 0.16,
+        "outline_color": "#002222"
+    }
+  }'
+true
+</code></pre>
+<p>To list styles for a specific project:</p>
+<pre><code class="language-shell">$ curl "http://localhost:5000/api/projects/my_project/styles"
+["my_fill_style"]
+</code></pre>
+<h3 id="apply-style-to-layer"><a class="header" href="#apply-style-to-layer">Apply style to layer</a></h3>
+<p>To apply a specific style to a layer:</p>
+<pre><code class="language-shell">$ curl "http://localhost:5000/api/projects/my_project/layers/polygons/style" \
+  -X POST \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "name":"my_fill_style",
+    "current":"True"
+  }'
+true
+</code></pre>
+<p>The layer rendering has changed now:</p>
+<pre><code class="language-shell">$ curl "http://localhost:5000/api/projects/my_project/layers/polygons/map" --output map.png
+</code></pre>
+<img src="sandbox/../images/map_style.png" width="300">
+<div style="break-before: page; page-break-before: always;"></div><h1 id="funders"><a class="header" href="#funders">Funders</a></h1>
+<a href="https://www.promethee.earth/en//" target="_blank">
+  <img src="images/promethee.png" width="600">
+</a>
+<a href="https://hytech-imaging.fr/" target="_blank">
+  <img src="images/hytech.png" width="600">
+</a>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+        <script>
+        window.addEventListener('load', function() {
+            window.setTimeout(window.print, 100);
+        });
+        </script>
+
+    </div>
+    </body>
+</html>
