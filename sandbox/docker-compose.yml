@@ -3,6 +3,7 @@ services:
   qgisserver:
     image: opengisch/qgis-server:3.30-jammy
     volumes:
+      - ./data.gpkg:/data.gpkg
       - ./projects/qgis:/io/data
       - ../qsa-plugins:/io/plugins/qsa
     environment:
@@ -17,11 +18,12 @@ services:
       context: ..
       dockerfile: sandbox/Dockerfile
     volumes:
+      - ./data.gpkg:/data.gpkg
       - ./projects/qgis:/projects
     ports:
       - "5000:5000"
     environment:
-      - QSA_QGISSERVER_URL=http://qgisserver
+      - QSA_QGISSERVER_URL=http://qgisserver/ogc/
       - QSA_QGISSERVER_PROJECTS=/projects
       - QSA_QGISSERVER_MONITORING_PORT=9999
       - QSA_MAPPROXY_PROJECTS=

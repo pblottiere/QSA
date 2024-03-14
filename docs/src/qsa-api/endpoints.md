@@ -32,10 +32,10 @@ $ curl "http://localhost/api/projects/" \
 When a layer is added/removed to a QSA project, the corresponding QGIS project
 is updated. When MapProxy cache management is enabled, the configuration file is
 updated as well and the cache may be cleaned if necessary (for example when the
-default style is updated).
+current style is updated).
 
 Several themes can be associated with a layer like in QGIS Desktop, but only
-the default one is used when the `STYLE` parameter in OGC web services is
+the current one is used when the `STYLE` parameter in OGC web services is
 empty.
 
 | Method  |                      URL                         |         Description                                                                 |
@@ -45,7 +45,7 @@ empty.
 | GET     | `/api/projects/{project}/layers/{layer}/map`     | WMS `GetMap` result with default parameters                                         |
 | GET     | `/api/projects/{project}/layers/{layer}/map/url` | WMS `GetMap` URL with default parameters                                            |
 | POST    | `/api/projects/{project}/layers`                 | Add layer to project with `name`, `datasource` and `crs`                            |
-| POST    | `/api/projects/{project}/layers/{layer}/style`   | Add/Update layer's style with `name` (style name) and `default` (`True` or `False`) |
+| POST    | `/api/projects/{project}/layers/{layer}/style`   | Add/Update layer's style with `name` (style name) and `current` (`True` or `False`) |
 | DELETE  | `/api/projects/{project}/layers/{layer}`         | Remove layer from project                                                           |
 
 Examples:
@@ -136,3 +136,4 @@ retrieve information about QGIS Server underlying instances.
 |---------|-----------------------------------------------|--------------------------------------------|
 | GET     | `/api/instances`                              | List online QGIS Server instances          |
 | GET     | `/api/instances/{instance}`                   | List QGIS Server instance metadata         |
+| GET     | `/api/instances/{instance}/logs`              | Return logs of QGIS Server instance        |
