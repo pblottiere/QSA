@@ -9,8 +9,6 @@ import struct
 from datetime import datetime
 from threading import Thread, Lock
 
-from qgis.core import Qgis
-
 from qsa_api.config import QSAConfig
 
 
@@ -33,7 +31,7 @@ class QSAMonitorThread(Thread):
                     self.con.close()
                     return
 
-                data_size = struct.unpack('>I', data)[0]
+                data_size = struct.unpack(">I", data)[0]
                 self.response = self._recv_payload(data_size)
 
         except BrokenPipeError:

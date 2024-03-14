@@ -3,11 +3,10 @@
 import os
 import json
 import click
-import base64
 import requests
 from tabulate import tabulate
 
-QSA_URL=os.environ.get("QSA_SERVER_URL", "http://localhost:5000/")
+QSA_URL = os.environ.get("QSA_SERVER_URL", "http://localhost:5000/")
 
 
 @click.group()

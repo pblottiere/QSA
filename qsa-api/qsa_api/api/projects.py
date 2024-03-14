@@ -185,15 +185,10 @@ def project_update_default_style(name):
     project = QSAProject(name)
     if project.exists():
         data = request.get_json()
-        if (
-            "geometry" not in data
-            or "style" not in data
-        ):
+        if "geometry" not in data or "style" not in data:
             return {"error": "Invalid parameters"}, 415
 
-        project.style_update(
-            data["geometry"], data["style"]
-        )
+        project.style_update(data["geometry"], data["style"])
         return jsonify(True), 201
     else:
         return {"error": "Project does not exist"}, 415

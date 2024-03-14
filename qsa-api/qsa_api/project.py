@@ -40,12 +40,8 @@ class QSAProject:
         if not p.exists():
             con = sqlite3.connect(p)
             cur = con.cursor()
-            cur.execute(
-                "CREATE TABLE styles_default(geometry, style)"
-            )
-            cur.execute(
-                "INSERT INTO styles_default VALUES('line', 'default')"
-            )
+            cur.execute("CREATE TABLE styles_default(geometry, style)")
+            cur.execute("INSERT INTO styles_default VALUES('line', 'default')")
             cur.execute(
                 "INSERT INTO styles_default VALUES('polygon', 'default')"
             )

@@ -32,10 +32,10 @@ def metadata(iface) -> dict:
     m["versions"] = {}
     m["versions"]["qgis"] = f"{Qgis.version().split('-')[0]}"
     m["versions"]["qt"] = PyQt.QtCore.QT_VERSION_STR
-    m["versions"]["python"] = sys.version.split(' ')[0]
+    m["versions"]["python"] = sys.version.split(" ")[0]
     m["versions"]["gdal"] = gdal.__version__
 
-    m["providers"] = QgsProviderRegistry.instance().pluginList().split('\n')
+    m["providers"] = QgsProviderRegistry.instance().pluginList().split("\n")
 
     m["cache"] = {}
     m["cache"]["projects"] = QgsConfigCache.instance().projects()
@@ -73,7 +73,7 @@ def f(iface, host: str, port: int) -> None:
                 payload = log_messages()
 
             ser = pickle.dumps(payload)
-            s.sendall(struct.pack('>I', len(ser)))
+            s.sendall(struct.pack(">I", len(ser)))
             s.sendall(ser)
         except Exception as e:
             print(e, file=sys.stderr)
@@ -85,7 +85,9 @@ def capture_log_message(message, tag, level):
 
 
 def serverClassFactory(iface):
-    QgsApplication.instance().messageLog().messageReceived.connect(capture_log_message)
+    QgsApplication.instance().messageLog().messageReceived.connect(
+        capture_log_message
+    )
 
     host = str(os.environ.get("QSA_HOST", "localhost"))
     port = int(os.environ.get("QSA_PORT", 9999))
@@ -94,7 +96,7 @@ def serverClassFactory(iface):
         target=f,
         args=(
             iface,
-            host.replace("\"", ""),
+            host.replace('"', ""),
             port,
         ),
     )

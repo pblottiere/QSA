@@ -14,7 +14,7 @@ def instances_list():
     if not monitor:
         return {"error": "QGIS Server monitoring is not activated"}, 415
 
-    conns = {"servers" : []}
+    conns = {"servers": []}
     for uid in monitor.conns:
         info = {}
         info["id"] = uid
