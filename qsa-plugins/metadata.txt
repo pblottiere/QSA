@@ -8,7 +8,7 @@
 
 [general]
 name=qsa
-qgisMinimumVersion=3.0
+qgisMinimumVersion=3.30
 description=QSA monitoring plugin
 version=0.0.1
 author=Paul Blottiere

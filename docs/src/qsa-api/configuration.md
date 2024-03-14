@@ -1,4 +1,4 @@
-# QSA REST API configuration
+# QSA REST API : configuration
 
 QSA web server can be configured thanks to the next environment variables:
 

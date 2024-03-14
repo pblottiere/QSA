@@ -1,4 +1,4 @@
-# QSA plugin configuration
+# QSA plugin : configuration
 
 The QSA plugin can be configured thanks to the next environment variables:
 

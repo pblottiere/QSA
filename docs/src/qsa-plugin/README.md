@@ -5,4 +5,4 @@ which starts a dedicated thread with a TCP autoregistering client.
 
 Features:
 * Return metadata about QGIS Server without interfering with the rendering loop
-* Influence the QGIS Server behavior through communication with the main thread
+* TODO : Influence the QGIS Server behavior through communication with the main thread

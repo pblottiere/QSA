@@ -2,7 +2,10 @@
 
 import uuid
 import socket
+from datetime import datetime
 from threading import Thread, Lock
+
+from qgis.core import Qgis
 
 from qsa_api.config import QSAConfig
 
@@ -13,6 +16,7 @@ class QSAMonitorThread(Thread):
         self.con = con
         self.ip = ip
         self.port = port
+        self.now = datetime.now()
 
     def run(self):
         try:
@@ -22,11 +26,16 @@ class QSAMonitorThread(Thread):
                 if not data:
                     self.con.close()
                     return
-
-                # self.con.send(msg)
         except BrokenPipeError:
             return
 
+    @property
+    def metadata(self) -> dict:
+        try:
+            self.con.send(b"metadata")
+            return self.con.recv(2048)
+        except Exception:
+            return {}
 
 class QSAMonitor:
     def __init__(self, cfg: QSAConfig) -> None:
@@ -73,5 +82,5 @@ class QSAMonitor:
             self._conns[uid] = thread
             self._lock.release()
 
-        for t in self._conns:
-            t.join()
+        for uid in self._conns:
+            self._conns[uid].join()

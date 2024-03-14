@@ -1,4 +1,4 @@
-# QSA REST API Endpoints
+# QSA REST API : endpoints
 
 ## Project
 
@@ -26,7 +26,6 @@ $ curl "http://localhost/api/projects/" \
         "author":"pblottiere"
      }'
 ```
-
 
 ## Layer
 
@@ -67,8 +66,8 @@ $ curl "http://localhost/api/projects/my_project/layers" \
 Vector layers rendering can be configured with several kinds of symbols
 according to the geometry type. The [symbol selector](https://docs.qgis.org/3.34/en/docs/user_manual/style_library/symbol_selector.html)
 in QGIS is very dense but for now, only Marker, Line and Fill simple symbols
-are supported. The `/api/symbology` endpoints allow to dynamically retrieve the
-corresponding parameters depending to QGIS Server version.
+are supported. The `/api/symbology` endpoint allows to dynamically retrieve the
+corresponding parameters depending on QGIS Server version.
 
 | Method  |                      URL                                      |         Description              |
 |---------|---------------------------------------------------------------|----------------------------------|
@@ -102,14 +101,14 @@ A QSA style may be used through the `STYLE` OGC web services parameter to
 specify the rendering for a specific layer. Default styles may be defined and
 used when a layer is added to a project.
 
-| Method  |                      URL                      |         Description                                                                                                                 |
-|---------|-----------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------|
-| GET     | `/api/projects/{project}/styles`              | List styles in project                                                                                                              |
-| GET     | `/api/projects/{project}/styles/default`      | List default styles in project                                                                                                      |
-| GET     | `/api/projects/{project}/styles/{style}`      | List style's metadata                                                                                                               |
-| POST    | `/api/projects/{project}/styles/{style}`      | Add style to project with `symbology` (only `single_symbol` is supported for now), `symbol`, `name` and symbology `properties`      |
-| POST    | `/api/projects/{project}/styles/default`      | Set default style for a specific geometry with `geometry` and `name`                                                                |
-| DELETE  | `/api/projects/{project}/styles/{style}`      | Remove style from project                                                                                                           |
+| Method  |                      URL                      |         Description                                                                                                            |
+|---------|-----------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------|
+| GET     | `/api/projects/{project}/styles`              | List styles in project                                                                                                         |
+| GET     | `/api/projects/{project}/styles/default`      | List default styles in project                                                                                                 |
+| GET     | `/api/projects/{project}/styles/{style}`      | List style's metadata                                                                                                          |
+| POST    | `/api/projects/{project}/styles/{style}`      | Add style to project with `symbology` (only `single_symbol` is supported for now), `symbol`, `name` and symbology `properties` |
+| POST    | `/api/projects/{project}/styles/default`      | Set default style for a specific geometry with `geometry` and `name`                                                           |
+| DELETE  | `/api/projects/{project}/styles/{style}`      | Remove style from project                                                                                                      |
 
 Examples:
 
@@ -130,4 +129,10 @@ $ curl "http://localhost:5000/api/projects/my_project/styles" \
 
 ## Instances
 
-TODO
+When `qsa-plugin` is installed, an `/api/instances` endpoint is available to
+retrieve information about QGIS Server underlying instances.
+
+| Method  |                      URL                      |         Description                        |
+|---------|-----------------------------------------------|--------------------------------------------|
+| GET     | `/api/instances`                              | List online QGIS Server instances          |
+| GET     | `/api/instances/{instance}`                   | List QGIS Server instance metadata         |

@@ -1,4 +1,4 @@
-# QSA REST API Installation
+# QSA REST API : installation
 
 From sources:
 

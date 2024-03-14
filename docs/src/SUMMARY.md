@@ -6,7 +6,7 @@
 - [QSA plugin](qsa-plugin/README.md)
   - [Installation](qsa-plugin/installation.md)
   - [Configuration](qsa-plugin/configuration.md)
-  - [Endpoints](qsa-plugin/endpoints.md)
+  - [Usage](qsa-plugin/usage.md)
 - [QSA cli](qsa-cli/README.md)
   - [Installation](qsa-cli/installation.md)
   - [Configuration](qsa-cli/configuration.md)

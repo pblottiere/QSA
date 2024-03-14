@@ -1,7 +1,7 @@
 version: '2'
 services:
   qgisserver:
-    image: opengisch/qgis-server:3.28-jammy
+    image: opengisch/qgis-server:3.30-jammy
     volumes:
       - ./projects/qgis:/io/data
       - ../qsa-plugins:/io/plugins/qsa
