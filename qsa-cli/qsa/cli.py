@@ -3,6 +3,7 @@
 import os
 import json
 import click
+import base64
 import requests
 from tabulate import tabulate
 
@@ -15,7 +16,7 @@ def cli():
 
 
 @cli.command()
-def instances():
+def ps():
     url = f"{QSA_URL}/api/instances"
     data = requests.get(url)
 
@@ -35,8 +36,18 @@ def instances():
 
 @cli.command()
 @click.argument("id")
-def instance(id):
+def inspect(id):
     url = f"{QSA_URL}/api/instances/{id}"
     data = requests.get(url)
 
     print(json.dumps(data.json(), indent=2))
+
+
+@cli.command()
+@click.argument("id")
+def logs(id):
+    url = f"{QSA_URL}/api/instances/{id}/logs"
+    data = requests.get(url)
+
+    logs = base64.b64decode(data.json()["logs"]).decode("utf-8")
+    print(logs)

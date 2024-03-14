@@ -37,6 +37,15 @@ class QSAMonitorThread(Thread):
         except Exception:
             return {}
 
+    @property
+    def logs(self) -> dict:
+        try:
+            self.con.send(b"logs")
+            return self.con.recv(2048)
+        except Exception:
+            return {}
+
+
 class QSAMonitor:
     def __init__(self, cfg: QSAConfig) -> None:
         self.monitor: Thread

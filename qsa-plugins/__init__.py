@@ -4,6 +4,7 @@ import os
 import sys
 import json
 import time
+import base64
 import socket
 from osgeo import gdal
 from threading import Thread
@@ -11,7 +12,18 @@ from threading import Thread
 from qgis import PyQt
 from qgis.server import QgsConfigCache
 from qgis.utils import server_active_plugins
-from qgis.core import Qgis, QgsProviderRegistry
+from qgis.core import Qgis, QgsProviderRegistry, QgsApplication
+
+LOG_MESSAGES = []
+
+
+def log_messages():
+    logs = str.encode("\n".join(LOG_MESSAGES))
+
+    m = {}
+    m["logs"] = base64.b64encode(logs).decode("utf-8")
+
+    return m
 
 
 def metadata(iface) -> dict:
@@ -58,6 +70,8 @@ def f(iface, host: str, port: int) -> None:
             payload = {}
             if b"metadata" in data:
                 payload = metadata(iface)
+            elif b"logs" in data:
+                payload = log_messages()
 
             s.send(str.encode(json.dumps(payload)))
         except Exception as e:
@@ -65,7 +79,13 @@ def f(iface, host: str, port: int) -> None:
             s = auto_connect(s, host, port)
 
 
+def capture_log_message(message, tag, level):
+    LOG_MESSAGES.append(message)
+
+
 def serverClassFactory(iface):
+    QgsApplication.instance().messageLog().messageReceived.connect(capture_log_message)
+
     host = str(os.environ.get("QSA_HOST", "localhost"))
     port = int(os.environ.get("QSA_PORT", 9999))
 
