@@ -5,7 +5,7 @@ services:
     volumes:
       - ./data.gpkg:/data.gpkg
       - ./projects/qgis:/io/data
-      - ../qsa-plugins:/io/plugins/qsa
+      - ../qsa-plugin:/io/plugins/qsa
     environment:
       - QGIS_USER=1000
       - QGIS_SERVER_LOG_LEVEL=0
