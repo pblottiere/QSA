@@ -21,7 +21,7 @@ if "QSA_GPKG" in os.environ:
 
 GEOTIFF = Path(__file__).parent / "landsat_4326.tif"
 if "QSA_GEOTIFF" in os.environ:
-    GEOTIFF = os.environ["QSA_GPKG"]
+    GEOTIFF = os.environ["QSA_GEOTIFF"]
 
 TEST_PROJECT_0 = "qsa_test_project0"
 TEST_PROJECT_1 = "qsa_test_project1"
