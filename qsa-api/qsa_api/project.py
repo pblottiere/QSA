@@ -7,6 +7,7 @@ from flask import current_app
 
 from qgis.PyQt.QtCore import Qt
 from qgis.core import (
+    Qgis,
     QgsSymbol,
     QgsProject,
     QgsMapLayer,
@@ -14,6 +15,7 @@ from qgis.core import (
     QgsFillSymbol,
     QgsLineSymbol,
     QgsVectorLayer,
+    QgsRasterLayer,
     QgsMarkerSymbol,
     QgsFeatureRenderer,
     QgsReadWriteContext,
@@ -252,35 +254,48 @@ class QSAProject:
         if self._mapproxy_enabled:
             QSAMapProxy(self.name).remove()
 
-    def add_layer(self, datasource: str, name: str, epsg_code: int) -> bool:
-        # add layer in qgis project
-        vl = QgsVectorLayer(datasource, name, "ogr")
-        crs = vl.crs()
-        crs.createFromId(epsg_code)
-        vl.setCrs(crs)
+    def add_layer(
+        self, datasource: str, layer_type: str, name: str, epsg_code: int
+    ) -> (bool, str):
+        t = self._layer_type(layer_type)
+        if t is None:
+            return False, "Invalid layer type"
 
-        if not vl.isValid():
-            return False
+        lyr = None
+        if t == Qgis.LayerType.Vector:
+            lyr = QgsVectorLayer(datasource, name, "ogr")
+        elif t == Qgis.LayerType.Raster:
+            lyr = QgsRasterLayer(datasource, name, "gdal")
+        else:
+            return False, "Invalid layer type"
+
+        crs = lyr.crs()
+        crs.createFromString(f"EPSG:{epsg_code}")
+        lyr.setCrs(crs)
+
+        if not lyr.isValid():
+            return False, "Invalid layer"
 
         # create project
         project = QgsProject()
         project.read(self._qgis_project.as_posix())
 
-        project.addMapLayer(vl)
+        project.addMapLayer(lyr)
         project.setCrs(crs)
         project.write()
 
         # set default style
-        geometry = vl.geometryType().name.lower()
-        default_style = self.style_default(geometry)
+        if t == Qgis.LayerType.Vector:
+            geometry = lyr.geometryType().name.lower()
+            default_style = self.style_default(geometry)
 
-        self.layer_update_style(name, default_style, True)
+            self.layer_update_style(name, default_style, True)
 
         # add layer in mapproxy config file
         bbox = list(
             map(
                 float,
-                vl.extent().asWktCoordinates().replace(",", "").split(" "),
+                lyr.extent().asWktCoordinates().replace(",", "").split(" "),
             )
         )
 
@@ -290,7 +305,7 @@ class QSAProject:
             mp.add_layer(name, bbox, epsg_code)
             mp.write()
 
-        return True
+        return True, ""
 
     def add_style(
         self,
@@ -375,6 +390,14 @@ class QSAProject:
     @staticmethod
     def _qgis_projects_dir() -> Path:
         return Path(current_app.config["CONFIG"].qgisserver_projects)
+
+    @staticmethod
+    def _layer_type(layer_type: str) -> Qgis.LayerType | None:
+        if layer_type.lower() == "vector":
+            return Qgis.LayerType.Vector
+        elif layer_type.lower() == "raster":
+            return Qgis.LayerType.Raster
+        return None
 
     @property
     def _mapproxy_enabled(self) -> bool:

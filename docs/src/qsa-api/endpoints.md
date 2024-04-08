@@ -44,7 +44,7 @@ empty.
 | GET     | `/api/projects/{project}/layers/{layer}`         | List layer's metadata                                                               |
 | GET     | `/api/projects/{project}/layers/{layer}/map`     | WMS `GetMap` result with default parameters                                         |
 | GET     | `/api/projects/{project}/layers/{layer}/map/url` | WMS `GetMap` URL with default parameters                                            |
-| POST    | `/api/projects/{project}/layers`                 | Add layer to project with `name`, `datasource` and `crs`                            |
+| POST    | `/api/projects/{project}/layers`                 | Add layer to project with `type`, `name`, `datasource` and `crs`                    |
 | POST    | `/api/projects/{project}/layers/{layer}/style`   | Add/Update layer's style with `name` (style name) and `current` (`True` or `False`) |
 | DELETE  | `/api/projects/{project}/layers/{layer}`         | Remove layer from project                                                           |
 

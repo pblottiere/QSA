@@ -16,4 +16,5 @@
   - [Manage projects](sandbox/projects.md)
   - [Manage layers](sandbox/layers.md)
   - [Manage styles](sandbox/styles.md)
+- [Developers](DEVELOPERS.md)
 - [Funders](FUNDERS.md)
