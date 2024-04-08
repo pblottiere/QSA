@@ -161,7 +161,10 @@ class QSAProject:
             infos["valid"] = layer.isValid()
             infos["name"] = layer.name()
             infos["type"] = layer.type().name.lower()
-            infos["geometry"] = QgsWkbTypes.displayString(layer.wkbType())
+
+            if layer.type() == Qgis.LayerType.Vector:
+                infos["geometry"] = QgsWkbTypes.displayString(layer.wkbType())
+
             infos["source"] = layer.source()
             infos["crs"] = layer.crs().authid()
             infos["current_style"] = layer.styleManager().currentStyle()
