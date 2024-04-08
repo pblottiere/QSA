@@ -215,8 +215,8 @@ def project_update_default_style(name):
         "type": "object",
         "required": ["geometry", "style"],
         "properties": {
-            "name": {"type": "string"},
-            "author": {"type": "string"},
+            "geometry": {"type": "string"},
+            "style": {"type": "string"},
         },
     }
 
