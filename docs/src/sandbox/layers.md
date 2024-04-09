@@ -14,7 +14,8 @@ $ curl "http://localhost:5000/api/projects/my_project/layers" \
   -d '{
     "crs": 4326,
     "datasource":"/data.gpkg|layername=polygons",
-    "name":"polygons"
+    "name":"polygons",
+    "type":"vector"
   }'
 true
 ````
@@ -28,7 +29,8 @@ $ curl "http://localhost:5000/api/projects/my_project/layers" \
   -d '{
     "crs": 4326,
     "datasource":"/data.gpkg|layername=lines",
-    "name":"lines"
+    "name":"lines",
+    "type":"vector"
   }'
 true
 ````

@@ -31,7 +31,7 @@ class QSAMapProxy:
         for d in cache_dir.glob(f"**/{layer_name}_cache_*"):
             shutil.rmtree(d)
 
-    def add_layer(self, name: str, bbox: list, srs: str) -> None:
+    def add_layer(self, name: str, bbox: list, srs: int) -> None:
         if "layers" not in self.cfg:
             self.cfg["layers"] = []
             self.cfg["caches"] = {}

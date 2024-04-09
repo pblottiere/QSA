@@ -19,6 +19,10 @@ GPKG = Path(__file__).parent / "data.gpkg"
 if "QSA_GPKG" in os.environ:
     GPKG = os.environ["QSA_GPKG"]
 
+GEOTIFF = Path(__file__).parent / "landsat_4326.tif"
+if "QSA_GEOTIFF" in os.environ:
+    GEOTIFF = os.environ["QSA_GEOTIFF"]
+
 TEST_PROJECT_0 = "qsa_test_project0"
 TEST_PROJECT_1 = "qsa_test_project1"
 
@@ -28,6 +32,10 @@ class TestResponse:
     def __init__(self, resp, flask_client):
         self.flask_client = flask_client
         self.resp = resp
+
+    @property
+    def status_code(self):
+        return self.resp.status_code
 
     def get_json(self):
         if self.flask_client:
@@ -113,13 +121,13 @@ class APITestCase(unittest.TestCase):
         data["name"] = TEST_PROJECT_0
         data["author"] = "pblottiere"
         p = self.app.post("/api/projects/", data)
-        self.assertTrue(p.get_json())
+        self.assertEqual(p.status_code, 201)
 
         data = {}
         data["name"] = "qsa_test_project1"
         data["author"] = "pblottiere"
         p = self.app.post("/api/projects/", data)
-        self.assertTrue(p.get_json())
+        self.assertEqual(p.status_code, 201)
 
         # 2 projects
         p = self.app.get("/api/projects/")
@@ -128,7 +136,7 @@ class APITestCase(unittest.TestCase):
 
         # remove project
         p = self.app.delete(f"/api/projects/{TEST_PROJECT_0}")
-        self.assertTrue(p.get_json())
+        self.assertEqual(p.status_code, 201)
 
         # 1 projects
         p = self.app.get("/api/projects/")
@@ -174,7 +182,7 @@ class APITestCase(unittest.TestCase):
         data["name"] = TEST_PROJECT_0
         data["author"] = "pblottiere"
         p = self.app.post("/api/projects/", data)
-        self.assertTrue(p.get_json())
+        self.assertEqual(p.status_code, 201)
 
         # 0 layer
         p = self.app.get(f"/api/projects/{TEST_PROJECT_0}/layers")
@@ -185,26 +193,37 @@ class APITestCase(unittest.TestCase):
         data["name"] = "layer0"
         data["datasource"] = f"{GPKG}|layername=polygons"
         data["crs"] = 4326
+        data["type"] = "vector"
         p = self.app.post(f"/api/projects/{TEST_PROJECT_0}/layers", data)
-        self.assertTrue(p.get_json())
+        self.assertEqual(p.status_code, 201)
 
         data = {}
         data["name"] = "layer1"
         data["datasource"] = f"{GPKG}|layername=lines"
         data["crs"] = 4326
+        data["type"] = "vector"
         p = self.app.post(f"/api/projects/{TEST_PROJECT_0}/layers", data)
-        self.assertTrue(p.get_json())
+        self.assertEqual(p.status_code, 201)
 
         data = {}
         data["name"] = "layer2"
         data["datasource"] = f"{GPKG}|layername=points"
         data["crs"] = 4326
+        data["type"] = "vector"
         p = self.app.post(f"/api/projects/{TEST_PROJECT_0}/layers", data)
-        self.assertTrue(p.get_json())
+        self.assertEqual(p.status_code, 201)
+
+        data = {}
+        data["name"] = "layer3"
+        data["datasource"] = f"{GEOTIFF}"
+        data["crs"] = 4326
+        data["type"] = "raster"
+        p = self.app.post(f"/api/projects/{TEST_PROJECT_0}/layers", data)
+        self.assertEqual(p.status_code, 201)
 
         # 3 layers
         p = self.app.get(f"/api/projects/{TEST_PROJECT_0}/layers")
-        self.assertEqual(p.get_json(), ["layer0", "layer1", "layer2"])
+        self.assertEqual(p.get_json(), ["layer0", "layer1", "layer2", "layer3"])
 
         # layer metadata
         p = self.app.get(f"/api/projects/{TEST_PROJECT_0}/layers/layer1")
@@ -217,11 +236,11 @@ class APITestCase(unittest.TestCase):
 
         # remove layer0
         p = self.app.delete(f"/api/projects/{TEST_PROJECT_0}/layers/layer0")
-        self.assertTrue(p.get_json())
+        self.assertEqual(p.status_code, 201)
 
         # 2 layer
         p = self.app.get(f"/api/projects/{TEST_PROJECT_0}/layers")
-        self.assertEqual(p.get_json(), ["layer1", "layer2"])
+        self.assertEqual(p.get_json(), ["layer1", "layer2", "layer3"])
 
         # remove last project
         p = self.app.delete(f"/api/projects/{TEST_PROJECT_0}")
@@ -232,7 +251,7 @@ class APITestCase(unittest.TestCase):
         data["name"] = TEST_PROJECT_0
         data["author"] = "pblottiere"
         p = self.app.post("/api/projects/", data)
-        self.assertTrue(p.get_json())
+        self.assertEqual(p.status_code, 201)
 
         # 0 style
         p = self.app.get(f"/api/projects/{TEST_PROJECT_0}/styles")
@@ -245,7 +264,7 @@ class APITestCase(unittest.TestCase):
         data["symbol"] = "line"
         data["properties"] = {"line_width": 0.5}
         p = self.app.post(f"/api/projects/{TEST_PROJECT_0}/styles", data)
-        self.assertTrue(p.get_json())
+        self.assertEqual(p.status_code, 201)
 
         # add fill style to project
         data = {}
@@ -254,11 +273,12 @@ class APITestCase(unittest.TestCase):
         data["symbol"] = "fill"
         data["properties"] = {"outline_width": 0.5}
         p = self.app.post(f"/api/projects/{TEST_PROJECT_0}/styles", data)
-        self.assertTrue(p.get_json())
+        self.assertEqual(p.status_code, 201)
 
         # 2 styles
         p = self.app.get(f"/api/projects/{TEST_PROJECT_0}/styles")
-        self.assertEqual(p.get_json(), ["style_line", "style_fill"])
+        self.assertTrue("style_line" in p.get_json())
+        self.assertTrue("style_fill" in p.get_json())
 
         # style line metadata
         p = self.app.get(f"/api/projects/{TEST_PROJECT_0}/styles/style_line")
@@ -275,15 +295,17 @@ class APITestCase(unittest.TestCase):
         data["name"] = "layer0"
         data["datasource"] = f"{GPKG}|layername=polygons"
         data["crs"] = 4326
+        data["type"] = "vector"
         p = self.app.post(f"/api/projects/{TEST_PROJECT_0}/layers", data)
-        self.assertTrue(p.get_json())
+        self.assertEqual(p.status_code, 201)
 
         data = {}
         data["name"] = "layer1"
         data["datasource"] = f"{GPKG}|layername=lines"
         data["crs"] = 32637
+        data["type"] = "vector"
         p = self.app.post(f"/api/projects/{TEST_PROJECT_0}/layers", data)
-        self.assertTrue(p.get_json())
+        self.assertEqual(p.status_code, 201)
 
         # add style to layers
         data = {}
@@ -292,7 +314,7 @@ class APITestCase(unittest.TestCase):
         p = self.app.post(
             f"/api/projects/{TEST_PROJECT_0}/layers/layer0/style", data
         )
-        self.assertTrue(p.get_json())
+        self.assertEqual(p.status_code, 201)
 
         data = {}
         data["current"] = True
@@ -300,7 +322,7 @@ class APITestCase(unittest.TestCase):
         p = self.app.post(
             f"/api/projects/{TEST_PROJECT_0}/layers/layer1/style", data
         )
-        self.assertTrue(p.get_json())
+        self.assertEqual(p.status_code, 201)
 
         # check style for layers
         p = self.app.get(f"/api/projects/{TEST_PROJECT_0}/layers/layer0")
@@ -317,7 +339,7 @@ class APITestCase(unittest.TestCase):
         p = self.app.delete(
             f"/api/projects/{TEST_PROJECT_0}/styles/style_fill"
         )
-        self.assertTrue(p.get_json())
+        self.assertEqual(p.status_code, 201)
 
         # 1 style
         p = self.app.get(f"/api/projects/{TEST_PROJECT_0}/styles")
@@ -332,7 +354,7 @@ class APITestCase(unittest.TestCase):
         data["name"] = TEST_PROJECT_0
         data["author"] = "pblottiere"
         p = self.app.post("/api/projects/", data)
-        self.assertTrue(p.get_json())
+        self.assertEqual(p.status_code, 201)
 
         # default styles
         p = self.app.get(f"/api/projects/{TEST_PROJECT_0}/styles/default")
@@ -358,7 +380,7 @@ class APITestCase(unittest.TestCase):
             "line_color": "#0055FF",
         }
         p = self.app.post(f"/api/projects/{TEST_PROJECT_0}/styles", data)
-        self.assertTrue(p.get_json())
+        self.assertEqual(p.status_code, 201)
 
         # add fill style to project
         data = {}
@@ -372,7 +394,7 @@ class APITestCase(unittest.TestCase):
             "outline_color": "#002222",
         }
         p = self.app.post(f"/api/projects/{TEST_PROJECT_0}/styles", data)
-        self.assertTrue(p.get_json())
+        self.assertEqual(p.status_code, 201)
 
         # add marker style to project
         data = {}
@@ -386,7 +408,7 @@ class APITestCase(unittest.TestCase):
             "angle": 45
         }
         p = self.app.post(f"/api/projects/{TEST_PROJECT_0}/styles", data)
-        self.assertTrue(p.get_json())
+        self.assertEqual(p.status_code, 201)
 
         # set default styles for polygons/fill symbol
         data = {}
@@ -397,7 +419,7 @@ class APITestCase(unittest.TestCase):
         p = self.app.post(
             f"/api/projects/{TEST_PROJECT_0}/styles/default", data
         )
-        self.assertTrue(p.get_json())
+        self.assertEqual(p.status_code, 201)
 
         # set default styles for line/line symbol
         data = {}
@@ -408,7 +430,7 @@ class APITestCase(unittest.TestCase):
         p = self.app.post(
             f"/api/projects/{TEST_PROJECT_0}/styles/default", data
         )
-        self.assertTrue(p.get_json())
+        self.assertEqual(p.status_code, 201)
 
         # set default styles for point/marker symbol
         data = {}
@@ -419,7 +441,7 @@ class APITestCase(unittest.TestCase):
         p = self.app.post(
             f"/api/projects/{TEST_PROJECT_0}/styles/default", data
         )
-        self.assertTrue(p.get_json())
+        self.assertEqual(p.status_code, 201)
 
         # check default style
         p = self.app.get(f"/api/projects/{TEST_PROJECT_0}/styles/default")
@@ -437,22 +459,25 @@ class APITestCase(unittest.TestCase):
         data["name"] = "layer0"
         data["datasource"] = f"{GPKG}|layername=polygons"
         data["crs"] = 4326
+        data["type"] = "vector"
         p = self.app.post(f"/api/projects/{TEST_PROJECT_0}/layers", data)
-        self.assertTrue(p.get_json())
+        self.assertEqual(p.status_code, 201)
 
         data = {}
         data["name"] = "layer1"
         data["datasource"] = f"{GPKG}|layername=lines"
         data["crs"] = 4326
+        data["type"] = "vector"
         p = self.app.post(f"/api/projects/{TEST_PROJECT_0}/layers", data)
-        self.assertTrue(p.get_json())
+        self.assertEqual(p.status_code, 201)
 
         data = {}
         data["name"] = "layer2"
         data["datasource"] = f"{GPKG}|layername=points"
         data["crs"] = 4326
+        data["type"] = "vector"
         p = self.app.post(f"/api/projects/{TEST_PROJECT_0}/layers", data)
-        self.assertTrue(p.get_json())
+        self.assertEqual(p.status_code, 201)
 
         # check if default style is applied when adding a new layer in the project
         p = self.app.get(f"/api/projects/{TEST_PROJECT_0}/layers/layer0")

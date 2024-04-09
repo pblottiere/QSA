@@ -2,6 +2,8 @@
 
 import shutil
 import requests
+from jsonschema import validate
+from jsonschema.exceptions import ValidationError
 from flask import send_file, Blueprint, jsonify, request
 
 from ..wms import WMS
@@ -36,15 +38,24 @@ def project_info(name: str):
 
 @projects.post("/")
 def project_add():
+    schema = {
+        "type": "object",
+        "required": ["name", "author"],
+        "properties": {
+            "name": {"type": "string"},
+            "author": {"type": "string"},
+        },
+    }
+
     if request.is_json:
-        if "name" not in request.get_json():
-            return {"error": "Parameter 'name' is missing"}, 415
+        data = request.get_json()
+        try:
+            validate(data, schema)
+        except ValidationError as e:
+            return {"error": e.message}, 415
 
-        if "author" not in request.get_json():
-            return {"error": "Parameter 'author' is missing"}, 415
-
-        name = request.get_json()["name"]
-        author = request.get_json()["author"]
+        name = data["name"]
+        author = data["author"]
 
         project = QSAProject(name)
         if project.exists():
@@ -97,11 +108,22 @@ def project_del_style(name, style):
 
 @projects.post("/<name>/layers/<layer_name>/style")
 def project_layer_update_style(name, layer_name):
+    schema = {
+        "type": "object",
+        "required": ["name", "current"],
+        "properties": {
+            "name": {"type": "string"},
+            "current": {"type": "boolean"},
+        },
+    }
+
     project = QSAProject(name)
     if project.exists():
         data = request.get_json()
-        if "current" not in data or "name" not in data:
-            return {"error": "Invalid parameters"}, 415
+        try:
+            validate(data, schema)
+        except ValidationError as e:
+            return {"error": e.message}, 415
 
         current = str_to_bool(data["current"])
 
@@ -142,17 +164,24 @@ def project_layer_map(name, layer_name):
 
 @projects.post("/<name>/styles")
 def project_add_style(name):
+    schema = {
+        "type": "object",
+        "required": ["name", "symbol", "symbology", "properties"],
+        "properties": {
+            "name": {"type": "string"},
+            "symbol": {"type": "string"},
+            "symbology": {"type": "string"},
+            "properties": {"type": "object"},
+        },
+    }
+
     project = QSAProject(name)
     if project.exists():
         data = request.get_json()
-
-        if (
-            "name" not in data
-            or "symbol" not in data
-            or "symbology" not in data
-            or "properties" not in data
-        ):
-            return {"error": "Invalid parameters"}, 415
+        try:
+            validate(data, schema)
+        except ValidationError as e:
+            return {"error": e.message}, 415
 
         # legacy support
         symbology = data["symbology"]
@@ -182,11 +211,22 @@ def project_default_styles(name):
 
 @projects.post("/<name>/styles/default")
 def project_update_default_style(name):
+    schema = {
+        "type": "object",
+        "required": ["geometry", "style"],
+        "properties": {
+            "geometry": {"type": "string"},
+            "style": {"type": "string"},
+        },
+    }
+
     project = QSAProject(name)
     if project.exists():
         data = request.get_json()
-        if "geometry" not in data or "style" not in data:
-            return {"error": "Invalid parameters"}, 415
+        try:
+            validate(data, schema)
+        except ValidationError as e:
+            return {"error": e.message}, 415
 
         project.style_update(data["geometry"], data["style"])
         return jsonify(True), 201
@@ -205,11 +245,32 @@ def project_layers(name):
 
 @projects.post("/<name>/layers")
 def project_add_layer(name):
+    schema = {
+        "type": "object",
+        "required": ["name", "datasource", "crs", "type"],
+        "properties": {
+            "name": {"type": "string"},
+            "datasource": {"type": "string"},
+            "crs": {"type": "number"},
+            "type": {"type": "string"},
+        },
+    }
+
     project = QSAProject(name)
     if project.exists():
         data = request.get_json()
-        rc = project.add_layer(data["datasource"], data["name"], data["crs"])
-        return jsonify(rc), 201
+        try:
+            validate(data, schema)
+        except ValidationError as e:
+            return {"error": e.message}, 415
+
+        rc, err = project.add_layer(
+            data["datasource"], data["type"], data["name"], data["crs"]
+        )
+        if rc:
+            return jsonify(rc), 201
+        else:
+            return {"error": err}, 415
     else:
         return {"error": "Project does not exist"}, 415
 
