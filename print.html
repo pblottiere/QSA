@@ -90,7 +90,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="index.html">Introduction</a></li><li class="chapter-item expanded "><a href="qsa-api/index.html"><strong aria-hidden="true">1.</strong> QSA REST API</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="qsa-api/installation.html"><strong aria-hidden="true">1.1.</strong> Installation</a></li><li class="chapter-item expanded "><a href="qsa-api/configuration.html"><strong aria-hidden="true">1.2.</strong> Configuration</a></li><li class="chapter-item expanded "><a href="qsa-api/endpoints.html"><strong aria-hidden="true">1.3.</strong> Endpoints</a></li></ol></li><li class="chapter-item expanded "><a href="qsa-plugin/index.html"><strong aria-hidden="true">2.</strong> QSA plugin</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="qsa-plugin/installation.html"><strong aria-hidden="true">2.1.</strong> Installation</a></li><li class="chapter-item expanded "><a href="qsa-plugin/configuration.html"><strong aria-hidden="true">2.2.</strong> Configuration</a></li><li class="chapter-item expanded "><a href="qsa-plugin/usage.html"><strong aria-hidden="true">2.3.</strong> Usage</a></li></ol></li><li class="chapter-item expanded "><a href="qsa-cli/index.html"><strong aria-hidden="true">3.</strong> QSA cli</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="qsa-cli/installation.html"><strong aria-hidden="true">3.1.</strong> Installation</a></li><li class="chapter-item expanded "><a href="qsa-cli/configuration.html"><strong aria-hidden="true">3.2.</strong> Configuration</a></li><li class="chapter-item expanded "><a href="qsa-cli/commands.html"><strong aria-hidden="true">3.3.</strong> Commands</a></li></ol></li><li class="chapter-item expanded "><a href="sandbox/index.html"><strong aria-hidden="true">4.</strong> Sandbox</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="sandbox/inspect.html"><strong aria-hidden="true">4.1.</strong> Inspect QGIS Server instances</a></li><li class="chapter-item expanded "><a href="sandbox/projects.html"><strong aria-hidden="true">4.2.</strong> Manage projects</a></li><li class="chapter-item expanded "><a href="sandbox/layers.html"><strong aria-hidden="true">4.3.</strong> Manage layers</a></li><li class="chapter-item expanded "><a href="sandbox/styles.html"><strong aria-hidden="true">4.4.</strong> Manage styles</a></li></ol></li><li class="chapter-item expanded "><a href="FUNDERS.html"><strong aria-hidden="true">5.</strong> Funders</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="index.html">Introduction</a></li><li class="chapter-item expanded "><a href="qsa-api/index.html"><strong aria-hidden="true">1.</strong> QSA REST API</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="qsa-api/installation.html"><strong aria-hidden="true">1.1.</strong> Installation</a></li><li class="chapter-item expanded "><a href="qsa-api/configuration.html"><strong aria-hidden="true">1.2.</strong> Configuration</a></li><li class="chapter-item expanded "><a href="qsa-api/endpoints.html"><strong aria-hidden="true">1.3.</strong> Endpoints</a></li></ol></li><li class="chapter-item expanded "><a href="qsa-plugin/index.html"><strong aria-hidden="true">2.</strong> QSA plugin</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="qsa-plugin/installation.html"><strong aria-hidden="true">2.1.</strong> Installation</a></li><li class="chapter-item expanded "><a href="qsa-plugin/configuration.html"><strong aria-hidden="true">2.2.</strong> Configuration</a></li><li class="chapter-item expanded "><a href="qsa-plugin/usage.html"><strong aria-hidden="true">2.3.</strong> Usage</a></li></ol></li><li class="chapter-item expanded "><a href="qsa-cli/index.html"><strong aria-hidden="true">3.</strong> QSA cli</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="qsa-cli/installation.html"><strong aria-hidden="true">3.1.</strong> Installation</a></li><li class="chapter-item expanded "><a href="qsa-cli/configuration.html"><strong aria-hidden="true">3.2.</strong> Configuration</a></li><li class="chapter-item expanded "><a href="qsa-cli/commands.html"><strong aria-hidden="true">3.3.</strong> Commands</a></li></ol></li><li class="chapter-item expanded "><a href="sandbox/index.html"><strong aria-hidden="true">4.</strong> Sandbox</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="sandbox/inspect.html"><strong aria-hidden="true">4.1.</strong> Inspect QGIS Server instances</a></li><li class="chapter-item expanded "><a href="sandbox/projects.html"><strong aria-hidden="true">4.2.</strong> Manage projects</a></li><li class="chapter-item expanded "><a href="sandbox/layers.html"><strong aria-hidden="true">4.3.</strong> Manage layers</a></li><li class="chapter-item expanded "><a href="sandbox/styles.html"><strong aria-hidden="true">4.4.</strong> Manage styles</a></li></ol></li><li class="chapter-item expanded "><a href="DEVELOPERS.html"><strong aria-hidden="true">5.</strong> Developers</a></li><li class="chapter-item expanded "><a href="FUNDERS.html"><strong aria-hidden="true">6.</strong> Funders</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle">
                 <div class="sidebar-resize-indicator"></div>
@@ -195,15 +195,14 @@ provide such an API and tools.</p>
 <p>Features:</p>
 <ul>
 <li>Create and manage QGIS projects stored on filesystem</li>
-<li>Create and update vector layers : symbology, theme, …</li>
+<li>Create and update layers : symbology, theme, …</li>
 <li>Inspect online QGIS Server instances</li>
-<li>Cache management with MapProxy</li>
+<li>Optional cache management with MapProxy</li>
 </ul>
 <p><img src="images/qsa_archi.png" alt="QSA" /></p>
 <p>Roadmap:</p>
 <ul>
 <li>Add more documentation</li>
-<li>Add raster layer support</li>
 <li>Add PostgreSQL support to store QGIS projects</li>
 <li>Publish <code>qsa-cli</code> on PyPI</li>
 <li>Publish a <code>qsa-api</code> Docker image on DockerHub</li>
@@ -215,7 +214,7 @@ providing a REST API for managing QGIS Server.</p>
 <p>Features:</p>
 <ul>
 <li>Create and manage projects stored on filesystem</li>
-<li>Add and update vector layers based on multiple datasources (AWS S3 buckets, …)</li>
+<li>Add and update layers based on multiple datasources (AWS S3 buckets, …)</li>
 <li>Configure symbology and themes based on simple symbols parameters</li>
 </ul>
 <p>Optional features:</p>
@@ -279,7 +278,7 @@ empty.</p>
 <tr><td>GET</td><td><code>/api/projects/{project}/layers/{layer}</code></td><td>List layer’s metadata</td></tr>
 <tr><td>GET</td><td><code>/api/projects/{project}/layers/{layer}/map</code></td><td>WMS <code>GetMap</code> result with default parameters</td></tr>
 <tr><td>GET</td><td><code>/api/projects/{project}/layers/{layer}/map/url</code></td><td>WMS <code>GetMap</code> URL with default parameters</td></tr>
-<tr><td>POST</td><td><code>/api/projects/{project}/layers</code></td><td>Add layer to project with <code>name</code>, <code>datasource</code> and <code>crs</code></td></tr>
+<tr><td>POST</td><td><code>/api/projects/{project}/layers</code></td><td>Add layer to project with <code>type</code> (<code>vector</code> or <code>raster</code>), <code>name</code>, <code>datasource</code> and <code>crs</code></td></tr>
 <tr><td>POST</td><td><code>/api/projects/{project}/layers/{layer}/style</code></td><td>Add/Update layer’s style with <code>name</code> (style name) and <code>current</code> (<code>True</code> or <code>False</code>)</td></tr>
 <tr><td>DELETE</td><td><code>/api/projects/{project}/layers/{layer}</code></td><td>Remove layer from project</td></tr>
 </tbody></table>
@@ -609,7 +608,8 @@ $ curl "http://localhost:5000/api/projects/"
   -d '{
     "crs": 4326,
     "datasource":"/data.gpkg|layername=polygons",
-    "name":"polygons"
+    "name":"polygons",
+    "type":"vector"
   }'
 true
 </code></pre>
@@ -620,7 +620,8 @@ true
   -d '{
     "crs": 4326,
     "datasource":"/data.gpkg|layername=lines",
-    "name":"lines"
+    "name":"lines",
+    "type":"vector"
   }'
 true
 </code></pre>
@@ -709,6 +710,20 @@ true
 <pre><code class="language-shell">$ curl "http://localhost:5000/api/projects/my_project/layers/polygons/map" --output map.png
 </code></pre>
 <img src="sandbox/../images/map_style.png" width="300">
+<div style="break-before: page; page-break-before: always;"></div><h1 id="developers"><a class="header" href="#developers">Developers</a></h1>
+<p>Documentation:</p>
+<pre><code class="language-console">$ mdbook build docs
+</code></pre>
+<p>Unit tests:</p>
+<pre><code class="language-console">$ cd qsa-api
+$ pytest -sv test/api.py
+</code></pre>
+<p>Integration tests:</p>
+<pre><code class="language-console">$ cd sandbox
+$ docker-compose up -d
+$ cd ../qsa-api
+$ QSA_GEOTIFF="/landsat_4326.tif" QSA_GPKG="/data.gpkg" QSA_HOST=127.0.01 QSA_PORT=5000 pytest -sv tests/api.py
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="funders"><a class="header" href="#funders">Funders</a></h1>
 <a href="https://www.promethee.earth/en//" target="_blank">
   <img src="images/promethee.png" width="600">
