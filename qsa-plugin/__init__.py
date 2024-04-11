@@ -8,6 +8,7 @@ import struct
 import pickle
 import socket
 from osgeo import gdal
+from pathlib import Path
 from threading import Thread
 from datetime import datetime
 
@@ -38,7 +39,9 @@ def metadata(iface) -> dict:
     m["providers"] = QgsProviderRegistry.instance().pluginList().split("\n")
 
     m["cache"] = {}
-    m["cache"]["projects"] = QgsConfigCache.instance().projects()
+    m["cache"]["projects"] = []
+    for project in QgsConfigCache.instance().projects():
+        m["cache"]["projects"].append(Path(project.fileName()).name)
 
     return m
 

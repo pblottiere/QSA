@@ -60,7 +60,7 @@ $ curl "http://localhost:5000/api/projects/my_project/layers/polygons/style" \
   -H 'Content-Type: application/json' \
   -d '{
     "name":"my_fill_style",
-    "current":"True"
+    "current":true
   }'
 true
 ````
