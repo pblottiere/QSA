@@ -13,12 +13,6 @@ from ..project import QSAProject
 projects = Blueprint("projects", __name__)
 
 
-def str_to_bool(s: str) -> bool:
-    if s in ["True", "TRUE", "true", 1]:
-        return True
-    return False
-
-
 @projects.get("/")
 def projects_list():
     p = []
@@ -125,8 +119,7 @@ def project_layer_update_style(name, layer_name):
         except ValidationError as e:
             return {"error": e.message}, 415
 
-        current = str_to_bool(data["current"])
-
+        current = data["current"]
         style_name = data["name"]
         rc, msg = project.layer_update_style(layer_name, style_name, current)
         if not rc:
