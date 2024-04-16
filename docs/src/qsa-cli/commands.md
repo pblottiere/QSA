@@ -13,6 +13,7 @@ Commands:
   inspect  Returns metadata about a specific QGIS Server instance
   logs     Returns logs of a specific QGIS Server instance
   ps       List QGIS Server instances
+  stats    Returns stats of QGIS Server instances
 ````
 
 Examples:

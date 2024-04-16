@@ -69,7 +69,7 @@ def logs(id):
 @click.argument("id", required=False)
 def stats(id):
     """
-    Returns stats of a specific QGIS Server instance
+    Returns stats of QGIS Server instances
     """
 
     ids = []
