@@ -50,3 +50,16 @@ def instances_logs(instance):
         return {"error": "QGIS Server instance is not available"}, 415
 
     return monitor.conns[instance].logs
+
+
+@instances.get("/<instance>/stats")
+def instances_stats(instance):
+    monitor = current_app.config["MONITOR"]
+
+    if not monitor:
+        return {"error": "QGIS Server monitoring is not activated"}, 415
+
+    if instance not in monitor.conns:
+        return {"error": "QGIS Server instance is not available"}, 415
+
+    return monitor.conns[instance].stats

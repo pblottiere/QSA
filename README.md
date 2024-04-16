@@ -5,9 +5,9 @@
 
 Components:
 
-* [QSA REST API](https://pblottiere.github.io/QSA/qsa-api/): Flask web server with a REST API for administrating QGIS Server
-* [QSA plugin](https://pblottiere.github.io/QSA/qsa-plugin/): QGIS Server plugin for introspection
-* [QSA cli](https://pblottiere.github.io/QSA/qsa-cli/): Command line tool
+* `qsa-api`: Flask web server with a REST API for administrating QGIS Server
+* `qsa-plugin`: QGIS Server plugin for introspection
+* `qsa-cli`: Command line tool
 
 Main features:
 * Create and manage QGIS projects stored on filesystem
