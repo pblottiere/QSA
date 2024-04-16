@@ -56,6 +56,16 @@ class QSAMonitorThread(Thread):
             print(e, file=sys.stderr)
             return {}
 
+    @property
+    def stats(self) -> dict:
+        self.response = None
+        try:
+            self.con.send(b"stats")
+            return self._wait_recv()
+        except Exception as e:
+            print(e, file=sys.stderr)
+            return {}
+
     def _wait_recv(self):
         it = 0
 

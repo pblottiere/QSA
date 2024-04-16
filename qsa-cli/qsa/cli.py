@@ -2,6 +2,7 @@
 
 import os
 import json
+import time
 import click
 import requests
 from tabulate import tabulate
@@ -61,3 +62,18 @@ def logs(id):
     data = requests.get(url)
 
     print(data.json()["logs"])
+
+
+@cli.command()
+@click.argument("id")
+def stats(id):
+    """
+    Returns stats of a specific QGIS Server instance
+    """
+
+    while 1:
+        url = f"{QSA_URL}/api/instances/{id}/stats"
+        data = requests.get(url)
+
+        print(data.json())
+        time.sleep(0.25)

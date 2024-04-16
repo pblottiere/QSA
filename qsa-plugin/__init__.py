@@ -13,17 +13,64 @@ from threading import Thread
 from datetime import datetime
 
 from qgis import PyQt
-from qgis.server import QgsConfigCache
 from qgis.utils import server_active_plugins
+from qgis.server import QgsConfigCache, QgsServerFilter
 from qgis.core import Qgis, QgsProviderRegistry, QgsApplication
 
 LOG_MESSAGES = []
+CURRENT_TASK = {}
+CURRENT_TASK_START = None
+
+
+class ProbeFilter(QgsServerFilter):
+    def __init__(self, iface):
+        super().__init__(iface)
+
+    def onRequestReady(self) -> bool:
+        print("onRequestReady", file=sys.stderr)
+        request = self.serverInterface().requestHandler()
+        params = request.parameterMap()
+
+        CURRENT_TASK["project"] = params.get("MAP", "")
+        CURRENT_TASK["service"] = params.get("SERVICE", "")
+        CURRENT_TASK["request"] = params.get("REQUEST", "")
+
+        CURRENT_TASK_START = datetime.now()
+
+        return True
+
+    def onResponseComplete(self) -> bool:
+        self._update()
+        return True
+
+    def onSendResponse(self) -> bool:
+        self._update()
+        return True
+
+    def _update(self) -> None:
+        CURRENT_TASK = {}
+        CURRENT_TASK_START = None
 
 
 def log_messages():
     m = {}
     m["logs"] = "\n".join(LOG_MESSAGES)
     return m
+
+
+def stats():
+    s = {}
+    s["uptime"] = 0
+    s["pid"] = 0
+    s["cpu"] = 0
+    s["memory"] = 0
+    s["task"] = {}
+
+    if CURRENT_TASK_START is not None and CURRENT_TASK:
+        s["task"] = CURRENT_TASK
+        s["task"]["duration"] = (datetime.now() - CURRENT_TASK_START).total_seconds() * 1000
+
+    return s
 
 
 def metadata(iface) -> dict:
@@ -74,6 +121,8 @@ def f(iface, host: str, port: int) -> None:
                 payload = metadata(iface)
             elif b"logs" in data:
                 payload = log_messages()
+            elif b"stats" in data:
+                payload = stats()
 
             ser = pickle.dumps(payload)
             s.sendall(struct.pack(">I", len(ser)))
@@ -104,3 +153,5 @@ def serverClassFactory(iface):
         ),
     )
     t.start()
+
+    iface.registerFilter(ProbeFilter(iface), 100)

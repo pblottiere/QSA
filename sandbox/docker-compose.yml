@@ -12,6 +12,8 @@ services:
       - QGIS_SERVER_LOG_LEVEL=0
       - QSA_HOST="qsa"
       - QSA_PORT=9999
+    ports:
+      - "8080:80"
   qsa:
     image: pblottiere/qsa
     entrypoint: "qsa"
