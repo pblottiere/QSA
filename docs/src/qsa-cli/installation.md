@@ -4,6 +4,7 @@ From sources:
 
 ```` console
 $ cd qsa-cli
+$ virtualenv --system-site-packages venv  # system aware for pyqgis
 $ . venv/bin/activate
 (venv)$ pip install poetry
 (venv)$ poetry install
