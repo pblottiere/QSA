@@ -180,11 +180,10 @@
                     <main>
                         <p>Welcome to QGIS Server Administration tool’s documentation.</p>
 <p><a href="https://docs.qgis.org/3.34/en/docs/server_manual/introduction.html">QGIS Server</a> is
-a map server-based on the QGIS core library and rendering engine which provides
+a map-server based on the QGIS core library and rendering engine which provides
 numerous classical services like WMS, WFS, WCS, WMTS and OGC API Features.
 While QGIS Desktop acts like a WYSIWYG tool for setting up projects, the need
-for a REST API is sometime necessary to configure and administrate QGIS Server
-: custom web client, cloud deployment, …. The aim of the QSA project is to
+for a REST API is sometime necessary to configure and administrate QGIS Server: custom web client, cloud deployment, …. The aim of the QSA project is to
 provide such an API and tools.</p>
 <p>Components:</p>
 <ul>
@@ -195,7 +194,7 @@ provide such an API and tools.</p>
 <p>Features:</p>
 <ul>
 <li>Create and manage QGIS projects stored on filesystem</li>
-<li>Create and update layers : symbology, theme, …</li>
+<li>Create and update layers: symbology, theme, …</li>
 <li>Inspect online QGIS Server instances</li>
 <li>Optional cache management with MapProxy</li>
 </ul>
@@ -389,6 +388,7 @@ QSA REST API.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="qsa-cli--installation"><a class="header" href="#qsa-cli--installation">QSA cli : installation</a></h1>
 <p>From sources:</p>
 <pre><code class="language-console">$ cd qsa-cli
+$ virtualenv venv  
 $ . venv/bin/activate
 (venv)$ pip install poetry
 (venv)$ poetry install
@@ -442,7 +442,8 @@ afd95ccaef9e   opengisch/qgis-server:3.30-jammy   "/bin/sh -c /usr/loc…"   2 h
 <code>qsa-api</code> server, but it’s also possible to use the REST API.</p>
 <h3 id="list-online-instances"><a class="header" href="#list-online-instances">List online instances</a></h3>
 <p>To list these instances with <code>qsa-cli</code>:</p>
-<pre><code class="language-shell">$ qsa ps
+<pre><code class="language-shell">$ export QSA_SERVER_URL=http://localhost:5000
+$ qsa ps
 INSTANCE ID    IP          STATUS
 -------------  ----------  -----------------------
 6773ca08       172.20.0.2  Binded 1096 seconds ago

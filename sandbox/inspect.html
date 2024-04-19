@@ -182,7 +182,8 @@
 <code>qsa-api</code> server, but it’s also possible to use the REST API.</p>
 <h3 id="list-online-instances"><a class="header" href="#list-online-instances">List online instances</a></h3>
 <p>To list these instances with <code>qsa-cli</code>:</p>
-<pre><code class="language-shell">$ qsa ps
+<pre><code class="language-shell">$ export QSA_SERVER_URL=http://localhost:5000
+$ qsa ps
 INSTANCE ID    IP          STATUS
 -------------  ----------  -----------------------
 6773ca08       172.20.0.2  Binded 1096 seconds ago
