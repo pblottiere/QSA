@@ -2,11 +2,10 @@ Welcome to QGIS Server Administration tool's documentation.
 
 
 [QGIS Server](https://docs.qgis.org/3.34/en/docs/server_manual/introduction.html) is
-a map server-based on the QGIS core library and rendering engine which provides
+a map-server based on the QGIS core library and rendering engine which provides
 numerous classical services like WMS, WFS, WCS, WMTS and OGC API Features.
 While QGIS Desktop acts like a WYSIWYG tool for setting up projects, the need
-for a REST API is sometime necessary to configure and administrate QGIS Server
-: custom web client, cloud deployment, .... The aim of the QSA project is to
+for a REST API is sometime necessary to configure and administrate QGIS Server: custom web client, cloud deployment, .... The aim of the QSA project is to
 provide such an API and tools.
 
 Components:
@@ -17,7 +16,7 @@ Components:
 
 Features:
 * Create and manage QGIS projects stored on filesystem
-* Create and update layers : symbology, theme, ...
+* Create and update layers: symbology, theme, ...
 * Inspect online QGIS Server instances
 * Optional cache management with MapProxy
 

@@ -11,10 +11,9 @@ Components:
 
 Main features:
 * Create and manage QGIS projects stored on filesystem
-* Create and update layers : symbology, theme, ...
+* Create and update layers: symbology, theme, ...
 * Inspect online QGIS Server instances
 * Cache management with MapProxy
 
 
-See QGIS Server Administration tool's
-[documentation](https://pblottiere.github.io/QSA/) for more details.
+See QGIS Server Administration tool's [documentation](https://pblottiere.github.io/QSA/) for more details.

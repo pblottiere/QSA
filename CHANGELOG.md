@@ -10,8 +10,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
-- Support simple symbol properties for lines and polygons : https://github.com/pblottiere/QSA/pull/1
-- Add support for simple marker style : https://github.com/pblottiere/QSA/pull/2
+- Support simple symbol properties for lines and polygons: https://github.com/pblottiere/QSA/pull/1
+- Add support for simple marker style: https://github.com/pblottiere/QSA/pull/2
 
 
 ## [0.0.1] - 2024-02-12

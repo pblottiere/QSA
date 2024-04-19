@@ -8,6 +8,7 @@
 To list these instances with `qsa-cli`:
 
 ```` shell
+$ export QSA_SERVER_URL=http://localhost:5000
 $ qsa ps
 INSTANCE ID    IP          STATUS
 -------------  ----------  -----------------------
