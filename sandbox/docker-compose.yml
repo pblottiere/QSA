@@ -5,15 +5,15 @@ services:
     volumes:
       - ./landsat_4326.tif:/landsat_4326.tif
       - ./data.gpkg:/data.gpkg
-      - ./projects/qgis:/io/data
+      - ./projects/qsa:/io/data
       - ../qsa-plugin:/io/plugins/qsa
+      - ./pg_service.conf:/etc/postgresql-common/pg_service.conf
     environment:
       - QGIS_USER=1000
       - QGIS_SERVER_LOG_LEVEL=0
+      - QGIS_SERVER_PROJECT_CACHE_STRATEGY=periodic
       - QSA_HOST="qsa"
       - QSA_PORT=9999
-    ports:
-      - "8080:80"
   qsa:
     image: pblottiere/qsa
     entrypoint: "qsa"
@@ -23,10 +23,10 @@ services:
     volumes:
       - ./landsat_4326.tif:/landsat_4326.tif
       - ./data.gpkg:/data.gpkg
-      - ./projects/qgis:/projects
-      - ./pg_service.conf:/.pg_service.conf
+      - ./projects/qsa:/projects
+      - ./pg_service.conf:/root/.pg_service.conf
     ports:
-      - "5000:5000"
+      - 5000:5000
     environment:
       - QSA_QGISSERVER_URL=http://qgisserver/ogc/
       - QSA_QGISSERVER_PROJECTS_DIR=/projects
@@ -36,9 +36,7 @@ services:
   postgres:
     image: postgres:14-alpine
     ports:
-      - 5432:5432
-    volumes:
-      - ~/apps/postgres:/var/lib/postgresql/data
+      - 5433:5432
     environment:
       - POSTGRES_PASSWORD=qsa
       - POSTGRES_USER=qsa

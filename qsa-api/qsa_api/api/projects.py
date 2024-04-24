@@ -7,7 +7,7 @@ from jsonschema.exceptions import ValidationError
 from flask import send_file, Blueprint, jsonify, request
 
 from ..wms import WMS
-from ..project import QSAProject, StorageBackend
+from ..project import QSAProject
 
 
 projects = Blueprint("projects", __name__)
@@ -41,7 +41,7 @@ def project_add():
         "properties": {
             "name": {"type": "string"},
             "author": {"type": "string"},
-            "schema": {"type": "string"}
+            "schema": {"type": "string"},
         },
     }
 
@@ -55,7 +55,7 @@ def project_add():
         name = data["name"]
         author = data["author"]
         schema = ""
-        if schema in data:
+        if "schema" in data:
             schema = data["schema"]
 
         project = QSAProject(name, schema)
@@ -81,7 +81,8 @@ def project_del(name):
 
 @projects.get("/<name>/styles")
 def project_styles(name):
-    project = QSAProject(name)
+    psql_schema = request.args.get("schema", default="public")
+    project = QSAProject(name, psql_schema)
     if project.exists():
         return jsonify(project.styles), 201
     else:
@@ -90,7 +91,8 @@ def project_styles(name):
 
 @projects.get("/<name>/styles/<style>")
 def project_style(name, style):
-    project = QSAProject(name)
+    psql_schema = request.args.get("schema", default="public")
+    project = QSAProject(name, psql_schema)
     if project.exists():
         infos = project.style(style)
         return jsonify(infos), 201
@@ -100,7 +102,8 @@ def project_style(name, style):
 
 @projects.delete("/<name>/styles/<style>")
 def project_del_style(name, style):
-    project = QSAProject(name)
+    psql_schema = request.args.get("schema", default="public")
+    project = QSAProject(name, psql_schema)
     if project.exists():
         if style in project.styles:
             rc = project.remove_style(style)
@@ -122,7 +125,8 @@ def project_layer_update_style(name, layer_name):
         },
     }
 
-    project = QSAProject(name)
+    psql_schema = request.args.get("schema", default="public")
+    project = QSAProject(name, psql_schema)
     if project.exists():
         data = request.get_json()
         try:
@@ -142,9 +146,10 @@ def project_layer_update_style(name, layer_name):
 
 @projects.get("/<name>/layers/<layer_name>/map/url")
 def project_layer_map_url(name, layer_name):
-    project = QSAProject(name)
+    psql_schema = request.args.get("schema", default="public")
+    project = QSAProject(name, psql_schema)
     if project.exists():
-        getmap = WMS.getmap_url(name, layer_name)
+        getmap = WMS.getmap_url(name, psql_schema, layer_name)
         return jsonify({"url": getmap}), 201
     else:
         return {"error": "Project does not exist"}, 415
@@ -152,9 +157,10 @@ def project_layer_map_url(name, layer_name):
 
 @projects.get("/<name>/layers/<layer_name>/map")
 def project_layer_map(name, layer_name):
-    project = QSAProject(name)
+    psql_schema = request.args.get("schema", default="public")
+    project = QSAProject(name, psql_schema)
     if project.exists():
-        url = WMS.getmap(name, layer_name)
+        url = WMS.getmap(name, psql_schema, layer_name)
         r = requests.get(url, stream=True)
 
         png = "/tmp/map.png"
@@ -179,7 +185,8 @@ def project_add_style(name):
         },
     }
 
-    project = QSAProject(name)
+    psql_schema = request.args.get("schema", default="public")
+    project = QSAProject(name, psql_schema)
     if project.exists():
         data = request.get_json()
         try:
@@ -225,7 +232,8 @@ def project_update_default_style(name):
         },
     }
 
-    project = QSAProject(name)
+    psql_schema = request.args.get("schema", default="public")
+    project = QSAProject(name, psql_schema)
     if project.exists():
         data = request.get_json()
         try:
@@ -241,7 +249,8 @@ def project_update_default_style(name):
 
 @projects.get("/<name>/layers")
 def project_layers(name):
-    project = QSAProject(name)
+    psql_schema = request.args.get("schema", default="public")
+    project = QSAProject(name, psql_schema)
     if project.exists():
         return jsonify(project.layers), 201
     else:
@@ -261,7 +270,9 @@ def project_add_layer(name):
         },
     }
 
-    project = QSAProject(name)
+    psql_schema = request.args.get("schema", default="public")
+    project = QSAProject(name, psql_schema)
+
     if project.exists():
         data = request.get_json()
         try:
@@ -282,7 +293,8 @@ def project_add_layer(name):
 
 @projects.get("/<name>/layers/<layer_name>")
 def project_info_layer(name, layer_name):
-    project = QSAProject(name)
+    psql_schema = request.args.get("schema", default="public")
+    project = QSAProject(name, psql_schema)
     if project.exists():
         layer_infos = project.layer(layer_name)
         if layer_infos:
@@ -295,7 +307,8 @@ def project_info_layer(name, layer_name):
 
 @projects.delete("/<name>/layers/<layer_name>")
 def project_del_layer(name, layer_name):
-    project = QSAProject(name)
+    psql_schema = request.args.get("schema", default="public")
+    project = QSAProject(name, psql_schema)
     if project.exists():
         if project.layer_exists(layer_name):
             rc = project.remove_layer(layer_name)
