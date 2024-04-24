@@ -7,7 +7,7 @@ from jsonschema.exceptions import ValidationError
 from flask import send_file, Blueprint, jsonify, request
 
 from ..wms import WMS
-from ..project import QSAProject
+from ..project import QSAProject, StorageBackend
 
 
 projects = Blueprint("projects", __name__)
@@ -23,10 +23,11 @@ def projects_list():
 
 @projects.get("/<name>")
 def project_info(name: str):
-    project = QSAProject(name)
+    psql_schema = request.args.get("schema", default="public")
+    project = QSAProject(name, psql_schema)
 
     if project.exists():
-        return jsonify(QSAProject(name).metadata)
+        return jsonify(project.metadata)
     return {"error": "Project does not exist"}, 415
 
 
@@ -38,6 +39,7 @@ def project_add():
         "properties": {
             "name": {"type": "string"},
             "author": {"type": "string"},
+            "schema": {"type": "string"}
         },
     }
 
@@ -50,8 +52,11 @@ def project_add():
 
         name = data["name"]
         author = data["author"]
+        schema = ""
+        if schema in data:
+            schema = data["schema"]
 
-        project = QSAProject(name)
+        project = QSAProject(name, schema)
         if project.exists():
             return {"error": "Project already exists"}
         project.create(author)
@@ -193,8 +198,9 @@ def project_add_style(name):
 
 
 @projects.get("/<name>/styles/default")
-def project_default_styles(name):
-    project = QSAProject(name)
+def project_default_styles(name: str) -> dict:
+    psql_schema = request.args.get("schema", default="public")
+    project = QSAProject(name, psql_schema)
     if project.exists():
         infos = project.default_styles()
         return jsonify(infos), 201

@@ -24,10 +24,22 @@ services:
       - ./landsat_4326.tif:/landsat_4326.tif
       - ./data.gpkg:/data.gpkg
       - ./projects/qgis:/projects
+      - ./pg_service.conf:/.pg_service.conf
     ports:
       - "5000:5000"
     environment:
       - QSA_QGISSERVER_URL=http://qgisserver/ogc/
-      - QSA_QGISSERVER_PROJECTS=/projects
+      - QSA_QGISSERVER_PROJECTS_DIR=/projects
+      - QSA_QGISSERVER_PROJECTS_PSQL_SERVICE=qsa
       - QSA_QGISSERVER_MONITORING_PORT=9999
-      - QSA_MAPPROXY_PROJECTS=
+      - QSA_MAPPROXY_PROJECTS_DIR=
+  postgres:
+    image: postgres:14-alpine
+    ports:
+      - 5432:5432
+    volumes:
+      - ~/apps/postgres:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=qsa
+      - POSTGRES_USER=qsa
+      - POSTGRES_DB=qsa
