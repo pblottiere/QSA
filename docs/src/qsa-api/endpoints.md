@@ -1,5 +1,13 @@
 # QSA REST API : endpoints
 
+**Note** : when PostgreSQL support is enabled, a query string parameter `schema` may be
+used to specify the schema in which the QGIS projects is stored in the
+database (`public` is used by default). For example:
+
+```` shell
+$ curl "http://localhost/api/xxx/yyy?schema=myschema"
+````
+
 ## Project
 
 A QSA project is defined by:
@@ -8,24 +16,28 @@ A QSA project is defined by:
 * a list of themes
 * a MapProxy configuration file (if enabled)
 
-| Method  |                      URL                      |         Description                                   |
-|---------|-----------------------------------------------|-------------------------------------------------------|
-| GET     | `/api/projects`                               | List projects                                         |
-| GET     | `/api/projects/{project}`                     | List project's metadata                               |
-| POST    | `/api/projects/`                              | Create a project with `name`, `author` and `storage`  |
-| DELETE  | `/api/projects/{project}`                     | Remove a project                                      |
+| Method  |                      URL                      |         Description                                                                                 |
+|---------|-----------------------------------------------|-----------------------------------------------------------------------------------------------------|
+| GET     | `/api/projects`                               | List projects                                                                                       |
+| GET     | `/api/projects/{project}`                     | List project's metadata                                                                             |
+| POST    | `/api/projects/`                              | Create a project with `name`, `author` and `schema` (only used when PostgreSQL support is enabled)  |
+| DELETE  | `/api/projects/{project}`                     | Remove a project                                                                                    |
 
 Examples:
 
 ``` shell
+# create a project and store the QGIS project in PostgreSQL within `my_schema`
 $ curl "http://localhost/api/projects/" \
      -X POST \
      -H 'Content-Type: application/json' \
      -d '{
         "name":"my_project",
         "author":"pblottiere",
-        "storage":"filesystem"
+        "schema":"my_schema"
      }'
+
+# get metadata about the project stored in PostgreSQL
+$ curl "http://localhost/api/projects/my_project?schema=my_schema"
 ```
 
 ## Layer
