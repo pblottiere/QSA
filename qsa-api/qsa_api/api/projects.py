@@ -59,7 +59,9 @@ def project_add():
         project = QSAProject(name, schema)
         if project.exists():
             return {"error": "Project already exists"}
-        project.create(author)
+        rc = project.create(author)
+        if not rc:
+            return {"error": "Failed to create project"}
         return jsonify(True), 201
     return {"error": "Request must be JSON"}, 415
 
