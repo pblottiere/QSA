@@ -15,8 +15,10 @@ projects = Blueprint("projects", __name__)
 
 @projects.get("/")
 def projects_list():
+    psql_schema = request.args.get("schema", default="public")
+
     p = []
-    for project in QSAProject.projects():
+    for project in QSAProject.projects(psql_schema):
         p.append(project.name)
     return jsonify(p)
 
@@ -68,7 +70,9 @@ def project_add():
 
 @projects.delete("/<name>")
 def project_del(name):
-    project = QSAProject(name)
+    psql_schema = request.args.get("schema", default="public")
+    project = QSAProject(name, psql_schema)
+
     if project.exists():
         project.remove()
         return jsonify(True), 201

@@ -73,10 +73,19 @@ class QSAProject:
         return p
 
     @staticmethod
-    def projects() -> list:
+    def projects(schema: str = "") -> list:
         p = []
-        for i in QSAProject._qgis_projects_dir().glob("**/*.qgs"):
-            p.append(QSAProject(i.parent.name))
+
+        if QSAProject._storage_backend() == StorageBackend.FILESYSTEM:
+            for i in QSAProject._qgis_projects_dir().glob("**/*.qgs"):
+                p.append(QSAProject(i.parent.name))
+        else:
+            service = QSAProject._config().qgisserver_projects_psql_service
+            uri = f"postgresql:?service={service}&schema={schema}"
+
+            storage = QgsApplication.instance().projectStorageRegistry().projectStorageFromType("postgresql")
+            for pname in storage.listProjects(uri):
+                p.append(QSAProject(pname, schema))
 
         return p
 
@@ -110,6 +119,10 @@ class QSAProject:
             p.metadata().creationDateTime().toString(Qt.ISODate)
         )
         m["crs"] = p.crs().authid()
+        m["storage"] = QSAProject._storage_backend().name.lower()
+
+        if QSAProject._storage_backend() == StorageBackend.POSTGRESQL:
+            m["schema"] = self.schema
         return m
 
     def style_default(self, geometry: str) -> bool:
@@ -251,7 +264,7 @@ class QSAProject:
         return rc
 
     def exists(self) -> bool:
-        if self._storage_backend == StorageBackend.FILESYSTEM:
+        if QSAProject._storage_backend() == StorageBackend.FILESYSTEM:
             return self._qgis_project_dir.exists()
         else:
             service = QSAProject._config().qgisserver_projects_psql_service
@@ -260,7 +273,7 @@ class QSAProject:
             storage = QgsApplication.instance().projectStorageRegistry().projectStorageFromType("postgresql")
             projects = storage.listProjects(uri)
 
-            return self.name in projects and self._qgis_projects_dir.exists()
+            return self.name in projects and self._qgis_projects_dir().exists()
 
     def create(self, author: str) -> bool:
         if self.exists():
@@ -277,9 +290,6 @@ class QSAProject:
         project.setMetadata(m)
         rc = project.write(self._qgis_project_uri)
 
-        print(rc)
-        print(self._qgis_project_uri)
-
         # create mapproxy config file
         if self._mapproxy_enabled:
             mp = QSAMapProxy(self.name)
@@ -290,9 +300,9 @@ class QSAProject:
     def remove(self) -> None:
         shutil.rmtree(self._qgis_project_dir)
 
-        if self._storage_backend == StorageBackend.POSTGRESQL:
-            storage = QgsApplication.projectStorageRegistry().projectStorageFromUri(self.name)
-            storage.removeProject(uri)
+        if QSAProject._storage_backend() == StorageBackend.POSTGRESQL:
+            storage = QgsApplication.instance().projectStorageRegistry().projectStorageFromType("postgresql")
+            storage.removeProject(self._qgis_project_uri)
 
         if self._mapproxy_enabled:
             QSAMapProxy(self.name).remove()
@@ -456,14 +466,14 @@ class QSAProject:
 
     @property
     def _qgis_project_uri(self) -> str:
-        if self._storage_backend == StorageBackend.POSTGRESQL:
+        if QSAProject._storage_backend() == StorageBackend.POSTGRESQL:
             service = QSAProject._config().qgisserver_projects_psql_service
             return f"postgresql:?service={service}&schema={self.schema}&project={self.name}"
         else:
             return (self._qgis_project_dir / f"{self.name}.qgs").as_posix()
 
-    @property
-    def _storage_backend(self) -> StorageBackend:
-        if self._config().qgisserver_projects_psql_service:
+    @staticmethod
+    def _storage_backend() -> StorageBackend:
+        if QSAProject._config().qgisserver_projects_psql_service:
             return StorageBackend.POSTGRESQL
         return StorageBackend.FILESYSTEM

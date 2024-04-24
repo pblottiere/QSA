@@ -47,31 +47,33 @@ class APITestCasePostgresql(unittest.TestCase):
         p = self.app.post("/api/projects/", data)
         self.assertEqual(p.status_code, 201)
 
-        # data = {}
-        # data["name"] = "qsa_test_project1"
-        # data["author"] = "pblottiere"
-        # p = self.app.post("/api/projects/", data)
-        # self.assertEqual(p.status_code, 201)
+        data = {}
+        data["name"] = "qsa_test_project1"
+        data["author"] = "pblottiere"
+        p = self.app.post("/api/projects/", data)
+        self.assertEqual(p.status_code, 201)
 
-        # # 2 projects
-        # p = self.app.get("/api/projects/")
-        # self.assertTrue(TEST_PROJECT_0 in p.get_json())
-        # self.assertTrue(TEST_PROJECT_1 in p.get_json())
+        # 2 projects
+        p = self.app.get("/api/projects/")
+        self.assertTrue(TEST_PROJECT_0 in p.get_json())
+        self.assertTrue(TEST_PROJECT_1 in p.get_json())
 
-        # # remove project
-        # p = self.app.delete(f"/api/projects/{TEST_PROJECT_0}")
-        # self.assertEqual(p.status_code, 201)
+        # remove project
+        p = self.app.delete(f"/api/projects/{TEST_PROJECT_0}")
+        self.assertEqual(p.status_code, 201)
 
-        # # 1 projects
-        # p = self.app.get("/api/projects/")
-        # self.assertTrue(TEST_PROJECT_1 in p.get_json())
+        # 1 projects
+        p = self.app.get("/api/projects/")
+        self.assertTrue(TEST_PROJECT_1 in p.get_json())
 
-        # # get info about project
-        # p = self.app.get(f"/api/projects/{TEST_PROJECT_1}")
-        # j = p.get_json()
-        # self.assertTrue("crs" in j)
-        # self.assertTrue("creation_datetime" in j)
-        # self.assertEqual(j["author"], "pblottiere")
+        # get info about project
+        p = self.app.get(f"/api/projects/{TEST_PROJECT_1}")
+        j = p.get_json()
+        self.assertTrue("crs" in j)
+        self.assertTrue("creation_datetime" in j)
+        self.assertEqual(j["author"], "pblottiere")
+        self.assertEqual(j["storage"], "postgresql")
+        self.assertEqual(j["schema"], "public")
 
-        # # remove last project
-        # p = self.app.delete(f"/api/projects/{TEST_PROJECT_1}")
+        # remove last project
+        p = self.app.delete(f"/api/projects/{TEST_PROJECT_1}")

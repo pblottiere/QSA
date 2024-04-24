@@ -72,6 +72,8 @@ class APITestCaseFilesystem(unittest.TestCase):
         self.assertTrue("crs" in j)
         self.assertTrue("creation_datetime" in j)
         self.assertEqual(j["author"], "pblottiere")
+        self.assertEqual(j["storage"], "filesystem")
+        self.assertFalse("schema" in j)
 
         # remove last project
         p = self.app.delete(f"/api/projects/{TEST_PROJECT_1}")

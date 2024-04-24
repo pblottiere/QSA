@@ -9,6 +9,14 @@ $ mdbook build docs
 Unit tests:
 
 ```` console
+$ cat ~/.pg_service.conf
+[qsa_test]
+host=localhost
+port=5432
+dbname=qsa_test
+user=myusername
+password=
+$ createdb qsa_test
 $ cd qsa-api
 $ pytest -sv test/api.py
 ````
