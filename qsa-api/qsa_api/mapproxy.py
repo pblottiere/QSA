@@ -3,12 +3,16 @@
 import yaml
 import shutil
 from pathlib import Path
-from flask import current_app
+
+from .utils import config, qgisserver_base_url
 
 
 class QSAMapProxy:
-    def __init__(self, name: str) -> None:
+    def __init__(self, name: str, schema: str = "") -> None:
         self.name = name
+        self.schema = "public"
+        if schema:
+            self.schema = schema
 
     def create(self) -> None:
         parent = Path(__file__).resolve().parent
@@ -37,8 +41,8 @@ class QSAMapProxy:
             self.cfg["caches"] = {}
             self.cfg["sources"] = {}
 
-        l = {"name": name, "title": name, "sources": [f"{name}_cache"]}
-        self.cfg["layers"].append(l)
+        lyr = {"name": name, "title": name, "sources": [f"{name}_cache"]}
+        self.cfg["layers"].append(lyr)
 
         c = {"grids": ["webmercator"], "sources": [f"{name}_wms"]}
         self.cfg["caches"][f"{name}_cache"] = c
@@ -46,7 +50,7 @@ class QSAMapProxy:
         s = {
             "type": "wms",
             "req": {
-                "url": self._qgisserver_url,
+                "url": qgisserver_base_url(self.name, self.schema),
                 "layers": name,
                 "transparent": True,
             },
@@ -78,11 +82,7 @@ class QSAMapProxy:
 
     @staticmethod
     def _mapproxy_projects_dir() -> Path:
-        return Path(current_app.config["CONFIG"].mapproxy_projects)
-
-    @property
-    def _qgisserver_url(self) -> str:
-        return f"{current_app.config['CONFIG'].qgisserver_url}/{self.name}"
+        return Path(config().mapproxy_projects_dir)
 
     @property
     def _mapproxy_project(self) -> Path:

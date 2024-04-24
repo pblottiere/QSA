@@ -2,9 +2,7 @@
 
 import shutil
 import sqlite3
-from enum import Enum
 from pathlib import Path
-from flask import current_app
 
 from qgis.PyQt.QtCore import Qt
 from qgis.core import (
@@ -29,28 +27,14 @@ from qgis.core import (
 from qgis.PyQt.QtXml import QDomDocument, QDomNode
 
 from .mapproxy import QSAMapProxy
+from .utils import StorageBackend, config
 
 
 RENDERER_TAG_NAME = "renderer-v2"  # constant from core/symbology/renderer.h
 
 
-class StorageBackend(Enum):
-    INVALID = 0
-    FILESYSTEM = 1
-    POSTGRESQL = 2
-
-    def from_str(storage: str) -> "StorageBackend":
-        if storage.lower() == StorageBackend.FILESYSTEM.name.lower():
-            return StorageBackend.FILESYSTEM
-        elif storage.lower() == StorageBackend.FILESYSTEM.name.lower():
-            return StorageBackend.POSTGRESQL
-        return StorageBackend.INVALID
-
-
 class QSAProject:
     def __init__(self, name: str, schema: str = "public") -> None:
-        print("Init QSAProject with:")
-        print(schema)
         self.name: str = name
         self.schema: str = "public"
         if schema:
@@ -78,14 +62,14 @@ class QSAProject:
     def projects(schema: str = "") -> list:
         p = []
 
-        if QSAProject._storage_backend() == StorageBackend.FILESYSTEM:
+        if StorageBackend.type() == StorageBackend.FILESYSTEM:
             for i in QSAProject._qgis_projects_dir().glob("**/*.qgs"):
                 name = i.parent.name.replace(
                     QSAProject._qgis_project_dir_prefix(), ""
                 )
                 p.append(QSAProject(name))
         else:
-            service = QSAProject._config().qgisserver_projects_psql_service
+            service = config().qgisserver_projects_psql_service
             uri = f"postgresql:?service={service}&schema={schema}"
 
             storage = (
@@ -128,9 +112,9 @@ class QSAProject:
             p.metadata().creationDateTime().toString(Qt.ISODate)
         )
         m["crs"] = p.crs().authid()
-        m["storage"] = QSAProject._storage_backend().name.lower()
+        m["storage"] = StorageBackend.type().name.lower()
 
-        if QSAProject._storage_backend() == StorageBackend.POSTGRESQL:
+        if StorageBackend.type() == StorageBackend.POSTGRESQL:
             m["schema"] = self.schema
         return m
 
@@ -273,10 +257,10 @@ class QSAProject:
         return rc
 
     def exists(self) -> bool:
-        if QSAProject._storage_backend() == StorageBackend.FILESYSTEM:
+        if StorageBackend.type() == StorageBackend.FILESYSTEM:
             return self._qgis_project_dir.exists()
         else:
-            service = QSAProject._config().qgisserver_projects_psql_service
+            service = config().qgisserver_projects_psql_service
             uri = f"postgresql:?service={service}&schema={self.schema}"
 
             storage = (
@@ -316,7 +300,7 @@ class QSAProject:
     def remove(self) -> None:
         shutil.rmtree(self._qgis_project_dir)
 
-        if QSAProject._storage_backend() == StorageBackend.POSTGRESQL:
+        if StorageBackend.type() == StorageBackend.POSTGRESQL:
             storage = (
                 QgsApplication.instance()
                 .projectStorageRegistry()
@@ -462,7 +446,7 @@ class QSAProject:
 
     @staticmethod
     def _qgis_projects_dir() -> Path:
-        return Path(QSAProject._config().qgisserver_projects_dir)
+        return Path(config().qgisserver_projects_dir)
 
     @staticmethod
     def _layer_type(layer_type: str) -> Qgis.LayerType | None:
@@ -472,13 +456,9 @@ class QSAProject:
             return Qgis.LayerType.Raster
         return None
 
-    @staticmethod
-    def _config():
-        return current_app.config["CONFIG"]
-
     @property
     def _mapproxy_enabled(self) -> bool:
-        return bool(self._config().mapproxy_projects_dir)
+        return bool(config().mapproxy_projects_dir)
 
     @property
     def _qgis_project_dir(self) -> Path:
@@ -490,20 +470,14 @@ class QSAProject:
     @staticmethod
     def _qgis_project_dir_prefix(schema: str = "") -> str:
         prefix = ""
-        if QSAProject._storage_backend() == StorageBackend.POSTGRESQL:
+        if StorageBackend.type() == StorageBackend.POSTGRESQL:
             prefix = f"{schema}_"
         return prefix
 
     @property
     def _qgis_project_uri(self) -> str:
-        if QSAProject._storage_backend() == StorageBackend.POSTGRESQL:
-            service = QSAProject._config().qgisserver_projects_psql_service
+        if StorageBackend.type() == StorageBackend.POSTGRESQL:
+            service = config().qgisserver_projects_psql_service
             return f"postgresql:?service={service}&schema={self.schema}&project={self.name}"
         else:
             return (self._qgis_project_dir / f"{self.name}.qgs").as_posix()
-
-    @staticmethod
-    def _storage_backend() -> StorageBackend:
-        if QSAProject._config().qgisserver_projects_psql_service:
-            return StorageBackend.POSTGRESQL
-        return StorageBackend.FILESYSTEM

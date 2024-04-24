@@ -281,7 +281,6 @@ class APITestCaseFilesystem(unittest.TestCase):
         data["author"] = "pblottiere"
         data["storage"] = "filesystem"
         p = self.app.post("/api/projects/", data)
-        print(p.get_json())
         self.assertEqual(p.status_code, 201)
 
         # default styles

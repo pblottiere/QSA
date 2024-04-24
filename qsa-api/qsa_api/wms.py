@@ -1,8 +1,7 @@
 # coding: utf8
 
-from flask import current_app
-
-from .project import QSAProject, StorageBackend
+from .project import QSAProject
+from .utils import qgisserver_base_url
 
 
 class WMS:
@@ -18,10 +17,4 @@ class WMS:
 
     @staticmethod
     def getmap(project, psql_schema, layer):
-        base_url = f"{current_app.config['CONFIG'].qgisserver_url}"
-        if QSAProject._storage_backend() == StorageBackend.FILESYSTEM:
-            base_url = f"{base_url}/{project}?"
-        elif QSAProject._storage_backend() == StorageBackend.POSTGRESQL:
-            service = QSAProject._config().qgisserver_projects_psql_service
-            base_url = f"{base_url}?MAP=postgresql:?service={service}%26schema={psql_schema}%26project={project}&"
-        return f"{base_url}{WMS.getmap_url(project, psql_schema, layer)}"
+        return f"{qgisserver_base_url()}{WMS.getmap_url(project, psql_schema, layer)}"
