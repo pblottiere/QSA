@@ -1,7 +1,6 @@
 import os
 import json
 import shutil
-import unittest
 import requests
 from flask import Flask
 from pathlib import Path
@@ -17,7 +16,6 @@ app.register_blueprint(symbology, url_prefix="/api/symbology")
 
 
 class TestResponse:
-
     def __init__(self, resp, flask_client):
         self.flask_client = flask_client
         self.resp = resp
@@ -33,7 +31,6 @@ class TestResponse:
 
 
 class TestClient:
-
     def __init__(self, projects_dir, projects_psql_service=""):
         self.app = requests
         self._url = ""
@@ -47,7 +44,9 @@ class TestClient:
             os.environ["QSA_QGISSERVER_URL"] = "http://qgisserver/ogc/"
             os.environ["QSA_QGISSERVER_PROJECTS_DIR"] = projects_dir
             if projects_psql_service:
-                os.environ["QSA_QGISSERVER_PROJECTS_PSQL_SERVICE"] = projects_psql_service
+                os.environ[
+                    "QSA_QGISSERVER_PROJECTS_PSQL_SERVICE"
+                ] = projects_psql_service
             self.app.application.config["CONFIG"] = QSAConfig()
             self.app.application.config["DEBUG"] = True
 

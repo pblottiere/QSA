@@ -1,21 +1,8 @@
 import os
-import json
-import shutil
 import unittest
-import requests
-from flask import Flask
 from pathlib import Path
 
-app = Flask(__name__)
-
-from qsa_api.config import QSAConfig
-from qsa_api.api.projects import projects
-from qsa_api.api.symbology import symbology
-
 from .utils import TestClient
-
-app.register_blueprint(projects, url_prefix="/api/projects")
-app.register_blueprint(symbology, url_prefix="/api/symbology")
 
 GPKG = Path(__file__).parent / "data.gpkg"
 if "QSA_GPKG" in os.environ:
@@ -30,7 +17,6 @@ TEST_PROJECT_1 = "qsa_test_project1"
 
 
 class APITestCasePostgresql(unittest.TestCase):
-
     def setUp(self):
         self.app = TestClient("/tmp/qsa/projects/qgis", "qsa_test")
 
@@ -125,7 +111,9 @@ class APITestCasePostgresql(unittest.TestCase):
 
         # 3 layers
         p = self.app.get(f"/api/projects/{TEST_PROJECT_0}/layers")
-        self.assertEqual(p.get_json(), ["layer0", "layer1", "layer2", "layer3"])
+        self.assertEqual(
+            p.get_json(), ["layer0", "layer1", "layer2", "layer3"]
+        )
 
         # remove last project
         p = self.app.delete(f"/api/projects/{TEST_PROJECT_0}")
