@@ -25,7 +25,7 @@ $ curl "http://localhost:5000/api/symbology/vector/polygon/single_symbol/fill/pr
 To add a style for a polygon layer:
 
 ```` shell
-$ curl "http://localhost:5000/api/projects/my_project/styles" \
+$ curl "http://localhost:5000/api/projects/my_project/styles?schema=my_schema" \
   -X POST \
   -H 'Content-Type: application/json' \
   -d '{
@@ -45,7 +45,7 @@ true
 To list styles for a specific project:
 
 ```` shell
-$ curl "http://localhost:5000/api/projects/my_project/styles"
+$ curl "http://localhost:5000/api/projects/my_project/styles?schema=my_schema"
 ["my_fill_style"]
 ````
 
@@ -55,7 +55,7 @@ $ curl "http://localhost:5000/api/projects/my_project/styles"
 To apply a specific style to a layer:
 
 ```` shell
-$ curl "http://localhost:5000/api/projects/my_project/layers/polygons/style" \
+$ curl "http://localhost:5000/api/projects/my_project/layers/polygons/style?schema=my_schema" \
   -X POST \
   -H 'Content-Type: application/json' \
   -d '{
@@ -68,7 +68,7 @@ true
 The layer rendering has changed now:
 
 ```` shell
-$ curl "http://localhost:5000/api/projects/my_project/layers/polygons/map" --output map.png
+$ curl "http://localhost:5000/api/projects/my_project/layers/polygons/map?schema=my_schema" --output map.png
 ````
 
 <img src="../images/map_style.png" width="300">

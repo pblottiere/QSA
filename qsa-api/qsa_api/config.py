@@ -6,7 +6,7 @@ import os
 class QSAConfig:
     @property
     def is_valid(self) -> bool:
-        if self.qgisserver_url and self.qgisserver_projects:
+        if self.qgisserver_url and self.qgisserver_projects_dir:
             return True
         return False
 
@@ -19,9 +19,13 @@ class QSAConfig:
         return os.environ.get("QSA_QGISSERVER_URL", "")
 
     @property
-    def qgisserver_projects(self) -> str:
-        return os.environ.get("QSA_QGISSERVER_PROJECTS", "")
+    def qgisserver_projects_dir(self) -> str:
+        return os.environ.get("QSA_QGISSERVER_PROJECTS_DIR", "")
 
     @property
-    def mapproxy_projects(self) -> str:
-        return os.environ.get("QSA_MAPPROXY_PROJECTS", "").replace('"', "")
+    def qgisserver_projects_psql_service(self) -> str:
+        return os.environ.get("QSA_QGISSERVER_PROJECTS_PSQL_SERVICE", "")
+
+    @property
+    def mapproxy_projects_dir(self) -> str:
+        return os.environ.get("QSA_MAPPROXY_PROJECTS_DIR", "").replace('"', "")

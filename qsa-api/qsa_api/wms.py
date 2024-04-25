@@ -1,14 +1,13 @@
 # coding: utf8
 
-from flask import current_app
-
 from .project import QSAProject
+from .utils import qgisserver_base_url
 
 
 class WMS:
     @staticmethod
-    def getmap_url(project, layer):
-        p = QSAProject(project)
+    def getmap_url(project, psql_schema, layer):
+        p = QSAProject(project, psql_schema)
         props = p.layer(layer)
 
         bbox = props["bbox"].replace(" ", ",").replace(",,", ",").split(",")
@@ -17,5 +16,5 @@ class WMS:
         return f"REQUEST=GetMap&WIDTH=400&HEIGHT=400&CRS={props['crs']}&VERSION=1.3.0&BBOX={wms_bbox}&LAYERS={layer}"
 
     @staticmethod
-    def getmap(project, layer):
-        return f"{current_app.config['CONFIG'].qgisserver_url}/{project}?{WMS.getmap_url(project, layer)}"
+    def getmap(project, psql_schema, layer):
+        return f"{qgisserver_base_url()}{WMS.getmap_url(project, psql_schema, layer)}"

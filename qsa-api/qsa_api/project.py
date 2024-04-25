@@ -3,7 +3,6 @@
 import shutil
 import sqlite3
 from pathlib import Path
-from flask import current_app
 
 from qgis.PyQt.QtCore import Qt
 from qgis.core import (
@@ -14,6 +13,7 @@ from qgis.core import (
     QgsWkbTypes,
     QgsFillSymbol,
     QgsLineSymbol,
+    QgsApplication,
     QgsVectorLayer,
     QgsRasterLayer,
     QgsMarkerSymbol,
@@ -27,14 +27,18 @@ from qgis.core import (
 from qgis.PyQt.QtXml import QDomDocument, QDomNode
 
 from .mapproxy import QSAMapProxy
+from .utils import StorageBackend, config
 
 
 RENDERER_TAG_NAME = "renderer-v2"  # constant from core/symbology/renderer.h
 
 
 class QSAProject:
-    def __init__(self, name: str) -> None:
+    def __init__(self, name: str, schema: str = "public") -> None:
         self.name: str = name
+        self.schema: str = "public"
+        if schema:
+            self.schema = schema
 
     @property
     def sqlite_db(self) -> Path:
@@ -55,10 +59,26 @@ class QSAProject:
         return p
 
     @staticmethod
-    def projects() -> list:
+    def projects(schema: str = "") -> list:
         p = []
-        for i in QSAProject._qgis_projects_dir().glob("**/*.qgs"):
-            p.append(QSAProject(i.parent.name))
+
+        if StorageBackend.type() == StorageBackend.FILESYSTEM:
+            for i in QSAProject._qgis_projects_dir().glob("**/*.qgs"):
+                name = i.parent.name.replace(
+                    QSAProject._qgis_project_dir_prefix(), ""
+                )
+                p.append(QSAProject(name))
+        else:
+            service = config().qgisserver_projects_psql_service
+            uri = f"postgresql:?service={service}&schema={schema}"
+
+            storage = (
+                QgsApplication.instance()
+                .projectStorageRegistry()
+                .projectStorageFromType("postgresql")
+            )
+            for pname in storage.listProjects(uri):
+                p.append(QSAProject(pname, schema))
 
         return p
 
@@ -72,7 +92,7 @@ class QSAProject:
     @property
     def project(self) -> QgsProject:
         project = QgsProject()
-        project.read(self._qgis_project.as_posix())
+        project.read(self._qgis_project_uri)
         return project
 
     @property
@@ -92,6 +112,10 @@ class QSAProject:
             p.metadata().creationDateTime().toString(Qt.ISODate)
         )
         m["crs"] = p.crs().authid()
+        m["storage"] = StorageBackend.type().name.lower()
+
+        if StorageBackend.type() == StorageBackend.POSTGRESQL:
+            m["schema"] = self.schema
         return m
 
     def style_default(self, geometry: str) -> bool:
@@ -152,7 +176,7 @@ class QSAProject:
 
     def layer(self, name: str) -> dict:
         project = QgsProject()
-        project.read(self._qgis_project.as_posix())
+        project.read(self._qgis_project_uri)
         layers = project.mapLayersByName(name)
         if layers:
             layer = layers[0]
@@ -183,7 +207,7 @@ class QSAProject:
             return False, f"Style '{style_name}' does not exist"
 
         project = QgsProject()
-        project.read(self._qgis_project.as_posix())
+        project.read(self._qgis_project_uri)
 
         style_path = self._qgis_project_dir / f"{style_name}.qml"
 
@@ -214,7 +238,7 @@ class QSAProject:
     def remove_layer(self, name: str) -> None:
         # remove layer in qgis project
         project = QgsProject()
-        project.read(self._qgis_project.as_posix())
+        project.read(self._qgis_project_uri)
 
         ids = []
         for layer in project.mapLayersByName(name):
@@ -233,27 +257,57 @@ class QSAProject:
         return rc
 
     def exists(self) -> bool:
-        return self._qgis_project.exists()
+        if StorageBackend.type() == StorageBackend.FILESYSTEM:
+            return self._qgis_project_dir.exists()
+        else:
+            service = config().qgisserver_projects_psql_service
+            uri = f"postgresql:?service={service}&schema={self.schema}"
 
-    def create(self, author: str) -> None:
+            storage = (
+                QgsApplication.instance()
+                .projectStorageRegistry()
+                .projectStorageFromType("postgresql")
+            )
+            projects = storage.listProjects(uri)
+
+            return self.name in projects and self._qgis_projects_dir().exists()
+
+    def create(self, author: str) -> bool:
         if self.exists():
-            return
+            return False
 
-        # create qgis project directory and .qgs
+        # create qgis directory for qsa sqlite database and .qgs file if
+        # filesystem storage based
         self._qgis_project_dir.mkdir(parents=True, exist_ok=True)
+
+        # create qgis project
         project = QgsProject()
         m = project.metadata()
         m.setAuthor(author)
         project.setMetadata(m)
-        project.write(self._qgis_project.as_posix())
+        rc = project.write(self._qgis_project_uri)
 
         # create mapproxy config file
         if self._mapproxy_enabled:
             mp = QSAMapProxy(self.name)
             mp.create()
 
+        # init sqlite database
+        self.sqlite_db
+
+        return rc
+
     def remove(self) -> None:
         shutil.rmtree(self._qgis_project_dir)
+
+        if StorageBackend.type() == StorageBackend.POSTGRESQL:
+            storage = (
+                QgsApplication.instance()
+                .projectStorageRegistry()
+                .projectStorageFromType("postgresql")
+            )
+            storage.removeProject(self._qgis_project_uri)
+
         if self._mapproxy_enabled:
             QSAMapProxy(self.name).remove()
 
@@ -281,7 +335,7 @@ class QSAProject:
 
         # create project
         project = QgsProject()
-        project.read(self._qgis_project.as_posix())
+        project.read(self._qgis_project_uri)
 
         project.addMapLayer(lyr)
         project.setCrs(crs)
@@ -392,7 +446,7 @@ class QSAProject:
 
     @staticmethod
     def _qgis_projects_dir() -> Path:
-        return Path(current_app.config["CONFIG"].qgisserver_projects)
+        return Path(config().qgisserver_projects_dir)
 
     @staticmethod
     def _layer_type(layer_type: str) -> Qgis.LayerType | None:
@@ -404,12 +458,26 @@ class QSAProject:
 
     @property
     def _mapproxy_enabled(self) -> bool:
-        return bool(current_app.config["CONFIG"].mapproxy_projects)
+        return bool(config().mapproxy_projects_dir)
 
     @property
     def _qgis_project_dir(self) -> Path:
-        return QSAProject._qgis_projects_dir() / self.name
+        return (
+            self._qgis_projects_dir()
+            / f"{QSAProject._qgis_project_dir_prefix(self.schema)}{self.name}"
+        )
+
+    @staticmethod
+    def _qgis_project_dir_prefix(schema: str = "") -> str:
+        prefix = ""
+        if StorageBackend.type() == StorageBackend.POSTGRESQL:
+            prefix = f"{schema}_"
+        return prefix
 
     @property
-    def _qgis_project(self) -> Path:
-        return self._qgis_project_dir / f"{self.name}.qgs"
+    def _qgis_project_uri(self) -> str:
+        if StorageBackend.type() == StorageBackend.POSTGRESQL:
+            service = config().qgisserver_projects_psql_service
+            return f"postgresql:?service={service}&schema={self.schema}&project={self.name}"
+        else:
+            return (self._qgis_project_dir / f"{self.name}.qgs").as_posix()

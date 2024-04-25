@@ -15,8 +15,8 @@ Components:
 * [QSA cli](qsa-cli/): Command line tool
 
 Features:
-* Create and manage QGIS projects stored on filesystem
-* Create and update layers: symbology, theme, ...
+* Create and manage QGIS projects stored on the filesystem or in PostgreSQL
+* Create and update vector and raster layers : symbology, theme, ...
 * Inspect online QGIS Server instances
 * Optional cache management with MapProxy
 
@@ -24,7 +24,7 @@ Features:
 
 Roadmap:
 * Add more documentation
-* Add PostgreSQL support to store QGIS projects
+* Add PostgreSQL support to store QGIS styles and QSA internals data
 * Publish `qsa-cli` on PyPI
 * Publish a `qsa-api` Docker image on DockerHub
 * Publish `qsa-plugin` on QGIS plugin repository

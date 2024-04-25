@@ -141,3 +141,18 @@ Trying URL path: '/ogc/' for '/wfs3'
 
 Request finished in 3 ms
 ````
+
+
+### Display stats
+
+To display stats for all QGIS Server online instances:
+
+```` shell
+$ qsa stats
+INSTANCE ID      COUNT  TIME        SERVICE    REQUEST    PROJECT
+-------------  -------  ----------  ---------  ---------  ---------
+4464d3c5             1
+6773ca08             0
+012083b9             0
+c0047e66             0
+````
