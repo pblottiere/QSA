@@ -181,11 +181,32 @@
 <p>QSA web server can be configured thanks to the next environment variables:</p>
 <div class="table-wrapper"><table><thead><tr><th>Mandatory</th><th>Environment variable</th><th>Description</th></tr></thead><tbody>
 <tr><td>Yes</td><td><code>QSA_QGISSERVER_URL</code></td><td>QGIS Server URL</td></tr>
-<tr><td>Yes</td><td><code>QSA_QGISSERVER_PROJECTS</code></td><td>Storage location for QGIS projects</td></tr>
+<tr><td>Yes</td><td><code>QSA_QGISSERVER_PROJECTS_DIR</code></td><td>Storage location on the filesystem for QGIS projects/styles and QSA database</td></tr>
+<tr><td>No</td><td><code>QSA_QGISSERVER_PROJECTS_PSQL_SERVICE</code></td><td>PostgreSQL service to store QGIS projects</td></tr>
 <tr><td>No</td><td><code>QSA_QGISSERVER_MONITORING_PORT</code></td><td>Connection port for <code>qsa-plugin</code></td></tr>
-<tr><td>No</td><td><code>QSA_MAPPROXY_PROJECTS</code></td><td>Storage location for MapProxy configuration files</td></tr>
+<tr><td>No</td><td><code>QSA_MAPPROXY_PROJECTS_DIR</code></td><td>Storage location on the filesystem for MapProxy configuration files</td></tr>
 </tbody></table>
 </div>
+<h2 id="postgresql-support"><a class="header" href="#postgresql-support">PostgreSQL support</a></h2>
+<p>When PostgreSQL support is enabled to store QGIS projects thanks to
+<code>QSA_QGISSERVER_PROJECTS_PSQL_SERVICE</code>, the directory
+<code>QSA_QGISSERVER_PROJECTS_DIR</code> is only used to store the QSA SQLite database as
+well as QGIS QML styles. In the future, the QSA database and QGIS styles will
+also be stored in PostgreSQL when enabled.</p>
+<p>The PostgreSQL support relies on a <code>service</code> defined in a <a href="https://www.postgresql.org/docs/current/libpq-pgservice.html">PostgreSQL connection
+service file</a>.
+For example with <code>QSA_QGISSERVER_PROJECTS_PSQL_SERVICE=qsa_projects</code>:</p>
+<pre><code class="language-shell">$ cat ~/.pg_service.conf
+[qsa_projects]
+host=localhost
+port=5432
+dbname=qsa_test
+user=pblottiere
+password=
+</code></pre>
+<p>A query string parameter can be used to specify a <code>schema</code> through the QSA API
+(<code>public</code> is used by default).</p>
+
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">

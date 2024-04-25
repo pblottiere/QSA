@@ -178,22 +178,36 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="sandbox--manage-projects"><a class="header" href="#sandbox--manage-projects">Sandbox : manage projects</a></h1>
-<h3 id="create-and-delete-projects"><a class="header" href="#create-and-delete-projects">Create and delete projects</a></h3>
-<p>To create a project:</p>
+<h3 id="create-and-delete-projects-in-postgresql"><a class="header" href="#create-and-delete-projects-in-postgresql">Create and delete projects in PostgreSQL</a></h3>
+<p>First we create a schema to store QGIS projects:</p>
+<pre><code class="language-shell">$ psql -h localhost -p 5433 -U qsa qsa -c "create schema my_schema"
+CREATE SCHEMA
+</code></pre>
+<p>Then we create a QSA project:</p>
 <pre><code class="language-shell">$ curl "http://localhost:5000/api/projects/" \
     -X POST \
     -H 'Content-Type: application/json' \
     -d '{
         "name":"my_project",
-        "author":"pblottiere"
+        "author":"pblottiere",
+        "schema":"my_schema"
     }'
 true
 </code></pre>
-<p>In this case, a project has been created on the filesystem:</p>
-<pre><code class="language-shell">$ file projects/qgis/my_project/my_project.qgs
-QGIS XML document
+<p>In this case, a directory has been created on the filesystem with the internal
+QSA database:</p>
+<pre><code class="language-shell">$ file projects/qsa/my_schema_my_project/qsa.db
+SQLite 3.x database
 </code></pre>
-<p>To create another project and list available projects:</p>
+<p>And a QGIS project has been created in PostgreSQL:</p>
+<pre><code class="language-shell">$ psql -h localhost -p 5433 -U qsa qsa -c "select name from my_schema.qgis_projects"
+    name
+------------
+ my_project
+(1 row)
+</code></pre>
+<p>To create another project in <code>public</code> schema and list available projects thanks
+to the QSA API:</p>
 <pre><code class="language-shell">$ curl "http://localhost:5000/api/projects/" \
     -X POST \
     -H 'Content-Type: application/json' \
@@ -203,20 +217,24 @@ QGIS XML document
     }'
 true
 $ curl "http://localhost:5000/api/projects/"
-["my_project_2","my_project"]
+["my_project_2"]
+$ curl "http://localhost:5000/api/projects/?schema=my_schema"
+["my_project"]
 </code></pre>
 <p>To delete a project:</p>
 <pre><code class="language-shell">$ curl -X DELETE "http://localhost:5000/api/projects/my_project_2"
 true
 $ curl "http://localhost:5000/api/projects/"
-["my_project"]
+[]
 </code></pre>
 <p>To list project metadata:</p>
-<pre><code class="language-shell">$ curl http://localhost:5000/api/projects/my_project | jq
+<pre><code class="language-shell">$ curl http://localhost:5000/api/projects/my_project?schema=my_schema | jq
 {
   "author": "pblottiere",
   "creation_datetime": "2024-03-14T20:17:45",
-  "crs": ""
+  "crs": "",
+  "schema": "my_schema",
+  "storage": "postgresql"
 }
 </code></pre>
 

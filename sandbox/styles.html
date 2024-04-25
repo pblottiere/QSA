@@ -196,7 +196,7 @@
 }
 </code></pre>
 <p>To add a style for a polygon layer:</p>
-<pre><code class="language-shell">$ curl "http://localhost:5000/api/projects/my_project/styles" \
+<pre><code class="language-shell">$ curl "http://localhost:5000/api/projects/my_project/styles?schema=my_schema" \
   -X POST \
   -H 'Content-Type: application/json' \
   -d '{
@@ -213,12 +213,12 @@
 true
 </code></pre>
 <p>To list styles for a specific project:</p>
-<pre><code class="language-shell">$ curl "http://localhost:5000/api/projects/my_project/styles"
+<pre><code class="language-shell">$ curl "http://localhost:5000/api/projects/my_project/styles?schema=my_schema"
 ["my_fill_style"]
 </code></pre>
 <h3 id="apply-style-to-layer"><a class="header" href="#apply-style-to-layer">Apply style to layer</a></h3>
 <p>To apply a specific style to a layer:</p>
-<pre><code class="language-shell">$ curl "http://localhost:5000/api/projects/my_project/layers/polygons/style" \
+<pre><code class="language-shell">$ curl "http://localhost:5000/api/projects/my_project/layers/polygons/style?schema=my_schema" \
   -X POST \
   -H 'Content-Type: application/json' \
   -d '{
@@ -228,7 +228,7 @@ true
 true
 </code></pre>
 <p>The layer rendering has changed now:</p>
-<pre><code class="language-shell">$ curl "http://localhost:5000/api/projects/my_project/layers/polygons/map" --output map.png
+<pre><code class="language-shell">$ curl "http://localhost:5000/api/projects/my_project/layers/polygons/map?schema=my_schema" --output map.png
 </code></pre>
 <img src="../images/map_style.png" width="300">
 

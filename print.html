@@ -193,8 +193,8 @@ provide such an API and tools.</p>
 </ul>
 <p>Features:</p>
 <ul>
-<li>Create and manage QGIS projects stored on filesystem</li>
-<li>Create and update layers: symbology, theme, …</li>
+<li>Create and manage QGIS projects stored on the filesystem or in PostgreSQL</li>
+<li>Create and update vector and raster layers : symbology, theme, …</li>
 <li>Inspect online QGIS Server instances</li>
 <li>Optional cache management with MapProxy</li>
 </ul>
@@ -202,7 +202,7 @@ provide such an API and tools.</p>
 <p>Roadmap:</p>
 <ul>
 <li>Add more documentation</li>
-<li>Add PostgreSQL support to store QGIS projects</li>
+<li>Add PostgreSQL support to store QGIS styles and QSA internals data</li>
 <li>Publish <code>qsa-cli</code> on PyPI</li>
 <li>Publish a <code>qsa-api</code> Docker image on DockerHub</li>
 <li>Publish <code>qsa-plugin</code> on QGIS plugin repository</li>
@@ -212,7 +212,7 @@ provide such an API and tools.</p>
 providing a REST API for managing QGIS Server.</p>
 <p>Features:</p>
 <ul>
-<li>Create and manage projects stored on filesystem</li>
+<li>Create and manage projects stored on the filesystem or in PostgreSQL</li>
 <li>Add and update layers based on multiple datasources (AWS S3 buckets, …)</li>
 <li>Configure symbology and themes based on simple symbols parameters</li>
 </ul>
@@ -236,11 +236,37 @@ $ . venv/bin/activate
 <p>QSA web server can be configured thanks to the next environment variables:</p>
 <div class="table-wrapper"><table><thead><tr><th>Mandatory</th><th>Environment variable</th><th>Description</th></tr></thead><tbody>
 <tr><td>Yes</td><td><code>QSA_QGISSERVER_URL</code></td><td>QGIS Server URL</td></tr>
-<tr><td>Yes</td><td><code>QSA_QGISSERVER_PROJECTS</code></td><td>Storage location for QGIS projects</td></tr>
+<tr><td>Yes</td><td><code>QSA_QGISSERVER_PROJECTS_DIR</code></td><td>Storage location on the filesystem for QGIS projects/styles and QSA database</td></tr>
+<tr><td>No</td><td><code>QSA_QGISSERVER_PROJECTS_PSQL_SERVICE</code></td><td>PostgreSQL service to store QGIS projects</td></tr>
 <tr><td>No</td><td><code>QSA_QGISSERVER_MONITORING_PORT</code></td><td>Connection port for <code>qsa-plugin</code></td></tr>
-<tr><td>No</td><td><code>QSA_MAPPROXY_PROJECTS</code></td><td>Storage location for MapProxy configuration files</td></tr>
+<tr><td>No</td><td><code>QSA_MAPPROXY_PROJECTS_DIR</code></td><td>Storage location on the filesystem for MapProxy configuration files</td></tr>
 </tbody></table>
-</div><div style="break-before: page; page-break-before: always;"></div><h1 id="qsa-rest-api--endpoints"><a class="header" href="#qsa-rest-api--endpoints">QSA REST API : endpoints</a></h1>
+</div>
+<h2 id="postgresql-support"><a class="header" href="#postgresql-support">PostgreSQL support</a></h2>
+<p>When PostgreSQL support is enabled to store QGIS projects thanks to
+<code>QSA_QGISSERVER_PROJECTS_PSQL_SERVICE</code>, the directory
+<code>QSA_QGISSERVER_PROJECTS_DIR</code> is only used to store the QSA SQLite database as
+well as QGIS QML styles. In the future, the QSA database and QGIS styles will
+also be stored in PostgreSQL when enabled.</p>
+<p>The PostgreSQL support relies on a <code>service</code> defined in a <a href="https://www.postgresql.org/docs/current/libpq-pgservice.html">PostgreSQL connection
+service file</a>.
+For example with <code>QSA_QGISSERVER_PROJECTS_PSQL_SERVICE=qsa_projects</code>:</p>
+<pre><code class="language-shell">$ cat ~/.pg_service.conf
+[qsa_projects]
+host=localhost
+port=5432
+dbname=qsa_test
+user=pblottiere
+password=
+</code></pre>
+<p>A query string parameter can be used to specify a <code>schema</code> through the QSA API
+(<code>public</code> is used by default).</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="qsa-rest-api--endpoints"><a class="header" href="#qsa-rest-api--endpoints">QSA REST API : endpoints</a></h1>
+<p><strong>Note</strong> : when PostgreSQL support is enabled, a query string parameter <code>schema</code> may be
+used to specify the schema in which the QGIS projects is stored in the
+database (<code>public</code> is used by default). For example:</p>
+<pre><code class="language-shell">$ curl "http://localhost/api/xxx/yyy?schema=myschema"
+</code></pre>
 <h2 id="project"><a class="header" href="#project">Project</a></h2>
 <p>A QSA project is defined by:</p>
 <ul>
@@ -251,18 +277,23 @@ $ . venv/bin/activate
 <div class="table-wrapper"><table><thead><tr><th>Method</th><th>URL</th><th>Description</th></tr></thead><tbody>
 <tr><td>GET</td><td><code>/api/projects</code></td><td>List projects</td></tr>
 <tr><td>GET</td><td><code>/api/projects/{project}</code></td><td>List project’s metadata</td></tr>
-<tr><td>POST</td><td><code>/api/projects/</code></td><td>Create a project with <code>name</code> and <code>author</code></td></tr>
+<tr><td>POST</td><td><code>/api/projects/</code></td><td>Create a project with <code>name</code>, <code>author</code> and <code>schema</code> (only used when PostgreSQL support is enabled)</td></tr>
 <tr><td>DELETE</td><td><code>/api/projects/{project}</code></td><td>Remove a project</td></tr>
 </tbody></table>
 </div>
 <p>Examples:</p>
-<pre><code class="language-shell">$ curl "http://localhost/api/projects/" \
+<pre><code class="language-shell"># create a project and store the QGIS project in PostgreSQL within `my_schema`
+$ curl "http://localhost/api/projects/" \
      -X POST \
      -H 'Content-Type: application/json' \
      -d '{
         "name":"my_project",
-        "author":"pblottiere"
+        "author":"pblottiere",
+        "schema":"my_schema"
      }'
+
+# get metadata about the project stored in PostgreSQL
+$ curl "http://localhost/api/projects/my_project?schema=my_schema"
 </code></pre>
 <h2 id="layer"><a class="header" href="#layer">Layer</a></h2>
 <p>When a layer is added/removed to a QSA project, the corresponding QGIS project
@@ -289,6 +320,7 @@ empty.</p>
   -d '{
     "crs": 4326,
     "name":"my_layer",
+    "type":"vector",
     "datasource":"/vsis3/my-storage/vector/my_layer.fgb",
   }'
 </code></pre>
@@ -425,7 +457,7 @@ d11e11a4       172.20.0.6  Binded 1315 seconds ago
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="sandbox"><a class="header" href="#sandbox">Sandbox</a></h1>
 <p>The sandbox directory provides a plug-and-play <code>Docker</code> environment to discover
-QSA tools.</p>
+QSA tools with PostgreSQL support enabled.</p>
 <p>First, a QSA REST API server is set up with 4 QGIS Server instances:</p>
 <pre><code class="language-shell">$ cd sandbox
 $ docker-compose up --scale qgisserver=4 -d
@@ -558,23 +590,47 @@ Trying URL path: '/ogc/' for '/wfs3'
 
 Request finished in 3 ms
 </code></pre>
+<h3 id="display-stats"><a class="header" href="#display-stats">Display stats</a></h3>
+<p>To display stats for all QGIS Server online instances:</p>
+<pre><code class="language-shell">$ qsa stats
+INSTANCE ID      COUNT  TIME        SERVICE    REQUEST    PROJECT
+-------------  -------  ----------  ---------  ---------  ---------
+4464d3c5             1
+6773ca08             0
+012083b9             0
+c0047e66             0
+</code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="sandbox--manage-projects"><a class="header" href="#sandbox--manage-projects">Sandbox : manage projects</a></h1>
-<h3 id="create-and-delete-projects"><a class="header" href="#create-and-delete-projects">Create and delete projects</a></h3>
-<p>To create a project:</p>
+<h3 id="create-and-delete-projects-in-postgresql"><a class="header" href="#create-and-delete-projects-in-postgresql">Create and delete projects in PostgreSQL</a></h3>
+<p>First we create a schema to store QGIS projects:</p>
+<pre><code class="language-shell">$ psql -h localhost -p 5433 -U qsa qsa -c "create schema my_schema"
+CREATE SCHEMA
+</code></pre>
+<p>Then we create a QSA project:</p>
 <pre><code class="language-shell">$ curl "http://localhost:5000/api/projects/" \
     -X POST \
     -H 'Content-Type: application/json' \
     -d '{
         "name":"my_project",
-        "author":"pblottiere"
+        "author":"pblottiere",
+        "schema":"my_schema"
     }'
 true
 </code></pre>
-<p>In this case, a project has been created on the filesystem:</p>
-<pre><code class="language-shell">$ file projects/qgis/my_project/my_project.qgs
-QGIS XML document
+<p>In this case, a directory has been created on the filesystem with the internal
+QSA database:</p>
+<pre><code class="language-shell">$ file projects/qsa/my_schema_my_project/qsa.db
+SQLite 3.x database
 </code></pre>
-<p>To create another project and list available projects:</p>
+<p>And a QGIS project has been created in PostgreSQL:</p>
+<pre><code class="language-shell">$ psql -h localhost -p 5433 -U qsa qsa -c "select name from my_schema.qgis_projects"
+    name
+------------
+ my_project
+(1 row)
+</code></pre>
+<p>To create another project in <code>public</code> schema and list available projects thanks
+to the QSA API:</p>
 <pre><code class="language-shell">$ curl "http://localhost:5000/api/projects/" \
     -X POST \
     -H 'Content-Type: application/json' \
@@ -584,27 +640,31 @@ QGIS XML document
     }'
 true
 $ curl "http://localhost:5000/api/projects/"
-["my_project_2","my_project"]
+["my_project_2"]
+$ curl "http://localhost:5000/api/projects/?schema=my_schema"
+["my_project"]
 </code></pre>
 <p>To delete a project:</p>
 <pre><code class="language-shell">$ curl -X DELETE "http://localhost:5000/api/projects/my_project_2"
 true
 $ curl "http://localhost:5000/api/projects/"
-["my_project"]
+[]
 </code></pre>
 <p>To list project metadata:</p>
-<pre><code class="language-shell">$ curl http://localhost:5000/api/projects/my_project | jq
+<pre><code class="language-shell">$ curl http://localhost:5000/api/projects/my_project?schema=my_schema | jq
 {
   "author": "pblottiere",
   "creation_datetime": "2024-03-14T20:17:45",
-  "crs": ""
+  "crs": "",
+  "schema": "my_schema",
+  "storage": "postgresql"
 }
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="sandbox--manage-layers"><a class="header" href="#sandbox--manage-layers">Sandbox : manage layers</a></h1>
 <p>Layers are based on the <code>data.gpkg</code> file mounted in the Docker containers.</p>
 <h3 id="add-layers"><a class="header" href="#add-layers">Add layers</a></h3>
 <p>To add a polygon layer to a project:</p>
-<pre><code class="language-shell">$ curl "http://localhost:5000/api/projects/my_project/layers" \
+<pre><code class="language-shell">$ curl "http://localhost:5000/api/projects/my_project/layers?schema=my_schema" \
   -X POST \
   -H 'Content-Type: application/json' \
   -d '{
@@ -616,7 +676,7 @@ $ curl "http://localhost:5000/api/projects/"
 true
 </code></pre>
 <p>And a line layer:</p>
-<pre><code class="language-shell">$ curl "http://localhost:5000/api/projects/my_project/layers" \
+<pre><code class="language-shell">$ curl "http://localhost:5000/api/projects/my_project/layers?schema=my_schema" \
   -X POST \
   -H 'Content-Type: application/json' \
   -d '{
@@ -628,10 +688,10 @@ true
 true
 </code></pre>
 <h3 id="list-layers-and-get-metadata"><a class="header" href="#list-layers-and-get-metadata">List layers and get metadata</a></h3>
-<pre><code class="language-shell">$ curl "http://localhost:5000/api/projects/my_project/layers"
+<pre><code class="language-shell">$ curl "http://localhost:5000/api/projects/my_project/layers?schema=my_schema"
 ["lines","polygons"]
 
-$ curl "http://localhost:5000/api/projects/my_project/layers/lines" | jq
+$ curl "http://localhost:5000/api/projects/my_project/layers/lines?schema=my_schema" | jq
 {
   "bbox": "-117.62319839219100004 23.20820580488510032, -82.32264950769270229 46.18290982947510059",
   "crs": "EPSG:4326",
@@ -648,14 +708,14 @@ $ curl "http://localhost:5000/api/projects/my_project/layers/lines" | jq
 </code></pre>
 <h3 id="map-sample"><a class="header" href="#map-sample">Map sample</a></h3>
 <p>To execute a WMS <code>GetMap</code> request with basic parameters:</p>
-<pre><code class="language-shell">$ curl "http://localhost:5000/api/projects/my_project/layers/polygons/map" --output map.png
+<pre><code class="language-shell">$ curl "http://localhost:5000/api/projects/my_project/layers/polygons/map?schema=my_schema" --output map.png
 </code></pre>
 <img src="sandbox/../images/map.png" width="300">
 <h3 id="delete-layers"><a class="header" href="#delete-layers">Delete layers</a></h3>
-<pre><code class="language-shell">$ curl -X DELETE "http://localhost:5000/api/projects/my_project/layers/lines"
+<pre><code class="language-shell">$ curl -X DELETE "http://localhost:5000/api/projects/my_project/layers/lines?schema=my_schema"
 true
 
-$ curl "http://localhost:5000/api/projects/my_project/layers"
+$ curl "http://localhost:5000/api/projects/my_project/layers?schema=my_schema"
 ["polygons"]
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="sandbox--manage-styles"><a class="header" href="#sandbox--manage-styles">Sandbox : manage styles</a></h1>
@@ -677,7 +737,7 @@ $ curl "http://localhost:5000/api/projects/my_project/layers"
 }
 </code></pre>
 <p>To add a style for a polygon layer:</p>
-<pre><code class="language-shell">$ curl "http://localhost:5000/api/projects/my_project/styles" \
+<pre><code class="language-shell">$ curl "http://localhost:5000/api/projects/my_project/styles?schema=my_schema" \
   -X POST \
   -H 'Content-Type: application/json' \
   -d '{
@@ -694,12 +754,12 @@ $ curl "http://localhost:5000/api/projects/my_project/layers"
 true
 </code></pre>
 <p>To list styles for a specific project:</p>
-<pre><code class="language-shell">$ curl "http://localhost:5000/api/projects/my_project/styles"
+<pre><code class="language-shell">$ curl "http://localhost:5000/api/projects/my_project/styles?schema=my_schema"
 ["my_fill_style"]
 </code></pre>
 <h3 id="apply-style-to-layer"><a class="header" href="#apply-style-to-layer">Apply style to layer</a></h3>
 <p>To apply a specific style to a layer:</p>
-<pre><code class="language-shell">$ curl "http://localhost:5000/api/projects/my_project/layers/polygons/style" \
+<pre><code class="language-shell">$ curl "http://localhost:5000/api/projects/my_project/layers/polygons/style?schema=my_schema" \
   -X POST \
   -H 'Content-Type: application/json' \
   -d '{
@@ -709,7 +769,7 @@ true
 true
 </code></pre>
 <p>The layer rendering has changed now:</p>
-<pre><code class="language-shell">$ curl "http://localhost:5000/api/projects/my_project/layers/polygons/map" --output map.png
+<pre><code class="language-shell">$ curl "http://localhost:5000/api/projects/my_project/layers/polygons/map?schema=my_schema" --output map.png
 </code></pre>
 <img src="sandbox/../images/map_style.png" width="300">
 <div style="break-before: page; page-break-before: always;"></div><h1 id="developers"><a class="header" href="#developers">Developers</a></h1>
@@ -717,7 +777,15 @@ true
 <pre><code class="language-console">$ mdbook build docs
 </code></pre>
 <p>Unit tests:</p>
-<pre><code class="language-console">$ cd qsa-api
+<pre><code class="language-console">$ cat ~/.pg_service.conf
+[qsa_test]
+host=localhost
+port=5432
+dbname=qsa_test
+user=myusername
+password=
+$ createdb qsa_test
+$ cd qsa-api
 $ pytest -sv test/api.py
 </code></pre>
 <p>Integration tests:</p>

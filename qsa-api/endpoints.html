@@ -178,6 +178,11 @@
                 <div id="content" class="content">
                     <main>
                         <h1 id="qsa-rest-api--endpoints"><a class="header" href="#qsa-rest-api--endpoints">QSA REST API : endpoints</a></h1>
+<p><strong>Note</strong> : when PostgreSQL support is enabled, a query string parameter <code>schema</code> may be
+used to specify the schema in which the QGIS projects is stored in the
+database (<code>public</code> is used by default). For example:</p>
+<pre><code class="language-shell">$ curl "http://localhost/api/xxx/yyy?schema=myschema"
+</code></pre>
 <h2 id="project"><a class="header" href="#project">Project</a></h2>
 <p>A QSA project is defined by:</p>
 <ul>
@@ -188,18 +193,23 @@
 <div class="table-wrapper"><table><thead><tr><th>Method</th><th>URL</th><th>Description</th></tr></thead><tbody>
 <tr><td>GET</td><td><code>/api/projects</code></td><td>List projects</td></tr>
 <tr><td>GET</td><td><code>/api/projects/{project}</code></td><td>List project’s metadata</td></tr>
-<tr><td>POST</td><td><code>/api/projects/</code></td><td>Create a project with <code>name</code> and <code>author</code></td></tr>
+<tr><td>POST</td><td><code>/api/projects/</code></td><td>Create a project with <code>name</code>, <code>author</code> and <code>schema</code> (only used when PostgreSQL support is enabled)</td></tr>
 <tr><td>DELETE</td><td><code>/api/projects/{project}</code></td><td>Remove a project</td></tr>
 </tbody></table>
 </div>
 <p>Examples:</p>
-<pre><code class="language-shell">$ curl "http://localhost/api/projects/" \
+<pre><code class="language-shell"># create a project and store the QGIS project in PostgreSQL within `my_schema`
+$ curl "http://localhost/api/projects/" \
      -X POST \
      -H 'Content-Type: application/json' \
      -d '{
         "name":"my_project",
-        "author":"pblottiere"
+        "author":"pblottiere",
+        "schema":"my_schema"
      }'
+
+# get metadata about the project stored in PostgreSQL
+$ curl "http://localhost/api/projects/my_project?schema=my_schema"
 </code></pre>
 <h2 id="layer"><a class="header" href="#layer">Layer</a></h2>
 <p>When a layer is added/removed to a QSA project, the corresponding QGIS project
@@ -226,6 +236,7 @@ empty.</p>
   -d '{
     "crs": 4326,
     "name":"my_layer",
+    "type":"vector",
     "datasource":"/vsis3/my-storage/vector/my_layer.fgb",
   }'
 </code></pre>
