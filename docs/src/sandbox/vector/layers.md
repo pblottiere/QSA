@@ -1,4 +1,4 @@
-# Sandbox : manage layers
+# Sandbox : vector layers
 
 Layers are based on the `data.gpkg` file mounted in the Docker containers.
 

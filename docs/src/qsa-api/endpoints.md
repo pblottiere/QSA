@@ -1,10 +1,13 @@
 # QSA REST API : endpoints
 
-**Note** : when PostgreSQL support is enabled, a query string parameter `schema` may be
-used to specify the schema in which the QGIS projects is stored in the
-database (`public` is used by default). For example:
+## PostgreSQL schema
+
+When PostgreSQL support is enabled, a query string parameter `schema` may be
+used to specify the schema in which the QGIS project is stored in the database
+(`public` is used by default).
 
 ```` shell
+# call a specific endpoint using projects stored in PostgreSQL schema named `myschema`
 $ curl "http://localhost/api/xxx/yyy?schema=myschema"
 ````
 
@@ -14,6 +17,7 @@ A QSA project is defined by:
 
 * a QGIS project
 * a list of themes
+* an internal SQLite database
 * a MapProxy configuration file (if enabled)
 
 | Method  |                      URL                      |         Description                                                                                 |
@@ -61,9 +65,10 @@ empty.
 | POST    | `/api/projects/{project}/layers/{layer}/style`   | Add/Update layer's style with `name` (style name) and `current` (`true` or `false`)      |
 | DELETE  | `/api/projects/{project}/layers/{layer}`         | Remove layer from project                                                                |
 
-Examples:
+Example:
 
 ```` shell
+# Add a FlatGeobuf vector layer in project `my_project`
 $ curl "http://localhost/api/projects/my_project/layers" \
   -X POST \
   -H 'Content-Type: application/json' \
@@ -89,9 +94,10 @@ corresponding parameters depending on QGIS Server version.
 | GET     | `/api/symbology/vector/line/single_symbol/line/properties`    | Line simple symbol properties    |
 | GET     | `/api/symbology/vector/polygon/single_symbol/fill/properties` | Polygon simple symbol properties |
 
-Examples:
+Example:
 
 ```` shell
+# Return single symbol properties for polygon layers
 $ curl "http://localhost:5000/api/symbology/vector/polygon/single_symbol/fill/properties" | jq
 {
   "border_width_map_unit_scale": "3x:0,0,0,0,0,0",
@@ -113,7 +119,7 @@ $ curl "http://localhost:5000/api/symbology/vector/polygon/single_symbol/fill/pr
 
 A QSA style may be used through the `STYLE` OGC web services parameter to
 specify the rendering for a specific layer. Default styles may be defined and
-used when a layer is added to a project.
+automatically used when a layer is added to a QSA project.
 
 | Method  |                      URL                      |         Description                                                                                                            |
 |---------|-----------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------|
@@ -124,9 +130,10 @@ used when a layer is added to a project.
 | POST    | `/api/projects/{project}/styles/default`      | Set default style for a specific geometry with `geometry` and `name`                                                           |
 | DELETE  | `/api/projects/{project}/styles/{style}`      | Remove style from project                                                                                                      |
 
-Examples:
+Example:
 
 ```` shell
+# Add a style for point geometry vector layers
 $ curl "http://localhost:5000/api/projects/my_project/styles" \
   -X POST \
   -H 'Content-Type: application/json' \

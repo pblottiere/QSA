@@ -11,10 +11,10 @@ QSA web server can be configured thanks to the next environment variables:
 | No         | `QSA_MAPPROXY_PROJECTS_DIR`            | Storage location on the filesystem for MapProxy configuration files          |
 
 
-## PostgreSQL support
+## PostgreSQL support {#postgresql-support}
 
-When PostgreSQL support is enabled to store QGIS projects thanks to
-`QSA_QGISSERVER_PROJECTS_PSQL_SERVICE`, the directory
+When PostgreSQL support is enabled to store QGIS projects thanks to the
+`QSA_QGISSERVER_PROJECTS_PSQL_SERVICE` environment variable, the directory
 `QSA_QGISSERVER_PROJECTS_DIR` is only used to store the QSA SQLite database as
 well as QGIS QML styles. In the future, the QSA database and QGIS styles will
 also be stored in PostgreSQL when enabled.

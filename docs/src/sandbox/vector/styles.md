@@ -1,4 +1,4 @@
-# Sandbox : manage styles
+# Sandbox : vector styles
 
 
 ### Add style to project

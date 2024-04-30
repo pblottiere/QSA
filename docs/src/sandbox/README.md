@@ -12,6 +12,7 @@ $ docker-compose up --scale qgisserver=4 -d
 $ docker ps
 CONTAINER ID   IMAGE                              COMMAND                  CREATED       STATUS         PORTS                                       NAMES
 d2eaf6bdfae4   pblottiere/qsa                     "qsa"                    2 hours ago   Up 9 seconds   0.0.0.0:5000->5000/tcp, :::5000->5000/tcp   sandbox-qsa-1
+b47085d9ad65   postgres:14-alpine                 "docker-entrypoint.s…"   5 days ago    Up 9 seconds   0.0.0.0:5433->5432/tcp, :::5433->5432/tcp   sandbox-postgres-1
 77fa87641b42   opengisch/qgis-server:3.30-jammy   "/bin/sh -c /usr/loc…"   2 hours ago   Up 9 seconds   80/tcp, 9993/tcp                            sandbox-qgisserver-6
 093346c82ea8   opengisch/qgis-server:3.30-jammy   "/bin/sh -c /usr/loc…"   2 hours ago   Up 9 seconds   80/tcp, 9993/tcp                            sandbox-qgisserver-8
 afd95ccaef9e   opengisch/qgis-server:3.30-jammy   "/bin/sh -c /usr/loc…"   2 hours ago   Up 9 seconds   80/tcp, 9993/tcp                            sandbox-qgisserver-7

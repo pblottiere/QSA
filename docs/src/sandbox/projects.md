@@ -1,4 +1,4 @@
-# Sandbox : manage projects
+# Sandbox : projects
 
 ### Create and delete projects in PostgreSQL
 

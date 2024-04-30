@@ -1,4 +1,4 @@
-# Sandbox : inspect QGIS Server instances
+# Sandbox : introspection
 
 `qsa-cli` allows to inspect online QGIS Server instances registered to
 `qsa-api` server, but it's also possible to use the REST API.

@@ -10,8 +10,8 @@ Components:
 * `qsa-cli`: Command line tool
 
 Main features:
-* Create and manage QGIS projects stored on filesystem
-* Create and update layers: symbology, theme, ...
+* Create and manage QGIS projects stored on filesystem or in PostgreSQL
+* Create and update vector and raster layers: symbology, theme, ...
 * Inspect online QGIS Server instances
 * Cache management with MapProxy
 
