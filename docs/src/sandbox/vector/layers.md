@@ -35,6 +35,7 @@ $ curl "http://localhost:5000/api/projects/my_project/layers?schema=my_schema" \
 true
 ````
 
+
 ### List layers and get metadata
 
 ```` shell
@@ -66,7 +67,7 @@ To execute a WMS `GetMap` request with basic parameters:
 $ curl "http://localhost:5000/api/projects/my_project/layers/polygons/map?schema=my_schema" --output map.png
 ````
 
-<img src="../images/map.png" width="300">
+<img src="../../images/map.png" width="300">
 
 
 ### Delete layers

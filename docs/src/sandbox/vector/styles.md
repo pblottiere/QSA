@@ -71,4 +71,4 @@ The layer rendering has changed now:
 $ curl "http://localhost:5000/api/projects/my_project/layers/polygons/map?schema=my_schema" --output map.png
 ````
 
-<img src="../images/map_style.png" width="300">
+<img src="../../images/map_style.png" width="300">

@@ -3,7 +3,7 @@ services:
   qgisserver:
     image: opengisch/qgis-server:3.30-jammy
     volumes:
-      - ./landsat_4326.tif:/landsat_4326.tif
+      - ./dem.tif:/dem.tif
       - ./data.gpkg:/data.gpkg
       - ./projects/qsa:/io/data
       - ../qsa-plugin:/io/plugins/qsa
@@ -21,7 +21,7 @@ services:
       context: ..
       dockerfile: sandbox/Dockerfile
     volumes:
-      - ./landsat_4326.tif:/landsat_4326.tif
+      - ./dem.tif:/dem.tif
       - ./data.gpkg:/data.gpkg
       - ./projects/qsa:/projects
       - ./pg_service.conf:/root/.pg_service.conf
