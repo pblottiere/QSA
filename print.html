@@ -90,7 +90,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="index.html">Introduction</a></li><li class="chapter-item expanded "><a href="qsa-api/index.html"><strong aria-hidden="true">1.</strong> QSA REST API</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="qsa-api/installation.html"><strong aria-hidden="true">1.1.</strong> Installation</a></li><li class="chapter-item expanded "><a href="qsa-api/configuration.html"><strong aria-hidden="true">1.2.</strong> Configuration</a></li><li class="chapter-item expanded "><a href="qsa-api/endpoints.html"><strong aria-hidden="true">1.3.</strong> Endpoints</a></li></ol></li><li class="chapter-item expanded "><a href="qsa-plugin/index.html"><strong aria-hidden="true">2.</strong> QSA plugin</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="qsa-plugin/installation.html"><strong aria-hidden="true">2.1.</strong> Installation</a></li><li class="chapter-item expanded "><a href="qsa-plugin/configuration.html"><strong aria-hidden="true">2.2.</strong> Configuration</a></li><li class="chapter-item expanded "><a href="qsa-plugin/usage.html"><strong aria-hidden="true">2.3.</strong> Usage</a></li></ol></li><li class="chapter-item expanded "><a href="qsa-cli/index.html"><strong aria-hidden="true">3.</strong> QSA cli</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="qsa-cli/installation.html"><strong aria-hidden="true">3.1.</strong> Installation</a></li><li class="chapter-item expanded "><a href="qsa-cli/configuration.html"><strong aria-hidden="true">3.2.</strong> Configuration</a></li><li class="chapter-item expanded "><a href="qsa-cli/commands.html"><strong aria-hidden="true">3.3.</strong> Commands</a></li></ol></li><li class="chapter-item expanded "><a href="sandbox/index.html"><strong aria-hidden="true">4.</strong> Sandbox</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="sandbox/inspect.html"><strong aria-hidden="true">4.1.</strong> Inspect QGIS Server instances</a></li><li class="chapter-item expanded "><a href="sandbox/projects.html"><strong aria-hidden="true">4.2.</strong> Manage projects</a></li><li class="chapter-item expanded "><a href="sandbox/layers.html"><strong aria-hidden="true">4.3.</strong> Manage layers</a></li><li class="chapter-item expanded "><a href="sandbox/styles.html"><strong aria-hidden="true">4.4.</strong> Manage styles</a></li></ol></li><li class="chapter-item expanded "><a href="DEVELOPERS.html"><strong aria-hidden="true">5.</strong> Developers</a></li><li class="chapter-item expanded "><a href="FUNDERS.html"><strong aria-hidden="true">6.</strong> Funders</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="index.html">Introduction</a></li><li class="chapter-item expanded "><a href="qsa-api/index.html"><strong aria-hidden="true">1.</strong> QSA REST API</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="qsa-api/installation.html"><strong aria-hidden="true">1.1.</strong> Installation</a></li><li class="chapter-item expanded "><a href="qsa-api/configuration.html"><strong aria-hidden="true">1.2.</strong> Configuration</a></li><li class="chapter-item expanded "><a href="qsa-api/endpoints.html"><strong aria-hidden="true">1.3.</strong> Endpoints</a></li></ol></li><li class="chapter-item expanded "><a href="qsa-plugin/index.html"><strong aria-hidden="true">2.</strong> QSA plugin</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="qsa-plugin/installation.html"><strong aria-hidden="true">2.1.</strong> Installation</a></li><li class="chapter-item expanded "><a href="qsa-plugin/configuration.html"><strong aria-hidden="true">2.2.</strong> Configuration</a></li><li class="chapter-item expanded "><a href="qsa-plugin/usage.html"><strong aria-hidden="true">2.3.</strong> Usage</a></li></ol></li><li class="chapter-item expanded "><a href="qsa-cli/index.html"><strong aria-hidden="true">3.</strong> QSA cli</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="qsa-cli/installation.html"><strong aria-hidden="true">3.1.</strong> Installation</a></li><li class="chapter-item expanded "><a href="qsa-cli/configuration.html"><strong aria-hidden="true">3.2.</strong> Configuration</a></li><li class="chapter-item expanded "><a href="qsa-cli/commands.html"><strong aria-hidden="true">3.3.</strong> Commands</a></li></ol></li><li class="chapter-item expanded "><a href="sandbox/index.html"><strong aria-hidden="true">4.</strong> Sandbox</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="sandbox/inspect.html"><strong aria-hidden="true">4.1.</strong> Introspection</a></li><li class="chapter-item expanded "><a href="sandbox/projects.html"><strong aria-hidden="true">4.2.</strong> Projects</a></li><li class="chapter-item expanded "><a href="sandbox/vector/layers.html"><strong aria-hidden="true">4.3.</strong> Vector layers</a></li><li class="chapter-item expanded "><a href="sandbox/vector/styles.html"><strong aria-hidden="true">4.4.</strong> Vector styles</a></li><li class="chapter-item expanded "><a href="sandbox/raster/layers.html"><strong aria-hidden="true">4.5.</strong> Raster layers</a></li></ol></li><li class="chapter-item expanded "><a href="DEVELOPERS.html"><strong aria-hidden="true">5.</strong> Developers</a></li><li class="chapter-item expanded "><a href="FUNDERS.html"><strong aria-hidden="true">6.</strong> Funders</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle">
                 <div class="sidebar-resize-indicator"></div>
@@ -243,8 +243,8 @@ $ . venv/bin/activate
 </tbody></table>
 </div>
 <h2 id="postgresql-support"><a class="header" href="#postgresql-support">PostgreSQL support</a></h2>
-<p>When PostgreSQL support is enabled to store QGIS projects thanks to
-<code>QSA_QGISSERVER_PROJECTS_PSQL_SERVICE</code>, the directory
+<p>When PostgreSQL support is enabled to store QGIS projects thanks to the
+<code>QSA_QGISSERVER_PROJECTS_PSQL_SERVICE</code> environment variable, the directory
 <code>QSA_QGISSERVER_PROJECTS_DIR</code> is only used to store the QSA SQLite database as
 well as QGIS QML styles. In the future, the QSA database and QGIS styles will
 also be stored in PostgreSQL when enabled.</p>
@@ -262,16 +262,19 @@ password=
 <p>A query string parameter can be used to specify a <code>schema</code> through the QSA API
 (<code>public</code> is used by default).</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="qsa-rest-api--endpoints"><a class="header" href="#qsa-rest-api--endpoints">QSA REST API : endpoints</a></h1>
-<p><strong>Note</strong> : when PostgreSQL support is enabled, a query string parameter <code>schema</code> may be
-used to specify the schema in which the QGIS projects is stored in the
-database (<code>public</code> is used by default). For example:</p>
-<pre><code class="language-shell">$ curl "http://localhost/api/xxx/yyy?schema=myschema"
+<h2 id="postgresql-schema"><a class="header" href="#postgresql-schema">PostgreSQL schema</a></h2>
+<p>When PostgreSQL support is enabled, a query string parameter <code>schema</code> may be
+used to specify the schema in which the QGIS project is stored in the database
+(<code>public</code> is used by default).</p>
+<pre><code class="language-shell"># call a specific endpoint using projects stored in PostgreSQL schema named `myschema`
+$ curl "http://localhost/api/xxx/yyy?schema=myschema"
 </code></pre>
 <h2 id="project"><a class="header" href="#project">Project</a></h2>
 <p>A QSA project is defined by:</p>
 <ul>
 <li>a QGIS project</li>
 <li>a list of themes</li>
+<li>an internal SQLite database</li>
 <li>a MapProxy configuration file (if enabled)</li>
 </ul>
 <div class="table-wrapper"><table><thead><tr><th>Method</th><th>URL</th><th>Description</th></tr></thead><tbody>
@@ -313,8 +316,9 @@ empty.</p>
 <tr><td>DELETE</td><td><code>/api/projects/{project}/layers/{layer}</code></td><td>Remove layer from project</td></tr>
 </tbody></table>
 </div>
-<p>Examples:</p>
-<pre><code class="language-shell">$ curl "http://localhost/api/projects/my_project/layers" \
+<p>Example:</p>
+<pre><code class="language-shell"># Add a FlatGeobuf vector layer in project `my_project`
+$ curl "http://localhost/api/projects/my_project/layers" \
   -X POST \
   -H 'Content-Type: application/json' \
   -d '{
@@ -336,8 +340,9 @@ corresponding parameters depending on QGIS Server version.</p>
 <tr><td>GET</td><td><code>/api/symbology/vector/polygon/single_symbol/fill/properties</code></td><td>Polygon simple symbol properties</td></tr>
 </tbody></table>
 </div>
-<p>Examples:</p>
-<pre><code class="language-shell">$ curl "http://localhost:5000/api/symbology/vector/polygon/single_symbol/fill/properties" | jq
+<p>Example:</p>
+<pre><code class="language-shell"># Return single symbol properties for polygon layers
+$ curl "http://localhost:5000/api/symbology/vector/polygon/single_symbol/fill/properties" | jq
 {
   "border_width_map_unit_scale": "3x:0,0,0,0,0,0",
   "color": "0,0,255,255",
@@ -355,7 +360,7 @@ corresponding parameters depending on QGIS Server version.</p>
 <h2 id="style"><a class="header" href="#style">Style</a></h2>
 <p>A QSA style may be used through the <code>STYLE</code> OGC web services parameter to
 specify the rendering for a specific layer. Default styles may be defined and
-used when a layer is added to a project.</p>
+automatically used when a layer is added to a QSA project.</p>
 <div class="table-wrapper"><table><thead><tr><th>Method</th><th>URL</th><th>Description</th></tr></thead><tbody>
 <tr><td>GET</td><td><code>/api/projects/{project}/styles</code></td><td>List styles in project</td></tr>
 <tr><td>GET</td><td><code>/api/projects/{project}/styles/default</code></td><td>List default styles in project</td></tr>
@@ -365,8 +370,9 @@ used when a layer is added to a project.</p>
 <tr><td>DELETE</td><td><code>/api/projects/{project}/styles/{style}</code></td><td>Remove style from project</td></tr>
 </tbody></table>
 </div>
-<p>Examples:</p>
-<pre><code class="language-shell">$ curl "http://localhost:5000/api/projects/my_project/styles" \
+<p>Example:</p>
+<pre><code class="language-shell"># Add a style for point geometry vector layers
+$ curl "http://localhost:5000/api/projects/my_project/styles" \
   -X POST \
   -H 'Content-Type: application/json' \
   -d '{
@@ -464,12 +470,13 @@ $ docker-compose up --scale qgisserver=4 -d
 $ docker ps
 CONTAINER ID   IMAGE                              COMMAND                  CREATED       STATUS         PORTS                                       NAMES
 d2eaf6bdfae4   pblottiere/qsa                     "qsa"                    2 hours ago   Up 9 seconds   0.0.0.0:5000-&gt;5000/tcp, :::5000-&gt;5000/tcp   sandbox-qsa-1
+b47085d9ad65   postgres:14-alpine                 "docker-entrypoint.s…"   5 days ago    Up 9 seconds   0.0.0.0:5433-&gt;5432/tcp, :::5433-&gt;5432/tcp   sandbox-postgres-1
 77fa87641b42   opengisch/qgis-server:3.30-jammy   "/bin/sh -c /usr/loc…"   2 hours ago   Up 9 seconds   80/tcp, 9993/tcp                            sandbox-qgisserver-6
 093346c82ea8   opengisch/qgis-server:3.30-jammy   "/bin/sh -c /usr/loc…"   2 hours ago   Up 9 seconds   80/tcp, 9993/tcp                            sandbox-qgisserver-8
 afd95ccaef9e   opengisch/qgis-server:3.30-jammy   "/bin/sh -c /usr/loc…"   2 hours ago   Up 9 seconds   80/tcp, 9993/tcp                            sandbox-qgisserver-7
 0b13f3d867c5   opengisch/qgis-server:3.30-jammy   "/bin/sh -c /usr/loc…"   2 hours ago   Up 8 seconds   80/tcp, 9993/tcp                            sandbox-qgisserver-1
 </code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="sandbox--inspect-qgis-server-instances"><a class="header" href="#sandbox--inspect-qgis-server-instances">Sandbox : inspect QGIS Server instances</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="sandbox--introspection"><a class="header" href="#sandbox--introspection">Sandbox : introspection</a></h1>
 <p><code>qsa-cli</code> allows to inspect online QGIS Server instances registered to
 <code>qsa-api</code> server, but it’s also possible to use the REST API.</p>
 <h3 id="list-online-instances"><a class="header" href="#list-online-instances">List online instances</a></h3>
@@ -600,7 +607,7 @@ INSTANCE ID      COUNT  TIME        SERVICE    REQUEST    PROJECT
 012083b9             0
 c0047e66             0
 </code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="sandbox--manage-projects"><a class="header" href="#sandbox--manage-projects">Sandbox : manage projects</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="sandbox--projects"><a class="header" href="#sandbox--projects">Sandbox : projects</a></h1>
 <h3 id="create-and-delete-projects-in-postgresql"><a class="header" href="#create-and-delete-projects-in-postgresql">Create and delete projects in PostgreSQL</a></h3>
 <p>First we create a schema to store QGIS projects:</p>
 <pre><code class="language-shell">$ psql -h localhost -p 5433 -U qsa qsa -c "create schema my_schema"
@@ -660,7 +667,7 @@ $ curl "http://localhost:5000/api/projects/"
   "storage": "postgresql"
 }
 </code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="sandbox--manage-layers"><a class="header" href="#sandbox--manage-layers">Sandbox : manage layers</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="sandbox--vector-layers"><a class="header" href="#sandbox--vector-layers">Sandbox : vector layers</a></h1>
 <p>Layers are based on the <code>data.gpkg</code> file mounted in the Docker containers.</p>
 <h3 id="add-layers"><a class="header" href="#add-layers">Add layers</a></h3>
 <p>To add a polygon layer to a project:</p>
@@ -710,7 +717,7 @@ $ curl "http://localhost:5000/api/projects/my_project/layers/lines?schema=my_sch
 <p>To execute a WMS <code>GetMap</code> request with basic parameters:</p>
 <pre><code class="language-shell">$ curl "http://localhost:5000/api/projects/my_project/layers/polygons/map?schema=my_schema" --output map.png
 </code></pre>
-<img src="sandbox/../images/map.png" width="300">
+<img src="sandbox/vector/../../images/map.png" width="300">
 <h3 id="delete-layers"><a class="header" href="#delete-layers">Delete layers</a></h3>
 <pre><code class="language-shell">$ curl -X DELETE "http://localhost:5000/api/projects/my_project/layers/lines?schema=my_schema"
 true
@@ -718,7 +725,7 @@ true
 $ curl "http://localhost:5000/api/projects/my_project/layers?schema=my_schema"
 ["polygons"]
 </code></pre>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="sandbox--manage-styles"><a class="header" href="#sandbox--manage-styles">Sandbox : manage styles</a></h1>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="sandbox--vector-styles"><a class="header" href="#sandbox--vector-styles">Sandbox : vector styles</a></h1>
 <h3 id="add-style-to-project"><a class="header" href="#add-style-to-project">Add style to project</a></h3>
 <p>To list available properties for the polygon single symbol renderer:</p>
 <pre><code class="language-shell">$ curl "http://localhost:5000/api/symbology/vector/polygon/single_symbol/fill/properties" | jq
@@ -771,7 +778,31 @@ true
 <p>The layer rendering has changed now:</p>
 <pre><code class="language-shell">$ curl "http://localhost:5000/api/projects/my_project/layers/polygons/map?schema=my_schema" --output map.png
 </code></pre>
-<img src="sandbox/../images/map_style.png" width="300">
+<img src="sandbox/vector/../../images/map_style.png" width="300">
+<div style="break-before: page; page-break-before: always;"></div><h1 id="sandbox--raster-layers"><a class="header" href="#sandbox--raster-layers">Sandbox : raster layers</a></h1>
+<p>Layer is based on the <code>landsat_4326.tif</code> file mounted in the Docker containers.</p>
+<h3 id="add-layers-1"><a class="header" href="#add-layers-1">Add layers</a></h3>
+<p>To add a raster layer to a project:</p>
+<pre><code class="language-shell">$ curl "http://localhost:5000/api/projects/my_project/layers?schema=my_schema" \
+  -X POST \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "crs": 4326,
+    "datasource":"/dem.tif",
+    "name":"dem",
+    "type":"raster"
+  }'
+true
+</code></pre>
+<h3 id="list-layers-and-get-metadata-1"><a class="header" href="#list-layers-and-get-metadata-1">List layers and get metadata</a></h3>
+<pre><code class="language-shell">$ curl "http://localhost:5000/api/projects/my_project/layers?schema=my_schema"
+["polygons","dem"]
+</code></pre>
+<h3 id="map-sample-1"><a class="header" href="#map-sample-1">Map sample</a></h3>
+<p>To execute a WMS <code>GetMap</code> request with basic parameters:</p>
+<pre><code class="language-shell">$ curl "http://localhost:5000/api/projects/my_project/layers/dem/map?schema=my_schema" --output map.png
+</code></pre>
+<img src="sandbox/raster/../../images/raster_dem_map.png" width="300">
 <div style="break-before: page; page-break-before: always;"></div><h1 id="developers"><a class="header" href="#developers">Developers</a></h1>
 <p>Documentation:</p>
 <pre><code class="language-console">$ mdbook build docs
