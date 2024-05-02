@@ -435,6 +435,9 @@ class QSAProject:
             symbol = QgsMarkerSymbol.createSimple(properties)
             r.setSymbol(symbol)
 
+        if "opacity" in rendering:
+            vl.setOpacity(float(rendering["opacity"]))
+
         if r:
             vl.setRenderer(r)
 
