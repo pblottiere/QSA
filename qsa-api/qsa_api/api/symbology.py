@@ -32,17 +32,3 @@ def symbology_symbols_marker():
         "outline_style"
     ] = "solid (no, solid, dash, dot, dash dot, dash dot dot)"
     return jsonify(props)
-
-
-@symbology.get("/raster/properties")
-def symbology_raster():
-    layer_props = {}
-    layer_props["brightness"] = 0
-    layer_props["gamma"] = 1.0
-    layer_props["contrast"] = 0
-    layer_props["saturation"] = 0
-
-    props = {}
-    props["layer"] = layer_props
-
-    return jsonify(props)

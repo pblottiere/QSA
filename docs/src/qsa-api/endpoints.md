@@ -93,8 +93,6 @@ corresponding parameters depending on QGIS Server version.
 | GET     | `/api/symbology/vector/point/single_symbol/marker/properties` | Marker simple symbol properties              |
 | GET     | `/api/symbology/vector/line/single_symbol/line/properties`    | Line simple symbol properties                |
 | GET     | `/api/symbology/vector/polygon/single_symbol/fill/properties` | Polygon simple symbol properties             |
-| GET     | `/api/symbology/raster/layer/properties`                      | Layer rendering parameters for raster layers |
-| GET     | `/api/symbology/raster/min_max/properties`                    | Min/max settings for raster layers           |
 
 Example:
 
@@ -121,7 +119,7 @@ $ curl "http://localhost:5000/api/symbology/vector/polygon/single_symbol/fill/pr
 
 A QSA style may be used through the `STYLE` OGC web services parameter to
 specify the rendering for a specific layer. Default styles may be defined and
-automatically used when a layer is added to a QSA project.
+automatically used when a vector layer is added to a QSA project.
 
 | Method  |                      URL                      |         Description                                                                                                            |
 |---------|-----------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------|
@@ -136,10 +134,11 @@ automatically used when a layer is added to a QSA project.
 #### Vector style {#vector-style}
 
 For vector layers, a style can be defined with the parameters listed below:
+- `type` : `vector`
 - `name` : the name of the style
-- `symbology` : only `single_symbol` is supported for now
-- `symbol` : the type of the symbol like `marker`, `line` or `polygon`
-- `properties` : symbology properties
+- `rendering` : rendering parameters (only `opacity` is supported for now)
+- `symbology` : dictionary with `type` (only `single_symbol` is supported for
+                now), `symbol` and `properties`
 
 Example:
 
@@ -149,11 +148,17 @@ $ curl "http://localhost:5000/api/projects/my_project/styles" \
   -X POST \
   -H 'Content-Type: application/json' \
   -d '{
-    "symbol": "marker",
-    "symbology": "single_symbol",
+    "type": "vector",
     "name": "my_marker_style",
-    "properties": {
-      "color": "#112233"
+    "rendering": {
+      "opacity": 100.
+    },
+    "symbology": {
+      "type": "single_symbol",
+      "symbol": "marker",
+      "properties": {
+        "color": "#112233"
+      }
     }
   }'
 ````
@@ -165,8 +170,45 @@ To set a default style for a specific geometry, the parameters listed below are 
 
 #### Raster style {#raster-style}
 
-TODO
+For raster layers, a style can be defined with the parameters listed below:
+- `type` : `raster`
+- `name` : the name of the style
+- `rendering` : rendering parameters
+- `symbology` : dictionary with `type` (only `multibandcolor` is supported for
+                now) and `properties`
 
+Example:
+
+```` shell
+# Add a style for point multiband raster
+$ curl "http://localhost:5000/api/projects/my_project/styles" \
+  -X POST \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "type": "raster",
+    "name": "my_multiband_style",
+    "rendering": {
+      "saturation": 3,
+      "brightness": -148,
+      "contrast": 42,
+      "gamma": 4.
+    },
+    "symbology": {
+      "type": "multibandcolor",
+      "properties": {
+        "red": {
+          "band": 1
+        },
+        "green": {
+          "band": 2
+        },
+        "blue": {
+          "band": 3
+        }
+      }
+    }
+  }'
+````
 
 ## Instances
 

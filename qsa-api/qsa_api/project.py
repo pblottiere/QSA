@@ -22,6 +22,7 @@ from qgis.core import (
     QgsSingleSymbolRenderer,
     QgsSimpleFillSymbolLayer,
     QgsSimpleLineSymbolLayer,
+    QgsMultiBandColorRenderer,
     QgsSimpleMarkerSymbolLayer,
 )
 from qgis.PyQt.QtXml import QDomDocument, QDomNode
@@ -375,15 +376,74 @@ class QSAProject:
 
         if t == Qgis.LayerType.Vector:
             return self._add_style_vector(name, symbology, rendering)
+        elif t == Qgis.LayerType.Raster:
+            return self._add_style_raster(name, symbology, rendering)
         elif t is None:
             return False, "Invalid layer type"
+
+    def _add_style_raster(
+        self, name: str, symbology: dict, rendering: dict
+    ) -> (bool, str):
+        # safety check
+        if "type" not in symbology:
+            return False, "`type` is missing in `symbology`"
+
+        if "properties" not in symbology:
+            return False, "`properties` is missing in `symbology`"
+
+        # init renderer
+        r = None
+        rl = QgsRasterLayer()
+        properties = symbology["properties"]
+
+        if (
+            symbology["type"]
+            == QgsMultiBandColorRenderer(None, 1, 1, 1).type()
+        ):
+            r = QgsMultiBandColorRenderer(None, 1, 1, 1)
+
+            if "red" in properties:
+                red = properties["red"]
+                r.setRedBand(int(red["band"]))
+
+            if "blue" in properties:
+                blue = properties["blue"]
+                r.setBlueBand(int(blue["band"]))
+
+            if "green" in properties:
+                green = properties["green"]
+                r.setGreenBand(int(green["band"]))
+
+        # config rendering
+        if "gamma" in rendering:
+            rl.brightnessFilter().setGamma(float(rendering["gamma"]))
+
+        if "brightness" in rendering:
+            rl.brightnessFilter().setBrightness(float(rendering["brightness"]))
+
+        if "contrast" in rendering:
+            rl.brightnessFilter().setContrast(int(rendering["contrast"]))
+
+        if "saturation" in rendering:
+            rl.hueSaturationFilter().setSaturation(
+                int(rendering["saturation"])
+            )
+
+        # save style
+        if r:
+            rl.setRenderer(r)
+
+            path = self._qgis_project_dir / f"{name}.qml"
+            rl.saveNamedStyle(
+                path.as_posix(), categories=QgsMapLayer.Symbology
+            )
+            return True, ""
+
+        return False, "Error"
 
     def _add_style_vector(
         self, name: str, symbology: dict, rendering: dict
     ) -> (bool, str):
-        r = None
-        vl = QgsVectorLayer()
-
         if "type" not in symbology:
             return False, "`type` is missing in `symbology`"
 
@@ -396,8 +456,11 @@ class QSAProject:
         if symbology["type"] != "single_symbol":
             return False, "Invalid symbol"
 
+        r = None
+        vl = QgsVectorLayer()
         symbol = symbology["symbol"]
         properties = symbology["properties"]
+
         if symbol == "line":
             r = QgsSingleSymbolRenderer(
                 QgsSymbol.defaultSymbol(QgsWkbTypes.LineGeometry)
