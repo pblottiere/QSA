@@ -173,19 +173,21 @@ class APITestCaseFilesystem(unittest.TestCase):
 
         # add line style to project
         data = {}
+        data["type"] = "vector"
         data["name"] = "style_line"
-        data["symbology"] = "single_symbol"
-        data["symbol"] = "line"
-        data["properties"] = {"line_width": 0.5}
+        data["symbology"] = {"type": "single_symbol", "symbol": "line"}
+        data["symbology"]["properties"] = {"line_width": 0.5}
+        data["rendering"] = {}
         p = self.app.post(f"/api/projects/{TEST_PROJECT_0}/styles", data)
         self.assertEqual(p.status_code, 201)
 
         # add fill style to project
         data = {}
+        data["type"] = "vector"
         data["name"] = "style_fill"
-        data["symbology"] = "single_symbol"
-        data["symbol"] = "fill"
-        data["properties"] = {"outline_width": 0.5}
+        data["symbology"] = {"type": "single_symbol", "symbol": "fill"}
+        data["symbology"]["properties"] = {"outline_width": 0.5}
+        data["rendering"] = {}
         p = self.app.post(f"/api/projects/{TEST_PROJECT_0}/styles", data)
         self.assertEqual(p.status_code, 201)
 
@@ -284,44 +286,47 @@ class APITestCaseFilesystem(unittest.TestCase):
 
         # add line style to project
         data = {}
+        data["type"] = "vector"
         data["name"] = "style_line"
-        data["symbology"] = "single_symbol"
-        data["symbol"] = "line"
-        data["properties"] = {
+        data["symbology"] = {"type": "single_symbol", "symbol": "line"}
+        data["symbology"]["properties"] = {
             "line_width": 0.75,
             "line_style": "dash",
             "customdash": "10;3",
             "use_custom_dash": "1",
             "line_color": "#0055FF",
         }
+        data["rendering"] = {}
         p = self.app.post(f"/api/projects/{TEST_PROJECT_0}/styles", data)
         self.assertEqual(p.status_code, 201)
 
         # add fill style to project
         data = {}
+        data["type"] = "vector"
         data["name"] = "style_fill"
-        data["symbology"] = "single_symbol"
-        data["symbol"] = "fill"
-        data["properties"] = {
+        data["symbology"] = {"type": "single_symbol", "symbol": "fill"}
+        data["symbology"]["properties"] = {
             "color": "#00BBBB",
             "style": "cross",
             "outline_width": 0.16,
             "outline_color": "#002222",
         }
+        data["rendering"] = {}
         p = self.app.post(f"/api/projects/{TEST_PROJECT_0}/styles", data)
         self.assertEqual(p.status_code, 201)
 
         # add marker style to project
         data = {}
+        data["type"] = "vector"
         data["name"] = "style_marker"
-        data["symbology"] = "single_symbol"
-        data["symbol"] = "marker"
-        data["properties"] = {
+        data["symbology"] = {"type": "single_symbol", "symbol": "marker"}
+        data["symbology"]["properties"] = {
             "color": "#00BBBB",
             "name": "star",
             "size": 6,
             "angle": 45,
         }
+        data["rendering"] = {}
         p = self.app.post(f"/api/projects/{TEST_PROJECT_0}/styles", data)
         self.assertEqual(p.status_code, 201)
 

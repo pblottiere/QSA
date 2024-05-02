@@ -367,16 +367,37 @@ class QSAProject:
     def add_style(
         self,
         name: str,
-        symbol: str,
-        symbology: str,
-        properties: dict,
-    ) -> bool:
+        layer_type: str,
+        symbology: dict,
+        rendering: dict,
+    ) -> (bool, str):
+        t = self._layer_type(layer_type)
+
+        if t == Qgis.LayerType.Vector:
+            return self._add_style_vector(name, symbology, rendering)
+        elif t is None:
+            return False, "Invalid layer type"
+
+    def _add_style_vector(
+        self, name: str, symbology: dict, rendering: dict
+    ) -> (bool, str):
         r = None
         vl = QgsVectorLayer()
 
-        if symbology != "single_symbol":
-            return False
+        if "type" not in symbology:
+            return False, "`type` is missing in `symbology`"
 
+        if "symbol" not in symbology:
+            return False, "`symbol` is missing in `symbology`"
+
+        if "properties" not in symbology:
+            return False, "`properties` is missing in `symbology`"
+
+        if symbology["type"] != "single_symbol":
+            return False, "Invalid symbol"
+
+        symbol = symbology["symbol"]
+        properties = symbology["properties"]
         if symbol == "line":
             r = QgsSingleSymbolRenderer(
                 QgsSymbol.defaultSymbol(QgsWkbTypes.LineGeometry)
@@ -385,7 +406,7 @@ class QSAProject:
             props = QgsSimpleLineSymbolLayer().properties()
             for key in properties.keys():
                 if key not in props:
-                    return False
+                    return False, "Invalid properties"
 
             symbol = QgsLineSymbol.createSimple(properties)
             r.setSymbol(symbol)
@@ -397,7 +418,7 @@ class QSAProject:
             props = QgsSimpleFillSymbolLayer().properties()
             for key in properties.keys():
                 if key not in props:
-                    return False
+                    return False, "Invalid properties"
 
             symbol = QgsFillSymbol.createSimple(properties)
             r.setSymbol(symbol)
@@ -409,7 +430,7 @@ class QSAProject:
             props = QgsSimpleMarkerSymbolLayer().properties()
             for key in properties.keys():
                 if key not in props:
-                    return False
+                    return False, "Invalid properties"
 
             symbol = QgsMarkerSymbol.createSimple(properties)
             r.setSymbol(symbol)
@@ -421,9 +442,9 @@ class QSAProject:
             vl.saveNamedStyle(
                 path.as_posix(), categories=QgsMapLayer.Symbology
             )
-            return True
+            return True, ""
 
-        return False
+        return False, "Error"
 
     def remove_style(self, name: str) -> bool:
         if name not in self.styles:

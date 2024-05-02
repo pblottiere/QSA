@@ -88,11 +88,13 @@ in QGIS is very dense but for now, only Marker, Line and Fill simple symbols
 are supported. The `/api/symbology` endpoint allows to dynamically retrieve the
 corresponding parameters depending on QGIS Server version.
 
-| Method  |                      URL                                      |         Description              |
-|---------|---------------------------------------------------------------|----------------------------------|
-| GET     | `/api/symbology/vector/point/single_symbol/marker/properties` | Marker simple symbol properties  |
-| GET     | `/api/symbology/vector/line/single_symbol/line/properties`    | Line simple symbol properties    |
-| GET     | `/api/symbology/vector/polygon/single_symbol/fill/properties` | Polygon simple symbol properties |
+| Method  |                      URL                                      |         Description                          |
+|---------|---------------------------------------------------------------|----------------------------------------------|
+| GET     | `/api/symbology/vector/point/single_symbol/marker/properties` | Marker simple symbol properties              |
+| GET     | `/api/symbology/vector/line/single_symbol/line/properties`    | Line simple symbol properties                |
+| GET     | `/api/symbology/vector/polygon/single_symbol/fill/properties` | Polygon simple symbol properties             |
+| GET     | `/api/symbology/raster/layer/properties`                      | Layer rendering parameters for raster layers |
+| GET     | `/api/symbology/raster/min_max/properties`                    | Min/max settings for raster layers           |
 
 Example:
 
@@ -126,9 +128,18 @@ automatically used when a layer is added to a QSA project.
 | GET     | `/api/projects/{project}/styles`              | List styles in project                                                                                                         |
 | GET     | `/api/projects/{project}/styles/default`      | List default styles in project                                                                                                 |
 | GET     | `/api/projects/{project}/styles/{style}`      | List style's metadata                                                                                                          |
-| POST    | `/api/projects/{project}/styles/{style}`      | Add style to project with `symbology` (only `single_symbol` is supported for now), `symbol`, `name` and symbology `properties` |
-| POST    | `/api/projects/{project}/styles/default`      | Set default style for a specific geometry with `geometry` and `name`                                                           |
+| POST    | `/api/projects/{project}/styles/{style}`      | Add style to project. See [Vector style](#vector-style) and [Raster style](#raster-style) for more information.                |
+| POST    | `/api/projects/{project}/styles/default`      | Set a default layer's style. See [Vector style](#vector-style) and [Raster style](#raster-style) for more information.         |
 | DELETE  | `/api/projects/{project}/styles/{style}`      | Remove style from project                                                                                                      |
+
+
+#### Vector style {#vector-style}
+
+For vector layers, a style can be defined with the parameters listed below:
+- `name` : the name of the style
+- `symbology` : only `single_symbol` is supported for now
+- `symbol` : the type of the symbol like `marker`, `line` or `polygon`
+- `properties` : symbology properties
 
 Example:
 
@@ -146,6 +157,15 @@ $ curl "http://localhost:5000/api/projects/my_project/styles" \
     }
   }'
 ````
+
+To set a default style for a specific geometry, the parameters listed below are available:
+- `name` : the name of the style to use by default
+- `geometry` : the geometry for which the style needs to be applied
+
+
+#### Raster style {#raster-style}
+
+TODO
 
 
 ## Instances
