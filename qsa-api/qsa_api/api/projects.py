@@ -106,7 +106,9 @@ def project_del_style(name, style):
     project = QSAProject(name, psql_schema)
     if project.exists():
         if style in project.styles:
-            rc = project.remove_style(style)
+            rc, msg = project.remove_style(style)
+            if not rc:
+                return {"error": msg}, 415
             return jsonify(rc), 201
         else:
             return {"error": "Style does not exist"}, 415

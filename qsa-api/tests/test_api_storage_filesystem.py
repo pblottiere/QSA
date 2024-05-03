@@ -159,7 +159,85 @@ class APITestCaseFilesystem(unittest.TestCase):
         # remove last project
         p = self.app.delete(f"/api/projects/{TEST_PROJECT_0}")
 
-    def test_style(self):
+    def test_raster_style(self):
+        # add project
+        data = {}
+        data["name"] = TEST_PROJECT_0
+        data["author"] = "pblottiere"
+        p = self.app.post("/api/projects/", data)
+        self.assertEqual(p.status_code, 201)
+
+        # 0 style
+        p = self.app.get(f"/api/projects/{TEST_PROJECT_0}/styles")
+        self.assertEqual(p.get_json(), [])
+
+        # add multibandcolor style to project
+        data = {}
+        data["type"] = "raster"
+        data["name"] = "style_multibandcolor"
+        data["symbology"] = {"type": "multibandcolor"}
+        data["symbology"]["properties"] = {"red": {"band": 1}, "blue": {"band": 1}, "green": {"band": 1}}
+        data["rendering"] = {"brightness": 10, "gamma": 1.0, "contrast": 3, "saturation": 2}
+        p = self.app.post(f"/api/projects/{TEST_PROJECT_0}/styles", data)
+        self.assertEqual(p.status_code, 201)
+
+        # 1 style
+        p = self.app.get(f"/api/projects/{TEST_PROJECT_0}/styles")
+        self.assertTrue("style_multibandcolor" in p.get_json())
+
+        # add raster layer
+        data = {}
+        data["name"] = "layer0"
+        data["datasource"] = f"{GEOTIFF}"
+        data["crs"] = 4326
+        data["type"] = "raster"
+        p = self.app.post(f"/api/projects/{TEST_PROJECT_0}/layers", data)
+        self.assertEqual(p.status_code, 201)
+
+        # update layer's style
+        data = {}
+        data["current"] = True
+        data["name"] = "style_multibandcolor"
+        p = self.app.post(
+            f"/api/projects/{TEST_PROJECT_0}/layers/layer0/style", data
+        )
+        self.assertEqual(p.status_code, 201)
+
+        # check style for layers
+        p = self.app.get(f"/api/projects/{TEST_PROJECT_0}/layers/layer0")
+        j = p.get_json()
+        self.assertEqual(j["styles"], ["default", "style_multibandcolor"])
+        self.assertEqual(j["current_style"], "style_multibandcolor")
+
+        # remove style
+        p = self.app.delete(
+            f"/api/projects/{TEST_PROJECT_0}/styles/style_multibandcolor"
+        )
+        self.assertEqual(p.status_code, 415)  # style still in use
+
+        # update layer's style
+        data = {}
+        data["current"] = True
+        data["name"] = "default"
+        p = self.app.post(
+            f"/api/projects/{TEST_PROJECT_0}/layers/layer0/style", data
+        )
+        self.assertEqual(p.status_code, 201)
+
+        # remove style
+        p = self.app.delete(
+            f"/api/projects/{TEST_PROJECT_0}/styles/style_multibandcolor"
+        )
+        self.assertEqual(p.status_code, 201)
+
+        # 0 style
+        p = self.app.get(f"/api/projects/{TEST_PROJECT_0}/styles")
+        self.assertEqual(p.get_json(), [])
+
+        # remove last project
+        p = self.app.delete(f"/api/projects/{TEST_PROJECT_0}")
+
+    def test_vector_style(self):
         # add project
         data = {}
         data["name"] = TEST_PROJECT_0

@@ -393,7 +393,8 @@ class QSAProject:
 
         # init renderer
         r = None
-        rl = QgsRasterLayer()
+        tif = Path(__file__).resolve().parent / "empty.tif"
+        rl = QgsRasterLayer(tif.as_posix(), "", "gdal")
         properties = symbology["properties"]
 
         if (
@@ -419,7 +420,7 @@ class QSAProject:
             rl.brightnessFilter().setGamma(float(rendering["gamma"]))
 
         if "brightness" in rendering:
-            rl.brightnessFilter().setBrightness(float(rendering["brightness"]))
+            rl.brightnessFilter().setBrightness(int(rendering["brightness"]))
 
         if "contrast" in rendering:
             rl.brightnessFilter().setContrast(int(rendering["contrast"]))
@@ -529,7 +530,7 @@ class QSAProject:
 
         p.write()
 
-        return True
+        return True, ""
 
     @staticmethod
     def _qgis_projects_dir() -> Path:
