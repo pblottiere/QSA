@@ -17,5 +17,6 @@
   - [Vector layers](sandbox/vector/layers.md)
   - [Vector styles](sandbox/vector/styles.md)
   - [Raster layers](sandbox/raster/layers.md)
+  - [Raster styles](sandbox/raster/styles.md)
 - [Developers](DEVELOPERS.md)
 - [Funders](FUNDERS.md)

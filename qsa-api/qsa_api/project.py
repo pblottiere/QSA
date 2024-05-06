@@ -19,9 +19,11 @@ from qgis.core import (
     QgsMarkerSymbol,
     QgsFeatureRenderer,
     QgsReadWriteContext,
+    QgsContrastEnhancement,
     QgsSingleSymbolRenderer,
     QgsSimpleFillSymbolLayer,
     QgsSimpleLineSymbolLayer,
+    QgsSingleBandGrayRenderer,
     QgsMultiBandColorRenderer,
     QgsSimpleMarkerSymbolLayer,
 )
@@ -215,11 +217,11 @@ class QSAProject:
         layer = project.mapLayersByName(layer_name)[0]
 
         if style_name not in layer.styleManager().styles():
-            vl = QgsVectorLayer()
-            vl.loadNamedStyle(style_path.as_posix())  # set "default" style
+            l = layer.clone()
+            l.loadNamedStyle(style_path.as_posix())  # set "default" style
 
             layer.styleManager().addStyle(
-                style_name, vl.styleManager().style("default")
+                style_name, l.styleManager().style("default")
             )
 
         if current:
@@ -414,6 +416,25 @@ class QSAProject:
             if "green" in properties:
                 green = properties["green"]
                 r.setGreenBand(int(green["band"]))
+        elif symbology["type"] == QgsSingleBandGrayRenderer(None, 1).type():
+            r = QgsSingleBandGrayRenderer(None, 1)
+
+            if "gray_band" in properties:
+                band = properties["gray_band"]
+                r.setGrayBand(int(band))
+
+            if "color_gradient" in properties:
+                gradient = properties["color_gradient"]
+                if gradient == "blacktowhite":
+                    r.setGradient(
+                        QgsSingleBandGrayRenderer.Gradient.BlackToWhite
+                    )
+                elif gradient == "whitetoblack":
+                    r.setGradient(
+                        QgsSingleBandGrayRenderer.Gradient.WhiteToBlack
+                    )
+                else:
+                    return False, "Invalid `color_gradient`"
 
         # config rendering
         if "gamma" in rendering:
@@ -433,10 +454,13 @@ class QSAProject:
         # save style
         if r:
             rl.setRenderer(r)
+            rl.setContrastEnhancement(
+                QgsContrastEnhancement.ContrastEnhancementAlgorithm.StretchToMinimumMaximum
+            )
 
             path = self._qgis_project_dir / f"{name}.qml"
             rl.saveNamedStyle(
-                path.as_posix(), categories=QgsMapLayer.Symbology
+                path.as_posix(), categories=QgsMapLayer.AllStyleCategories
             )
             return True, ""
 

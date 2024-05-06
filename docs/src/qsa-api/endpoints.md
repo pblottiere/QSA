@@ -174,8 +174,8 @@ For raster layers, a style can be defined with the parameters listed below:
 - `type` : `raster`
 - `name` : the name of the style
 - `rendering` : rendering parameters
-- `symbology` : dictionary with `type` (only `multibandcolor` is supported for
-                now) and `properties`
+- `symbology` : dictionary with `type` (only `singlebandgray` and
+  `multibandcolor` are supported for now) and `properties`
 
 Example:
 
