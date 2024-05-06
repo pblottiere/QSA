@@ -395,7 +395,6 @@ class QSAProject:
 
         # init renderer
         r = None
-        contrast_alg = None
         tif = Path(__file__).resolve().parent / "empty.tif"
         rl = QgsRasterLayer(tif.as_posix(), "", "gdal")
         properties = symbology["properties"]
@@ -437,14 +436,27 @@ class QSAProject:
                 else:
                     return False, "Invalid `color_gradient` property"
 
-            if "contrast_enhancement" in properties:
-                alg = properties["contrast_enhancement"]
-                if alg == "StretchToMinimumMaximum":
-                    contrast_alg = (
-                        QgsContrastEnhancement.ContrastEnhancementAlgorithm.StretchToMinimumMaximum
-                    )
-                else:
-                    return False, "Invalid `contrast_enhancement` property"
+        contrast_alg = None
+        if "contrast_enhancement" in properties:
+            alg = properties["contrast_enhancement"]
+            if alg == "StretchToMinimumMaximum":
+                contrast_alg = (
+                    QgsContrastEnhancement.ContrastEnhancementAlgorithm.StretchToMinimumMaximum
+                )
+            elif alg == "NoEnhancement":
+                contrast_alg = (
+                    QgsContrastEnhancement.ContrastEnhancementAlgorithm.NoEnhancement
+                )
+            elif alg == "StretchAndClipToMinimumMaximum":
+                contrast_alg = (
+                    QgsContrastEnhancement.ContrastEnhancementAlgorithm.StretchAndClipToMinimumMaximum
+                )
+            elif alg == "ClipToMinimumMaximum":
+                contrast_alg = (
+                    QgsContrastEnhancement.ContrastEnhancementAlgorithm.ClipToMinimumMaximum
+                )
+            else:
+                return False, "Invalid `contrast_enhancement` property"
 
         # config rendering
         if "gamma" in rendering:

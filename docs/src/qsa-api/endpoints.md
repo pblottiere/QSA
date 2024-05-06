@@ -129,7 +129,7 @@ $ curl "http://localhost:5000/api/symbology/raster/multibandcolor/properties" | 
   "red": {
     "band": 1
   }
-  "contrast_enhancement": "StretchToMinimumMaximum (StretchToMinimumMaximum)",
+  "contrast_enhancement": "StretchToMinimumMaximum (StretchToMinimumMaximum, NoEnhancement, StretchAndClipToMinimumMaximum, ClipToMinimumMaximum)"
 }
 ````
 
