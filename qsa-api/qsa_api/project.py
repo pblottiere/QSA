@@ -395,6 +395,7 @@ class QSAProject:
 
         # init renderer
         r = None
+        contrast_alg = None
         tif = Path(__file__).resolve().parent / "empty.tif"
         rl = QgsRasterLayer(tif.as_posix(), "", "gdal")
         properties = symbology["properties"]
@@ -434,7 +435,16 @@ class QSAProject:
                         QgsSingleBandGrayRenderer.Gradient.WhiteToBlack
                     )
                 else:
-                    return False, "Invalid `color_gradient`"
+                    return False, "Invalid `color_gradient` property"
+
+            if "contrast_enhancement" in properties:
+                alg = properties["contrast_enhancement"]
+                if alg == "StretchToMinimumMaximum":
+                    contrast_alg = (
+                        QgsContrastEnhancement.ContrastEnhancementAlgorithm.StretchToMinimumMaximum
+                    )
+                else:
+                    return False, "Invalid `contrast_enhancement` property"
 
         # config rendering
         if "gamma" in rendering:
@@ -454,10 +464,12 @@ class QSAProject:
         # save style
         if r:
             rl.setRenderer(r)
-            rl.setContrastEnhancement(
-                QgsContrastEnhancement.ContrastEnhancementAlgorithm.StretchToMinimumMaximum
-            )
 
+            # needs to be set after renderer
+            if contrast_alg is not None:
+                rl.setContrastEnhancement(contrast_alg)
+
+            # save
             path = self._qgis_project_dir / f"{name}.qml"
             rl.saveNamedStyle(
                 path.as_posix(), categories=QgsMapLayer.AllStyleCategories

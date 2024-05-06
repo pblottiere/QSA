@@ -93,8 +93,12 @@ corresponding parameters depending on QGIS Server version.
 | GET     | `/api/symbology/vector/point/single_symbol/marker/properties` | Marker simple symbol properties              |
 | GET     | `/api/symbology/vector/line/single_symbol/line/properties`    | Line simple symbol properties                |
 | GET     | `/api/symbology/vector/polygon/single_symbol/fill/properties` | Polygon simple symbol properties             |
+| GET     | `/api/symbology/vector/rendering/properties` | Vector layer rendering properties                             |
+| GET     | `/api/symbology/raster/singlebandgray/properties`             | Single band gray properties                  |
+| GET     | `/api/symbology/raster/multibandcolor/properties`             | Multi band color properties                  |
+| GET     | `/api/symbology/raster/rendering/properties`                  | Raster layer rendering properties            |
 
-Example:
+Examples:
 
 ```` shell
 # Return single symbol properties for polygon layers
@@ -111,6 +115,21 @@ $ curl "http://localhost:5000/api/symbology/vector/polygon/single_symbol/fill/pr
   "outline_width": "0.26",
   "outline_width_unit": "MM",
   "style": "solid"
+}
+
+# Return multi band gray properties for raster layers
+$ curl "http://localhost:5000/api/symbology/raster/multibandcolor/properties" | jq
+{
+  "blue": {
+    "band": 3
+  },
+  "green": {
+    "band": 2
+  },
+  "red": {
+    "band": 1
+  }
+  "contrast_enhancement": "StretchToMinimumMaximum (StretchToMinimumMaximum)",
 }
 ````
 

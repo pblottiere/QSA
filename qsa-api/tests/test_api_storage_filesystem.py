@@ -88,6 +88,37 @@ class APITestCaseFilesystem(unittest.TestCase):
         j = p.get_json()
         self.assertTrue("outline_style" in j)
 
+    def test_vector_symbology_rendering(self):
+        p = self.app.get(
+            "/api/symbology/vector/rendering/properties"
+        )
+        j = p.get_json()
+        self.assertTrue("opacity" in j)
+
+    def test_raster_symbology_rendering(self):
+        p = self.app.get(
+            "/api/symbology/raster/rendering/properties"
+        )
+        j = p.get_json()
+        self.assertTrue("gamma" in j)
+        self.assertTrue("brightness" in j)
+        self.assertTrue("contrast" in j)
+        self.assertTrue("saturation" in j)
+
+    def test_raster_symbology_singlebandgray(self):
+        p = self.app.get(
+            "/api/symbology/raster/singlebandgray/properties"
+        )
+        j = p.get_json()
+        self.assertTrue("contrast_enhancement" in j)
+
+    def test_raster_symbology_multibandcolor(self):
+        p = self.app.get(
+            "/api/symbology/raster/multibandcolor/properties"
+        )
+        j = p.get_json()
+        self.assertTrue("contrast_enhancement" in j)
+
     def test_layers(self):
         # add project
         data = {}
