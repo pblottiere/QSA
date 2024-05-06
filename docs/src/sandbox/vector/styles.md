@@ -29,15 +29,19 @@ $ curl "http://localhost:5000/api/projects/my_project/styles?schema=my_schema" \
   -X POST \
   -H 'Content-Type: application/json' \
   -d '{
-    "symbol": "fill",
-    "symbology": "single_symbol",
+    "type": "vector",
     "name": "my_fill_style",
-    "properties": {
-        "color": "#00BBBB",
-        "style": "cross",
-        "outline_width": 0.16,
-        "outline_color": "#002222"
-    }
+    "symbology": {
+      "type": "single_symbol",
+      "symbol": "fill",
+      "properties": {
+          "color": "#00BBBB",
+          "style": "cross",
+          "outline_width": 0.16,
+          "outline_color": "#002222"
+      }
+    },
+    "rendering": {}
   }'
 true
 ````

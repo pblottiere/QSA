@@ -88,6 +88,37 @@ class APITestCaseFilesystem(unittest.TestCase):
         j = p.get_json()
         self.assertTrue("outline_style" in j)
 
+    def test_vector_symbology_rendering(self):
+        p = self.app.get(
+            "/api/symbology/vector/rendering/properties"
+        )
+        j = p.get_json()
+        self.assertTrue("opacity" in j)
+
+    def test_raster_symbology_rendering(self):
+        p = self.app.get(
+            "/api/symbology/raster/rendering/properties"
+        )
+        j = p.get_json()
+        self.assertTrue("gamma" in j)
+        self.assertTrue("brightness" in j)
+        self.assertTrue("contrast" in j)
+        self.assertTrue("saturation" in j)
+
+    def test_raster_symbology_singlebandgray(self):
+        p = self.app.get(
+            "/api/symbology/raster/singlebandgray/properties"
+        )
+        j = p.get_json()
+        self.assertTrue("contrast_enhancement" in j)
+
+    def test_raster_symbology_multibandcolor(self):
+        p = self.app.get(
+            "/api/symbology/raster/multibandcolor/properties"
+        )
+        j = p.get_json()
+        self.assertTrue("contrast_enhancement" in j)
+
     def test_layers(self):
         # add project
         data = {}
@@ -159,7 +190,85 @@ class APITestCaseFilesystem(unittest.TestCase):
         # remove last project
         p = self.app.delete(f"/api/projects/{TEST_PROJECT_0}")
 
-    def test_style(self):
+    def test_raster_style(self):
+        # add project
+        data = {}
+        data["name"] = TEST_PROJECT_0
+        data["author"] = "pblottiere"
+        p = self.app.post("/api/projects/", data)
+        self.assertEqual(p.status_code, 201)
+
+        # 0 style
+        p = self.app.get(f"/api/projects/{TEST_PROJECT_0}/styles")
+        self.assertEqual(p.get_json(), [])
+
+        # add multibandcolor style to project
+        data = {}
+        data["type"] = "raster"
+        data["name"] = "style_multibandcolor"
+        data["symbology"] = {"type": "multibandcolor"}
+        data["symbology"]["properties"] = {"red": {"band": 1}, "blue": {"band": 1}, "green": {"band": 1}}
+        data["rendering"] = {"brightness": 10, "gamma": 1.0, "contrast": 3, "saturation": 2}
+        p = self.app.post(f"/api/projects/{TEST_PROJECT_0}/styles", data)
+        self.assertEqual(p.status_code, 201)
+
+        # 1 style
+        p = self.app.get(f"/api/projects/{TEST_PROJECT_0}/styles")
+        self.assertTrue("style_multibandcolor" in p.get_json())
+
+        # add raster layer
+        data = {}
+        data["name"] = "layer0"
+        data["datasource"] = f"{GEOTIFF}"
+        data["crs"] = 4326
+        data["type"] = "raster"
+        p = self.app.post(f"/api/projects/{TEST_PROJECT_0}/layers", data)
+        self.assertEqual(p.status_code, 201)
+
+        # update layer's style
+        data = {}
+        data["current"] = True
+        data["name"] = "style_multibandcolor"
+        p = self.app.post(
+            f"/api/projects/{TEST_PROJECT_0}/layers/layer0/style", data
+        )
+        self.assertEqual(p.status_code, 201)
+
+        # check style for layers
+        p = self.app.get(f"/api/projects/{TEST_PROJECT_0}/layers/layer0")
+        j = p.get_json()
+        self.assertEqual(j["styles"], ["default", "style_multibandcolor"])
+        self.assertEqual(j["current_style"], "style_multibandcolor")
+
+        # remove style
+        p = self.app.delete(
+            f"/api/projects/{TEST_PROJECT_0}/styles/style_multibandcolor"
+        )
+        self.assertEqual(p.status_code, 415)  # style still in use
+
+        # update layer's style
+        data = {}
+        data["current"] = True
+        data["name"] = "default"
+        p = self.app.post(
+            f"/api/projects/{TEST_PROJECT_0}/layers/layer0/style", data
+        )
+        self.assertEqual(p.status_code, 201)
+
+        # remove style
+        p = self.app.delete(
+            f"/api/projects/{TEST_PROJECT_0}/styles/style_multibandcolor"
+        )
+        self.assertEqual(p.status_code, 201)
+
+        # 0 style
+        p = self.app.get(f"/api/projects/{TEST_PROJECT_0}/styles")
+        self.assertEqual(p.get_json(), [])
+
+        # remove last project
+        p = self.app.delete(f"/api/projects/{TEST_PROJECT_0}")
+
+    def test_vector_style(self):
         # add project
         data = {}
         data["name"] = TEST_PROJECT_0
@@ -173,19 +282,21 @@ class APITestCaseFilesystem(unittest.TestCase):
 
         # add line style to project
         data = {}
+        data["type"] = "vector"
         data["name"] = "style_line"
-        data["symbology"] = "single_symbol"
-        data["symbol"] = "line"
-        data["properties"] = {"line_width": 0.5}
+        data["symbology"] = {"type": "single_symbol", "symbol": "line"}
+        data["symbology"]["properties"] = {"line_width": 0.5}
+        data["rendering"] = {"opacity": 0.4}
         p = self.app.post(f"/api/projects/{TEST_PROJECT_0}/styles", data)
         self.assertEqual(p.status_code, 201)
 
         # add fill style to project
         data = {}
+        data["type"] = "vector"
         data["name"] = "style_fill"
-        data["symbology"] = "single_symbol"
-        data["symbol"] = "fill"
-        data["properties"] = {"outline_width": 0.5}
+        data["symbology"] = {"type": "single_symbol", "symbol": "fill"}
+        data["symbology"]["properties"] = {"outline_width": 0.5}
+        data["rendering"] = {}
         p = self.app.post(f"/api/projects/{TEST_PROJECT_0}/styles", data)
         self.assertEqual(p.status_code, 201)
 
@@ -284,44 +395,47 @@ class APITestCaseFilesystem(unittest.TestCase):
 
         # add line style to project
         data = {}
+        data["type"] = "vector"
         data["name"] = "style_line"
-        data["symbology"] = "single_symbol"
-        data["symbol"] = "line"
-        data["properties"] = {
+        data["symbology"] = {"type": "single_symbol", "symbol": "line"}
+        data["symbology"]["properties"] = {
             "line_width": 0.75,
             "line_style": "dash",
             "customdash": "10;3",
             "use_custom_dash": "1",
             "line_color": "#0055FF",
         }
+        data["rendering"] = {}
         p = self.app.post(f"/api/projects/{TEST_PROJECT_0}/styles", data)
         self.assertEqual(p.status_code, 201)
 
         # add fill style to project
         data = {}
+        data["type"] = "vector"
         data["name"] = "style_fill"
-        data["symbology"] = "single_symbol"
-        data["symbol"] = "fill"
-        data["properties"] = {
+        data["symbology"] = {"type": "single_symbol", "symbol": "fill"}
+        data["symbology"]["properties"] = {
             "color": "#00BBBB",
             "style": "cross",
             "outline_width": 0.16,
             "outline_color": "#002222",
         }
+        data["rendering"] = {}
         p = self.app.post(f"/api/projects/{TEST_PROJECT_0}/styles", data)
         self.assertEqual(p.status_code, 201)
 
         # add marker style to project
         data = {}
+        data["type"] = "vector"
         data["name"] = "style_marker"
-        data["symbology"] = "single_symbol"
-        data["symbol"] = "marker"
-        data["properties"] = {
+        data["symbology"] = {"type": "single_symbol", "symbol": "marker"}
+        data["symbology"]["properties"] = {
             "color": "#00BBBB",
             "name": "star",
             "size": 6,
             "angle": 45,
         }
+        data["rendering"] = {}
         p = self.app.post(f"/api/projects/{TEST_PROJECT_0}/styles", data)
         self.assertEqual(p.status_code, 201)
 

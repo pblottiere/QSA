@@ -88,13 +88,17 @@ in QGIS is very dense but for now, only Marker, Line and Fill simple symbols
 are supported. The `/api/symbology` endpoint allows to dynamically retrieve the
 corresponding parameters depending on QGIS Server version.
 
-| Method  |                      URL                                      |         Description              |
-|---------|---------------------------------------------------------------|----------------------------------|
-| GET     | `/api/symbology/vector/point/single_symbol/marker/properties` | Marker simple symbol properties  |
-| GET     | `/api/symbology/vector/line/single_symbol/line/properties`    | Line simple symbol properties    |
-| GET     | `/api/symbology/vector/polygon/single_symbol/fill/properties` | Polygon simple symbol properties |
+| Method  |                      URL                                      |         Description                          |
+|---------|---------------------------------------------------------------|----------------------------------------------|
+| GET     | `/api/symbology/vector/point/single_symbol/marker/properties` | Marker simple symbol properties              |
+| GET     | `/api/symbology/vector/line/single_symbol/line/properties`    | Line simple symbol properties                |
+| GET     | `/api/symbology/vector/polygon/single_symbol/fill/properties` | Polygon simple symbol properties             |
+| GET     | `/api/symbology/vector/rendering/properties` | Vector layer rendering properties                             |
+| GET     | `/api/symbology/raster/singlebandgray/properties`             | Single band gray properties                  |
+| GET     | `/api/symbology/raster/multibandcolor/properties`             | Multi band color properties                  |
+| GET     | `/api/symbology/raster/rendering/properties`                  | Raster layer rendering properties            |
 
-Example:
+Examples:
 
 ```` shell
 # Return single symbol properties for polygon layers
@@ -112,6 +116,21 @@ $ curl "http://localhost:5000/api/symbology/vector/polygon/single_symbol/fill/pr
   "outline_width_unit": "MM",
   "style": "solid"
 }
+
+# Return multi band gray properties for raster layers
+$ curl "http://localhost:5000/api/symbology/raster/multibandcolor/properties" | jq
+{
+  "blue": {
+    "band": 3
+  },
+  "green": {
+    "band": 2
+  },
+  "red": {
+    "band": 1
+  }
+  "contrast_enhancement": "StretchToMinimumMaximum (StretchToMinimumMaximum, NoEnhancement, StretchAndClipToMinimumMaximum, ClipToMinimumMaximum)"
+}
 ````
 
 
@@ -119,16 +138,26 @@ $ curl "http://localhost:5000/api/symbology/vector/polygon/single_symbol/fill/pr
 
 A QSA style may be used through the `STYLE` OGC web services parameter to
 specify the rendering for a specific layer. Default styles may be defined and
-automatically used when a layer is added to a QSA project.
+automatically used when a vector layer is added to a QSA project.
 
 | Method  |                      URL                      |         Description                                                                                                            |
 |---------|-----------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------|
 | GET     | `/api/projects/{project}/styles`              | List styles in project                                                                                                         |
 | GET     | `/api/projects/{project}/styles/default`      | List default styles in project                                                                                                 |
 | GET     | `/api/projects/{project}/styles/{style}`      | List style's metadata                                                                                                          |
-| POST    | `/api/projects/{project}/styles/{style}`      | Add style to project with `symbology` (only `single_symbol` is supported for now), `symbol`, `name` and symbology `properties` |
-| POST    | `/api/projects/{project}/styles/default`      | Set default style for a specific geometry with `geometry` and `name`                                                           |
+| POST    | `/api/projects/{project}/styles/{style}`      | Add style to project. See [Vector style](#vector-style) and [Raster style](#raster-style) for more information.                |
+| POST    | `/api/projects/{project}/styles/default`      | Set a default layer's style. See [Vector style](#vector-style) and [Raster style](#raster-style) for more information.         |
 | DELETE  | `/api/projects/{project}/styles/{style}`      | Remove style from project                                                                                                      |
+
+
+#### Vector style {#vector-style}
+
+For vector layers, a style can be defined with the parameters listed below:
+- `type` : `vector`
+- `name` : the name of the style
+- `rendering` : rendering parameters (only `opacity` is supported for now)
+- `symbology` : dictionary with `type` (only `single_symbol` is supported for
+                now), `symbol` and `properties`
 
 Example:
 
@@ -138,15 +167,67 @@ $ curl "http://localhost:5000/api/projects/my_project/styles" \
   -X POST \
   -H 'Content-Type: application/json' \
   -d '{
-    "symbol": "marker",
-    "symbology": "single_symbol",
+    "type": "vector",
     "name": "my_marker_style",
-    "properties": {
-      "color": "#112233"
+    "rendering": {
+      "opacity": 100.
+    },
+    "symbology": {
+      "type": "single_symbol",
+      "symbol": "marker",
+      "properties": {
+        "color": "#112233"
+      }
     }
   }'
 ````
 
+To set a default style for a specific geometry, the parameters listed below are available:
+- `name` : the name of the style to use by default
+- `geometry` : the geometry for which the style needs to be applied
+
+
+#### Raster style {#raster-style}
+
+For raster layers, a style can be defined with the parameters listed below:
+- `type` : `raster`
+- `name` : the name of the style
+- `rendering` : rendering parameters
+- `symbology` : dictionary with `type` (only `singlebandgray` and
+  `multibandcolor` are supported for now) and `properties`
+
+Example:
+
+```` shell
+# Add a style for point multiband raster
+$ curl "http://localhost:5000/api/projects/my_project/styles" \
+  -X POST \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "type": "raster",
+    "name": "my_multiband_style",
+    "rendering": {
+      "saturation": 3,
+      "brightness": -148,
+      "contrast": 42,
+      "gamma": 4.
+    },
+    "symbology": {
+      "type": "multibandcolor",
+      "properties": {
+        "red": {
+          "band": 1
+        },
+        "green": {
+          "band": 2
+        },
+        "blue": {
+          "band": 3
+        }
+      }
+    }
+  }'
+````
 
 ## Instances
 

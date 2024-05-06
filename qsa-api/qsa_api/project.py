@@ -19,9 +19,12 @@ from qgis.core import (
     QgsMarkerSymbol,
     QgsFeatureRenderer,
     QgsReadWriteContext,
+    QgsContrastEnhancement,
     QgsSingleSymbolRenderer,
     QgsSimpleFillSymbolLayer,
     QgsSimpleLineSymbolLayer,
+    QgsSingleBandGrayRenderer,
+    QgsMultiBandColorRenderer,
     QgsSimpleMarkerSymbolLayer,
 )
 from qgis.PyQt.QtXml import QDomDocument, QDomNode
@@ -214,11 +217,11 @@ class QSAProject:
         layer = project.mapLayersByName(layer_name)[0]
 
         if style_name not in layer.styleManager().styles():
-            vl = QgsVectorLayer()
-            vl.loadNamedStyle(style_path.as_posix())  # set "default" style
+            l = layer.clone()
+            l.loadNamedStyle(style_path.as_posix())  # set "default" style
 
             layer.styleManager().addStyle(
-                style_name, vl.styleManager().style("default")
+                style_name, l.styleManager().style("default")
             )
 
         if current:
@@ -367,15 +370,145 @@ class QSAProject:
     def add_style(
         self,
         name: str,
-        symbol: str,
-        symbology: str,
-        properties: dict,
-    ) -> bool:
+        layer_type: str,
+        symbology: dict,
+        rendering: dict,
+    ) -> (bool, str):
+        t = self._layer_type(layer_type)
+
+        if t == Qgis.LayerType.Vector:
+            return self._add_style_vector(name, symbology, rendering)
+        elif t == Qgis.LayerType.Raster:
+            return self._add_style_raster(name, symbology, rendering)
+        elif t is None:
+            return False, "Invalid layer type"
+
+    def _add_style_raster(
+        self, name: str, symbology: dict, rendering: dict
+    ) -> (bool, str):
+        # safety check
+        if "type" not in symbology:
+            return False, "`type` is missing in `symbology`"
+
+        if "properties" not in symbology:
+            return False, "`properties` is missing in `symbology`"
+
+        # init renderer
+        r = None
+        tif = Path(__file__).resolve().parent / "empty.tif"
+        rl = QgsRasterLayer(tif.as_posix(), "", "gdal")
+        properties = symbology["properties"]
+
+        if (
+            symbology["type"]
+            == QgsMultiBandColorRenderer(None, 1, 1, 1).type()
+        ):
+            r = QgsMultiBandColorRenderer(None, 1, 1, 1)
+
+            if "red" in properties:
+                red = properties["red"]
+                r.setRedBand(int(red["band"]))
+
+            if "blue" in properties:
+                blue = properties["blue"]
+                r.setBlueBand(int(blue["band"]))
+
+            if "green" in properties:
+                green = properties["green"]
+                r.setGreenBand(int(green["band"]))
+        elif symbology["type"] == QgsSingleBandGrayRenderer(None, 1).type():
+            r = QgsSingleBandGrayRenderer(None, 1)
+
+            if "gray_band" in properties:
+                band = properties["gray_band"]
+                r.setGrayBand(int(band))
+
+            if "color_gradient" in properties:
+                gradient = properties["color_gradient"]
+                if gradient == "blacktowhite":
+                    r.setGradient(
+                        QgsSingleBandGrayRenderer.Gradient.BlackToWhite
+                    )
+                elif gradient == "whitetoblack":
+                    r.setGradient(
+                        QgsSingleBandGrayRenderer.Gradient.WhiteToBlack
+                    )
+                else:
+                    return False, "Invalid `color_gradient` property"
+
+        contrast_alg = None
+        if "contrast_enhancement" in properties:
+            alg = properties["contrast_enhancement"]
+            if alg == "StretchToMinimumMaximum":
+                contrast_alg = (
+                    QgsContrastEnhancement.ContrastEnhancementAlgorithm.StretchToMinimumMaximum
+                )
+            elif alg == "NoEnhancement":
+                contrast_alg = (
+                    QgsContrastEnhancement.ContrastEnhancementAlgorithm.NoEnhancement
+                )
+            elif alg == "StretchAndClipToMinimumMaximum":
+                contrast_alg = (
+                    QgsContrastEnhancement.ContrastEnhancementAlgorithm.StretchAndClipToMinimumMaximum
+                )
+            elif alg == "ClipToMinimumMaximum":
+                contrast_alg = (
+                    QgsContrastEnhancement.ContrastEnhancementAlgorithm.ClipToMinimumMaximum
+                )
+            else:
+                return False, "Invalid `contrast_enhancement` property"
+
+        # config rendering
+        if "gamma" in rendering:
+            rl.brightnessFilter().setGamma(float(rendering["gamma"]))
+
+        if "brightness" in rendering:
+            rl.brightnessFilter().setBrightness(int(rendering["brightness"]))
+
+        if "contrast" in rendering:
+            rl.brightnessFilter().setContrast(int(rendering["contrast"]))
+
+        if "saturation" in rendering:
+            rl.hueSaturationFilter().setSaturation(
+                int(rendering["saturation"])
+            )
+
+        # save style
+        if r:
+            rl.setRenderer(r)
+
+            # needs to be set after renderer
+            if contrast_alg is not None:
+                rl.setContrastEnhancement(contrast_alg)
+
+            # save
+            path = self._qgis_project_dir / f"{name}.qml"
+            rl.saveNamedStyle(
+                path.as_posix(), categories=QgsMapLayer.AllStyleCategories
+            )
+            return True, ""
+
+        return False, "Error"
+
+    def _add_style_vector(
+        self, name: str, symbology: dict, rendering: dict
+    ) -> (bool, str):
+        if "type" not in symbology:
+            return False, "`type` is missing in `symbology`"
+
+        if "symbol" not in symbology:
+            return False, "`symbol` is missing in `symbology`"
+
+        if "properties" not in symbology:
+            return False, "`properties` is missing in `symbology`"
+
+        if symbology["type"] != "single_symbol":
+            return False, "Invalid symbol"
+
         r = None
         vl = QgsVectorLayer()
-
-        if symbology != "single_symbol":
-            return False
+        symbol = symbology["symbol"]
+        properties = symbology["properties"]
 
         if symbol == "line":
             r = QgsSingleSymbolRenderer(
@@ -385,7 +518,7 @@ class QSAProject:
             props = QgsSimpleLineSymbolLayer().properties()
             for key in properties.keys():
                 if key not in props:
-                    return False
+                    return False, "Invalid properties"
 
             symbol = QgsLineSymbol.createSimple(properties)
             r.setSymbol(symbol)
@@ -397,7 +530,7 @@ class QSAProject:
             props = QgsSimpleFillSymbolLayer().properties()
             for key in properties.keys():
                 if key not in props:
-                    return False
+                    return False, "Invalid properties"
 
             symbol = QgsFillSymbol.createSimple(properties)
             r.setSymbol(symbol)
@@ -409,10 +542,13 @@ class QSAProject:
             props = QgsSimpleMarkerSymbolLayer().properties()
             for key in properties.keys():
                 if key not in props:
-                    return False
+                    return False, "Invalid properties"
 
             symbol = QgsMarkerSymbol.createSimple(properties)
             r.setSymbol(symbol)
+
+        if "opacity" in rendering:
+            vl.setOpacity(float(rendering["opacity"]))
 
         if r:
             vl.setRenderer(r)
@@ -421,9 +557,9 @@ class QSAProject:
             vl.saveNamedStyle(
                 path.as_posix(), categories=QgsMapLayer.Symbology
             )
-            return True
+            return True, ""
 
-        return False
+        return False, "Error"
 
     def remove_style(self, name: str) -> bool:
         if name not in self.styles:
@@ -442,7 +578,7 @@ class QSAProject:
 
         p.write()
 
-        return True
+        return True, ""
 
     @staticmethod
     def _qgis_projects_dir() -> Path:

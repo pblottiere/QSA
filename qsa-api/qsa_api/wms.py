@@ -17,4 +17,4 @@ class WMS:
 
     @staticmethod
     def getmap(project, psql_schema, layer):
-        return f"{qgisserver_base_url()}{WMS.getmap_url(project, psql_schema, layer)}"
+        return f"{qgisserver_base_url(project, psql_schema)}{WMS.getmap_url(project, psql_schema, layer)}"

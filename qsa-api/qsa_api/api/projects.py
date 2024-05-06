@@ -106,7 +106,9 @@ def project_del_style(name, style):
     project = QSAProject(name, psql_schema)
     if project.exists():
         if style in project.styles:
-            rc = project.remove_style(style)
+            rc, msg = project.remove_style(style)
+            if not rc:
+                return {"error": msg}, 415
             return jsonify(rc), 201
         else:
             return {"error": "Style does not exist"}, 415
@@ -176,12 +178,12 @@ def project_layer_map(name, layer_name):
 def project_add_style(name):
     schema = {
         "type": "object",
-        "required": ["name", "symbol", "symbology", "properties"],
+        "required": ["name", "type", "rendering", "symbology"],
         "properties": {
             "name": {"type": "string"},
-            "symbol": {"type": "string"},
-            "symbology": {"type": "string"},
-            "properties": {"type": "object"},
+            "type": {"type": "string"},
+            "symbology": {"type": "object"},
+            "rendering": {"type": "object"},
         },
     }
 
@@ -194,18 +196,16 @@ def project_add_style(name):
         except ValidationError as e:
             return {"error": e.message}, 415
 
-        # legacy support
-        symbology = data["symbology"]
-        if symbology == "single symbol":
-            symbology = "single_symbol"
-
-        rc = project.add_style(
+        rc, err = project.add_style(
             data["name"],
-            data["symbol"],
+            data["type"],
             data["symbology"],
-            data["properties"],
+            data["rendering"],
         )
-        return jsonify(rc), 201
+        if rc:
+            return jsonify(rc), 201
+        else:
+            return {"error": err}, 415
     else:
         return {"error": "Project does not exist"}, 415
 
