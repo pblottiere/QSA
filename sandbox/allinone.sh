@@ -85,7 +85,7 @@ curl "http://localhost:5000/api/projects/my_project/styles?schema=my_schema" \
         "gray_band": 1
       }
     },
-    "rendering": {"brightness": 145}
+    "rendering": {"brightnes": 255, "gamma": 0.1, "contrast": 100}
   }'
 
 curl "http://localhost:5000/api/projects/my_project/layers/dem/style?schema=my_schema" \

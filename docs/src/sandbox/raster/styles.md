@@ -18,7 +18,11 @@ $ curl "http://localhost:5000/api/projects/my_project/styles?schema=my_schema" \
         "gray_band": 1
       }
     },
-    "rendering": {"brightness": 145}
+    "rendering": {
+      "brightness": 255,
+      "gamma": 0.1,
+      "contrast": 100
+    }
   }'
 true
 ````
