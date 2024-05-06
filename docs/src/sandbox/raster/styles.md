@@ -16,6 +16,10 @@ $ curl "http://localhost:5000/api/projects/my_project/styles?schema=my_schema" \
       "type": "singlebandgray",
       "properties": {
         "gray_band": 1
+        "contrast_enhancement": {
+          "algorithm": "StretchToMinimumMaximum",
+          "limits_min_max": "MinMax"
+        }
       }
     },
     "rendering": {
