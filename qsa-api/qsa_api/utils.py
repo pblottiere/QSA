@@ -13,6 +13,8 @@ from qgis.core import (
     QgsMultiBandColorRenderer,
 )
 
+ContrastEnhancementAlgorithm = QgsContrastEnhancement.ContrastEnhancementAlgorithm
+
 
 def config():
     return current_app.config["CONFIG"]
@@ -117,10 +119,8 @@ class RasterSymbologyRenderer:
         # early break
         alg = red_ce.contrastEnhancementAlgorithm()
         if (
-            alg
-            == QgsContrastEnhancement.ContrastEnhancementAlgorithm.NoEnhancement
-            or alg
-            == QgsContrastEnhancement.ContrastEnhancementAlgorithm.UserDefinedEnhancement
+            alg == ContrastEnhancementAlgorithm.NoEnhancement
+            or alg == ContrastEnhancementAlgorithm.UserDefinedEnhancement
         ):
             return
 
@@ -158,10 +158,8 @@ class RasterSymbologyRenderer:
         # early break
         alg = ce.contrastEnhancementAlgorithm()
         if (
-            alg
-            == QgsContrastEnhancement.ContrastEnhancementAlgorithm.NoEnhancement
-            or alg
-            == QgsContrastEnhancement.ContrastEnhancementAlgorithm.UserDefinedEnhancement
+            alg == ContrastEnhancementAlgorithm.NoEnhancement
+            or alg == ContrastEnhancementAlgorithm.UserDefinedEnhancement
         ):
             return
 
@@ -238,11 +236,11 @@ class RasterSymbologyRenderer:
         alg = properties["algorithm"]
         if alg == "StretchToMinimumMaximum":
             self.contrast_algorithm = (
-                QgsContrastEnhancement.ContrastEnhancementAlgorithm.StretchToMinimumMaximum
+                ContrastEnhancementAlgorithm.StretchToMinimumMaximum
             )
         elif alg == "NoEnhancement":
             self.contrast_algorithm = (
-                QgsContrastEnhancement.ContrastEnhancementAlgorithm.NoEnhancement
+                ContrastEnhancementAlgorithm.NoEnhancement
             )
 
         limits = properties["limits_min_max"]

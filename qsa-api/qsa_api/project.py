@@ -223,17 +223,12 @@ class QSAProject:
                 style_name, l.styleManager().style("default")
             )
 
-        import sys
-
-        print("layer_update_style 0", file=sys.stderr)
         if current:
-            print("layer_update_style 1", file=sys.stderr)
             layer.styleManager().setCurrentStyle(style_name)
 
             # refresh min/max for the current layer if necessary
             # (because the style is built on an empty geotiff)
             if layer.type() == QgsMapLayer.RasterLayer:
-                print("layer_update_style 2", file=sys.stderr)
                 renderer = RasterSymbologyRenderer(layer.renderer().type())
                 renderer.refresh_min_max(layer)
 
