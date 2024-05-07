@@ -373,7 +373,10 @@ $ curl "http://localhost:5000/api/symbology/raster/multibandcolor/properties" | 
   "red": {
     "band": 1
   }
-  "contrast_enhancement": "StretchToMinimumMaximum (StretchToMinimumMaximum, NoEnhancement, StretchAndClipToMinimumMaximum, ClipToMinimumMaximum)"
+  "contrast_enhancement": {
+    "algorithm": "StretchToMinimumMaximum (StretchToMinimumMaximum, NoEnhancement)",
+    "limits_min_max": "MinMax (MinMax, UserDefined)"
+  }
 }
 </code></pre>
 <h2 id="style"><a class="header" href="#style">Style</a></h2>
@@ -433,7 +436,7 @@ $ curl "http://localhost:5000/api/projects/my_project/styles" \
 <code>multibandcolor</code> are supported for now) and <code>properties</code></li>
 </ul>
 <p>Example:</p>
-<pre><code class="language-shell"># Add a style for point multiband raster
+<pre><code class="language-shell"># Add a style for multiband raster
 $ curl "http://localhost:5000/api/projects/my_project/styles" \
   -X POST \
   -H 'Content-Type: application/json' \
@@ -469,6 +472,7 @@ retrieve information about QGIS Server underlying instances.</p>
 <tr><td>GET</td><td><code>/api/instances</code></td><td>List online QGIS Server instances</td></tr>
 <tr><td>GET</td><td><code>/api/instances/{instance}</code></td><td>List QGIS Server instance metadata</td></tr>
 <tr><td>GET</td><td><code>/api/instances/{instance}/logs</code></td><td>Return logs of QGIS Server instance</td></tr>
+<tr><td>GET</td><td><code>/api/instances/{instance}/stats</code></td><td>Return stats of QGIS Server instance</td></tr>
 </tbody></table>
 </div><div style="break-before: page; page-break-before: always;"></div><h1 id="qsa-plugin"><a class="header" href="#qsa-plugin">QSA plugin</a></h1>
 <p><a href="https://docs.qgis.org/3.34/en/docs/server_manual/plugins.html">Python QGIS server plugin</a>
@@ -898,6 +902,10 @@ true
       "type": "singlebandgray",
       "properties": {
         "gray_band": 1
+        "contrast_enhancement": {
+          "algorithm": "StretchToMinimumMaximum",
+          "limits_min_max": "MinMax"
+        }
       }
     },
     "rendering": {
