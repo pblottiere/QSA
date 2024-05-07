@@ -129,7 +129,10 @@ $ curl "http://localhost:5000/api/symbology/raster/multibandcolor/properties" | 
   "red": {
     "band": 1
   }
-  "contrast_enhancement": "StretchToMinimumMaximum (StretchToMinimumMaximum, NoEnhancement, StretchAndClipToMinimumMaximum, ClipToMinimumMaximum)"
+  "contrast_enhancement": {
+    "algorithm": "StretchToMinimumMaximum (StretchToMinimumMaximum, NoEnhancement)",
+    "limits_min_max": "MinMax (MinMax, UserDefined)"
+  }
 }
 ````
 
@@ -199,7 +202,7 @@ For raster layers, a style can be defined with the parameters listed below:
 Example:
 
 ```` shell
-# Add a style for point multiband raster
+# Add a style for multiband raster
 $ curl "http://localhost:5000/api/projects/my_project/styles" \
   -X POST \
   -H 'Content-Type: application/json' \
@@ -239,3 +242,4 @@ retrieve information about QGIS Server underlying instances.
 | GET     | `/api/instances`                              | List online QGIS Server instances          |
 | GET     | `/api/instances/{instance}`                   | List QGIS Server instance metadata         |
 | GET     | `/api/instances/{instance}/logs`              | Return logs of QGIS Server instance        |
+| GET     | `/api/instances/{instance}/stats`             | Return stats of QGIS Server instance       |

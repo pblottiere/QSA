@@ -51,7 +51,12 @@ def symbology_vector_rendering():
 def symbology_raster_singlebandgray():
     props = {}
     props["gray_band"] = 1
-    props["contrast_enhancement"] = "NoEnhancement (StretchToMinimumMaximum, NoEnhancement, StretchAndClipToMinimumMaximum, ClipToMinimumMaximum)"
+    props["min"] = 0.0
+    props["max"] = 1.0
+    props["contrast_enhancement"] = {
+        "algorithm": "NoEnhancement (StretchToMinimumMaximum, NoEnhancement)",
+        "limits_min_max": "MinMax (MinMax, UserDefined)",
+    }
     props["color_gradient"] = "BlackToWhite (BlackToWhite, WhiteToBlack)"
     return jsonify(props)
 
@@ -61,10 +66,13 @@ def symbology_raster_singlebandgray():
 )
 def symbology_raster_multibandcolor():
     props = {}
-    props["red"] = {"band": 1}
-    props["green"] = {"band": 2}
-    props["blue"] = {"band": 3}
-    props["contrast_enhancement"] = "StretchToMinimumMaximum (StretchToMinimumMaximum, NoEnhancement, StretchAndClipToMinimumMaximum, ClipToMinimumMaximum)"
+    props["red"] = {"band": 1, "min": 0.0, "max": 1.0}
+    props["green"] = {"band": 2, "min": 0.0, "max": 1.0}
+    props["blue"] = {"band": 3, "min": 0.0, "max": 1.0}
+    props["contrast_enhancement"] = {
+        "algorithm": "NoEnhancement (StretchToMinimumMaximum, NoEnhancement)",
+        "limits_min_max": "MinMax (MinMax, UserDefined)",
+    }
     return jsonify(props)
 
 

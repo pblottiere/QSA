@@ -19,18 +19,17 @@ from qgis.core import (
     QgsMarkerSymbol,
     QgsFeatureRenderer,
     QgsReadWriteContext,
+    QgsRasterMinMaxOrigin,
     QgsContrastEnhancement,
     QgsSingleSymbolRenderer,
     QgsSimpleFillSymbolLayer,
     QgsSimpleLineSymbolLayer,
-    QgsSingleBandGrayRenderer,
-    QgsMultiBandColorRenderer,
     QgsSimpleMarkerSymbolLayer,
 )
 from qgis.PyQt.QtXml import QDomDocument, QDomNode
 
 from .mapproxy import QSAMapProxy
-from .utils import StorageBackend, config
+from .utils import RasterSymbologyRenderer, StorageBackend, config
 
 
 RENDERER_TAG_NAME = "renderer-v2"  # constant from core/symbology/renderer.h
@@ -227,6 +226,12 @@ class QSAProject:
         if current:
             layer.styleManager().setCurrentStyle(style_name)
 
+            # refresh min/max for the current layer if necessary
+            # (because the style is built on an empty geotiff)
+            if layer.type() == QgsMapLayer.RasterLayer:
+                renderer = RasterSymbologyRenderer(layer.renderer().type())
+                renderer.refresh_min_max(layer)
+
             if self._mapproxy_enabled:
                 mp = QSAMapProxy(self.name)
                 mp.clear_cache(layer_name)
@@ -394,69 +399,12 @@ class QSAProject:
             return False, "`properties` is missing in `symbology`"
 
         # init renderer
-        r = None
         tif = Path(__file__).resolve().parent / "empty.tif"
         rl = QgsRasterLayer(tif.as_posix(), "", "gdal")
-        properties = symbology["properties"]
 
-        if (
-            symbology["type"]
-            == QgsMultiBandColorRenderer(None, 1, 1, 1).type()
-        ):
-            r = QgsMultiBandColorRenderer(None, 1, 1, 1)
-
-            if "red" in properties:
-                red = properties["red"]
-                r.setRedBand(int(red["band"]))
-
-            if "blue" in properties:
-                blue = properties["blue"]
-                r.setBlueBand(int(blue["band"]))
-
-            if "green" in properties:
-                green = properties["green"]
-                r.setGreenBand(int(green["band"]))
-        elif symbology["type"] == QgsSingleBandGrayRenderer(None, 1).type():
-            r = QgsSingleBandGrayRenderer(None, 1)
-
-            if "gray_band" in properties:
-                band = properties["gray_band"]
-                r.setGrayBand(int(band))
-
-            if "color_gradient" in properties:
-                gradient = properties["color_gradient"]
-                if gradient == "blacktowhite":
-                    r.setGradient(
-                        QgsSingleBandGrayRenderer.Gradient.BlackToWhite
-                    )
-                elif gradient == "whitetoblack":
-                    r.setGradient(
-                        QgsSingleBandGrayRenderer.Gradient.WhiteToBlack
-                    )
-                else:
-                    return False, "Invalid `color_gradient` property"
-
-        contrast_alg = None
-        if "contrast_enhancement" in properties:
-            alg = properties["contrast_enhancement"]
-            if alg == "StretchToMinimumMaximum":
-                contrast_alg = (
-                    QgsContrastEnhancement.ContrastEnhancementAlgorithm.StretchToMinimumMaximum
-                )
-            elif alg == "NoEnhancement":
-                contrast_alg = (
-                    QgsContrastEnhancement.ContrastEnhancementAlgorithm.NoEnhancement
-                )
-            elif alg == "StretchAndClipToMinimumMaximum":
-                contrast_alg = (
-                    QgsContrastEnhancement.ContrastEnhancementAlgorithm.StretchAndClipToMinimumMaximum
-                )
-            elif alg == "ClipToMinimumMaximum":
-                contrast_alg = (
-                    QgsContrastEnhancement.ContrastEnhancementAlgorithm.ClipToMinimumMaximum
-                )
-            else:
-                return False, "Invalid `contrast_enhancement` property"
+        # symbology
+        renderer = RasterSymbologyRenderer(symbology["type"])
+        renderer.load(symbology["properties"])
 
         # config rendering
         if "gamma" in rendering:
@@ -474,12 +422,65 @@ class QSAProject:
             )
 
         # save style
-        if r:
-            rl.setRenderer(r)
+        if renderer.renderer:
+            rl.setRenderer(renderer.renderer)
 
-            # needs to be set after renderer
-            if contrast_alg is not None:
-                rl.setContrastEnhancement(contrast_alg)
+            # contrast enhancement needs to be managed after setting renderer
+            if renderer.contrast_algorithm:
+                rl.setContrastEnhancement(
+                    renderer.contrast_algorithm, renderer.contrast_limits
+                )
+
+                # user defined min/max
+                if (
+                    renderer.contrast_limits
+                    == QgsRasterMinMaxOrigin.Limits.None_
+                ):
+                    if (
+                        renderer.type
+                        == RasterSymbologyRenderer.Type.SINGLE_BAND_GRAY
+                    ):
+                        ce = QgsContrastEnhancement(
+                            rl.renderer().contrastEnhancement()
+                        )
+                        if renderer.gray_min is not None:
+                            ce.setMinimumValue(renderer.gray_min)
+                        if renderer.gray_max is not None:
+                            ce.setMaximumValue(renderer.gray_max)
+                        rl.renderer().setContrastEnhancement(ce)
+                    elif (
+                        renderer.type
+                        == RasterSymbologyRenderer.Type.MULTI_BAND_COLOR
+                    ):
+                        # red
+                        red_ce = QgsContrastEnhancement(
+                            rl.renderer().redContrastEnhancement()
+                        )
+                        if renderer.red_min is not None:
+                            red_ce.setMinimumValue(renderer.red_min)
+                        if renderer.red_max is not None:
+                            red_ce.setMaximumValue(renderer.red_max)
+                        rl.renderer().setRedContrastEnhancement(red_ce)
+
+                        # green
+                        green_ce = QgsContrastEnhancement(
+                            rl.renderer().greenContrastEnhancement()
+                        )
+                        if renderer.green_min is not None:
+                            green_ce.setMinimumValue(renderer.green_min)
+                        if renderer.green_max is not None:
+                            green_ce.setMaximumValue(renderer.green_max)
+                        rl.renderer().setGreenContrastEnhancement(green_ce)
+
+                        # blue
+                        blue_ce = QgsContrastEnhancement(
+                            rl.renderer().blueContrastEnhancement()
+                        )
+                        if renderer.blue_min is not None:
+                            blue_ce.setMinimumValue(renderer.blue_min)
+                        if renderer.blue_max is not None:
+                            blue_ce.setMaximumValue(renderer.blue_max)
+                        rl.renderer().setBlueContrastEnhancement(blue_ce)
 
             # save
             path = self._qgis_project_dir / f"{name}.qml"
