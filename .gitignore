@@ -9,6 +9,4 @@ examples
 docs/build
 sandbox/projects
 *.aux.xml
-map.png
-map_vector.png
-map_raster.png
+sandbox/*.png

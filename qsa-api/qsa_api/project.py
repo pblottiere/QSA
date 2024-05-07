@@ -19,6 +19,8 @@ from qgis.core import (
     QgsMarkerSymbol,
     QgsFeatureRenderer,
     QgsReadWriteContext,
+    QgsRasterMinMaxOrigin,
+    QgsContrastEnhancement,
     QgsSingleSymbolRenderer,
     QgsSimpleFillSymbolLayer,
     QgsSimpleLineSymbolLayer,
@@ -221,8 +223,19 @@ class QSAProject:
                 style_name, l.styleManager().style("default")
             )
 
+        import sys
+
+        print("layer_update_style 0", file=sys.stderr)
         if current:
+            print("layer_update_style 1", file=sys.stderr)
             layer.styleManager().setCurrentStyle(style_name)
+
+            # refresh min/max for the current layer if necessary
+            # (because the style is built on an empty geotiff)
+            if layer.type() == QgsMapLayer.RasterLayer:
+                print("layer_update_style 2", file=sys.stderr)
+                renderer = RasterSymbologyRenderer(layer.renderer().type())
+                renderer.refresh_min_max(layer)
 
             if self._mapproxy_enabled:
                 mp = QSAMapProxy(self.name)
@@ -419,26 +432,60 @@ class QSAProject:
 
             # contrast enhancement needs to be managed after setting renderer
             if renderer.contrast_algorithm:
+                rl.setContrastEnhancement(
+                    renderer.contrast_algorithm, renderer.contrast_limits
+                )
+
+                # user defined min/max
                 if (
-                    renderer.type
-                    == RasterSymbologyRenderer.Type.SINGLE_BAND_GRAY
+                    renderer.contrast_limits
+                    == QgsRasterMinMaxOrigin.Limits.None_
                 ):
-                    rl.setContrastEnhancement(
-                        renderer.contrast_algorithm, renderer.contrast_limits
-                    )
-                elif (
-                    renderer.type
-                    == RasterSymbologyRenderer.Type.MULTI_BAND_COLOR
-                ):
-                    rl.setRedContrastEnhancement(
-                        renderer.contrast_algorithm, renderer.contrast_limits
-                    )
-                    rl.setGreenContrastEnhancement(
-                        renderer.contrast_algorithm, renderer.contrast_limits
-                    )
-                    rl.setBlueContrastEnhancement(
-                        renderer.contrast_algorithm, renderer.contrast_limits
-                    )
+                    if (
+                        renderer.type
+                        == RasterSymbologyRenderer.Type.SINGLE_BAND_GRAY
+                    ):
+                        ce = QgsContrastEnhancement(
+                            rl.renderer().contrastEnhancement()
+                        )
+                        if renderer.gray_min is not None:
+                            ce.setMinimumValue(renderer.gray_min)
+                        if renderer.gray_max is not None:
+                            ce.setMaximumValue(renderer.gray_max)
+                        rl.renderer().setContrastEnhancement(ce)
+                    elif (
+                        renderer.type
+                        == RasterSymbologyRenderer.Type.MULTI_BAND_COLOR
+                    ):
+                        # red
+                        red_ce = QgsContrastEnhancement(
+                            rl.renderer().redContrastEnhancement()
+                        )
+                        if renderer.red_min is not None:
+                            red_ce.setMinimumValue(renderer.red_min)
+                        if renderer.red_max is not None:
+                            red_ce.setMaximumValue(renderer.red_max)
+                        rl.renderer().setRedContrastEnhancement(red_ce)
+
+                        # green
+                        green_ce = QgsContrastEnhancement(
+                            rl.renderer().greenContrastEnhancement()
+                        )
+                        if renderer.green_min is not None:
+                            green_ce.setMinimumValue(renderer.green_min)
+                        if renderer.green_max is not None:
+                            green_ce.setMaximumValue(renderer.green_max)
+                        rl.renderer().setGreenContrastEnhancement(green_ce)
+
+                        # blue
+                        blue_ce = QgsContrastEnhancement(
+                            rl.renderer().blueContrastEnhancement()
+                        )
+                        if renderer.blue_min is not None:
+                            blue_ce.setMinimumValue(renderer.blue_min)
+                        if renderer.blue_max is not None:
+                            blue_ce.setMaximumValue(renderer.blue_max)
+                        rl.renderer().setBlueContrastEnhancement(blue_ce)
 
             # save
             path = self._qgis_project_dir / f"{name}.qml"
