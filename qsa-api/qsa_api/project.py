@@ -280,7 +280,7 @@ class QSAProject:
 
             return self.name in projects and self._qgis_projects_dir().exists()
 
-    def create(self, author: str) -> bool:
+    def create(self, author: str) -> (bool, str):
         if self.exists():
             return False
 
@@ -293,6 +293,11 @@ class QSAProject:
         m = project.metadata()
         m.setAuthor(author)
         project.setMetadata(m)
+
+        crs = project.crs()
+        crs.createFromString("EPSG:3857")  # default to webmercator
+        project.setCrs(crs)
+
         rc = project.write(self._qgis_project_uri)
 
         # create mapproxy config file
@@ -303,7 +308,7 @@ class QSAProject:
         # init sqlite database
         self.sqlite_db
 
-        return rc
+        return rc, project.error()
 
     def remove(self) -> None:
         shutil.rmtree(self._qgis_project_dir)
@@ -334,9 +339,10 @@ class QSAProject:
         else:
             return False, "Invalid layer type"
 
-        crs = lyr.crs()
-        crs.createFromString(f"EPSG:{epsg_code}")
-        lyr.setCrs(crs)
+        if epsg_code > 0:
+            crs = lyr.crs()
+            crs.createFromString(f"EPSG:{epsg_code}")
+            lyr.setCrs(crs)
 
         if not lyr.isValid():
             return False, "Invalid layer"
@@ -346,7 +352,6 @@ class QSAProject:
         project.read(self._qgis_project_uri)
 
         project.addMapLayer(lyr)
-        project.setCrs(crs)
         project.write()
 
         # set default style

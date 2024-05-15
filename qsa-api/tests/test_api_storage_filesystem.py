@@ -143,7 +143,7 @@ class APITestCaseFilesystem(unittest.TestCase):
         data = {}
         data["name"] = "layer1"
         data["datasource"] = f"{GPKG}|layername=lines"
-        data["crs"] = 4326
+        # data["crs"] = 4326  # No CRS because it's optional
         data["type"] = "vector"
         p = self.app.post(f"/api/projects/{TEST_PROJECT_0}/layers", data)
         self.assertEqual(p.status_code, 201)
