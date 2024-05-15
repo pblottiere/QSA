@@ -370,6 +370,8 @@ class QSAProject:
         )
 
         if self._mapproxy_enabled:
+            epsg_code = int(lyr.crs().authid().split(':')[1])
+
             mp = QSAMapProxy(self.name)
             mp.read()
             mp.add_layer(name, bbox, epsg_code)
