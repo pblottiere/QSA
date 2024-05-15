@@ -60,6 +60,7 @@ class APITestCasePostgresql(unittest.TestCase):
         self.assertEqual(j["author"], "pblottiere")
         self.assertEqual(j["storage"], "postgresql")
         self.assertEqual(j["schema"], "public")
+        self.assertEqual(j["crs"], "EPSG:3857")
 
         # remove last project
         p = self.app.delete(f"/api/projects/{TEST_PROJECT_1}")

@@ -55,15 +55,15 @@ Several themes can be associated with a layer like in QGIS Desktop, but only
 the current one is used when the `STYLE` parameter in OGC web services is
 empty.
 
-| Method  |                      URL                         |         Description                                                                      |
-|---------|--------------------------------------------------|------------------------------------------------------------------------------------------|
-| GET     | `/api/projects/{project}/layers`                 | List layers in project                                                                   |
-| GET     | `/api/projects/{project}/layers/{layer}`         | List layer's metadata                                                                    |
-| GET     | `/api/projects/{project}/layers/{layer}/map`     | WMS `GetMap` result with default parameters                                              |
-| GET     | `/api/projects/{project}/layers/{layer}/map/url` | WMS `GetMap` URL with default parameters                                                 |
-| POST    | `/api/projects/{project}/layers`                 | Add layer to project with `type` (`vector` or `raster`), `name`, `datasource` and `crs`  |
-| POST    | `/api/projects/{project}/layers/{layer}/style`   | Add/Update layer's style with `name` (style name) and `current` (`true` or `false`)      |
-| DELETE  | `/api/projects/{project}/layers/{layer}`         | Remove layer from project                                                                |
+| Method  |                      URL                         |         Description                                                                                 |
+|---------|--------------------------------------------------|-----------------------------------------------------------------------------------------------------|
+| GET     | `/api/projects/{project}/layers`                 | List layers in project                                                                              |
+| GET     | `/api/projects/{project}/layers/{layer}`         | List layer's metadata                                                                               |
+| GET     | `/api/projects/{project}/layers/{layer}/map`     | WMS `GetMap` result with default parameters                                                         |
+| GET     | `/api/projects/{project}/layers/{layer}/map/url` | WMS `GetMap` URL with default parameters                                                            |
+| POST    | `/api/projects/{project}/layers`                 | Add layer to project with `type` (`vector` or `raster`), `name`, `datasource` and `crs` (optional)  |
+| POST    | `/api/projects/{project}/layers/{layer}/style`   | Add/Update layer's style with `name` (style name) and `current` (`true` or `false`)                 |
+| DELETE  | `/api/projects/{project}/layers/{layer}`         | Remove layer from project                                                                           |
 
 Example:
 

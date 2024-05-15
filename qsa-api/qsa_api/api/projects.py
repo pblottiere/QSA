@@ -61,9 +61,9 @@ def project_add():
         project = QSAProject(name, schema)
         if project.exists():
             return {"error": "Project already exists"}
-        rc = project.create(author)
+        rc, err = project.create(author)
         if not rc:
-            return {"error": "Failed to create project"}
+            return {"error": err}
         return jsonify(True), 201
     return {"error": "Request must be JSON"}, 415
 
@@ -261,7 +261,7 @@ def project_layers(name):
 def project_add_layer(name):
     schema = {
         "type": "object",
-        "required": ["name", "datasource", "crs", "type"],
+        "required": ["name", "datasource", "type"],
         "properties": {
             "name": {"type": "string"},
             "datasource": {"type": "string"},
@@ -280,8 +280,12 @@ def project_add_layer(name):
         except ValidationError as e:
             return {"error": e.message}, 415
 
+        crs = -1
+        if "crs" in data:
+            crs = int(data["crs"])
+
         rc, err = project.add_layer(
-            data["datasource"], data["type"], data["name"], data["crs"]
+            data["datasource"], data["type"], data["name"], crs
         )
         if rc:
             return jsonify(rc), 201
