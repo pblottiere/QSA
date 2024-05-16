@@ -180,7 +180,7 @@
                         <h1 id="sandbox--vector-layers"><a class="header" href="#sandbox--vector-layers">Sandbox : vector layers</a></h1>
 <p>Layers are based on the <code>data.gpkg</code> file mounted in the Docker containers.</p>
 <h3 id="add-layers"><a class="header" href="#add-layers">Add layers</a></h3>
-<p>To add a polygon layer to a project:</p>
+<p>To add a polygon layer from a geopackage to a project:</p>
 <pre><code class="language-shell">$ curl "http://localhost:5000/api/projects/my_project/layers?schema=my_schema" \
   -X POST \
   -H 'Content-Type: application/json' \
@@ -192,13 +192,17 @@
   }'
 true
 </code></pre>
-<p>And a line layer:</p>
-<pre><code class="language-shell">$ curl "http://localhost:5000/api/projects/my_project/layers?schema=my_schema" \
+<p>And a line layer from PostGIS:</p>
+<pre><code class="language-shell"># copy geopackage table to PostGIS
+$ ogr2ogr -f PostgreSQL "PG:dbname=qsa password=qsa user=qsa port=5433 host=localhost" data.gpkg lines
+
+# add a line layer based on the PostGIS table
+$ curl "http://localhost:5000/api/projects/my_project/layers?schema=my_schema" \
   -X POST \
   -H 'Content-Type: application/json' \
   -d '{
     "crs": 4326,
-    "datasource":"/data.gpkg|layername=lines",
+    "datasource":"service=qsa table=\"public\".\"lines\" (geom)",
     "name":"lines",
     "type":"vector"
   }'
@@ -215,7 +219,7 @@ $ curl "http://localhost:5000/api/projects/my_project/layers/lines?schema=my_sch
   "current_style": "default",
   "geometry": "MultiLineString",
   "name": "lines",
-  "source": "/data.gpkg|layername=lines",
+  "source": "service='qsa' key='fid' checkPrimaryKeyUnicity='1' table=\"public\".\"lines\" (geom)",
   "styles": [
     "default"
   ],
