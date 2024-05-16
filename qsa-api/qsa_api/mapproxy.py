@@ -35,7 +35,7 @@ class QSAMapProxy:
         for d in cache_dir.glob(f"**/{layer_name}_cache_*"):
             shutil.rmtree(d)
 
-    def add_layer(self, name: str, bbox: list, srs: int) -> None:
+    def add_layer(self, name: str, bbox: list, srs: int, is_raster: bool) -> None:
         if "layers" not in self.cfg:
             self.cfg["layers"] = []
             self.cfg["caches"] = {}
@@ -44,7 +44,14 @@ class QSAMapProxy:
         lyr = {"name": name, "title": name, "sources": [f"{name}_cache"]}
         self.cfg["layers"].append(lyr)
 
-        c = {"grids": ["webmercator"], "sources": [f"{name}_wms"]}
+        c = {
+            "grids": ["webmercator"],
+            "sources": [f"{name}_wms"]
+        }
+        if is_raster:
+            c["use_direct_from_level"] = 14
+            c["meta_size"] = [1, 1]
+            c["meta_buffer"] = 0
         self.cfg["caches"][f"{name}_cache"] = c
 
         s = {

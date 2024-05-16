@@ -374,7 +374,7 @@ class QSAProject:
 
             mp = QSAMapProxy(self.name)
             mp.read()
-            mp.add_layer(name, bbox, epsg_code)
+            mp.add_layer(name, bbox, epsg_code, t == Qgis.LayerType.Raster)
             mp.write()
 
         return True, ""
