@@ -333,7 +333,10 @@ class QSAProject:
 
         lyr = None
         if t == Qgis.LayerType.Vector:
-            lyr = QgsVectorLayer(datasource, name, "ogr")
+            provider = "ogr"
+            if "table=" in datasource:
+                provider = "postgres"
+            lyr = QgsVectorLayer(datasource, name, provider)
         elif t == Qgis.LayerType.Raster:
             lyr = QgsRasterLayer(datasource, name, "gdal")
         else:

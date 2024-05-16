@@ -5,7 +5,7 @@ Layers are based on the `data.gpkg` file mounted in the Docker containers.
 
 ### Add layers
 
-To add a polygon layer to a project:
+To add a polygon layer from a geopackage to a project:
 
 ```` shell
 $ curl "http://localhost:5000/api/projects/my_project/layers?schema=my_schema" \
@@ -20,15 +20,19 @@ $ curl "http://localhost:5000/api/projects/my_project/layers?schema=my_schema" \
 true
 ````
 
-And a line layer:
+And a line layer from PostGIS:
 
 ```` shell
+# copy geopackage table to PostGIS
+$ ogr2ogr -f PostgreSQL "PG:dbname=qsa password=qsa user=qsa port=5433 host=localhost" data.gpkg lines
+
+# add a line layer based on the PostGIS table
 $ curl "http://localhost:5000/api/projects/my_project/layers?schema=my_schema" \
   -X POST \
   -H 'Content-Type: application/json' \
   -d '{
     "crs": 4326,
-    "datasource":"/data.gpkg|layername=lines",
+    "datasource":"service=qsa table=\"public\".\"lines\" (geom)",
     "name":"lines",
     "type":"vector"
   }'
@@ -49,7 +53,7 @@ $ curl "http://localhost:5000/api/projects/my_project/layers/lines?schema=my_sch
   "current_style": "default",
   "geometry": "MultiLineString",
   "name": "lines",
-  "source": "/data.gpkg|layername=lines",
+  "source": "service='qsa' key='fid' checkPrimaryKeyUnicity='1' table=\"public\".\"lines\" (geom)",
   "styles": [
     "default"
   ],
