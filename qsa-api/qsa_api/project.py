@@ -348,7 +348,7 @@ class QSAProject:
             lyr.setCrs(crs)
 
         if not lyr.isValid():
-            return False, "Invalid layer"
+            return False, f"Invalid layer ({lyr.error()})"
 
         # create project
         project = QgsProject()
