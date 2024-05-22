@@ -376,8 +376,14 @@ class QSAProject:
             epsg_code = int(lyr.crs().authid().split(':')[1])
 
             mp = QSAMapProxy(self.name)
-            mp.read()
-            mp.add_layer(name, bbox, epsg_code, t == Qgis.LayerType.Raster)
+            rc, err = mp.read()
+            if not rc:
+                return False, err
+
+            rc, err = mp.add_layer(name, bbox, epsg_code, t == Qgis.LayerType.Raster)
+            if not rc:
+                return False, err
+
             mp.write()
 
         return True, ""
