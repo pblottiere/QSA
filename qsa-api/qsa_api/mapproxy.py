@@ -26,16 +26,27 @@ class QSAMapProxy:
         with open(self._mapproxy_project, "w") as file:
             yaml.safe_dump(self.cfg, file, sort_keys=False)
 
-    def read(self) -> None:
-        with open(self._mapproxy_project, "r") as file:
-            self.cfg = yaml.safe_load(file)
+    def read(self) -> bool:
+        try:
+            with open(self._mapproxy_project, "r") as file:
+                self.cfg = yaml.safe_load(file)
+        except yaml.scanner.ScannerError as e:
+            return False, f"Failed to load MapProxy configuration file {self._mapproxy_project}"
+
+        if self.cfg is None:
+            return False, f"Failed to load MapProxy configuration file {self._mapproxy_project}"
+
+        return True, ""
 
     def clear_cache(self, layer_name: str) -> None:
         cache_dir = self._mapproxy_project.parent
         for d in cache_dir.glob(f"**/{layer_name}_cache_*"):
             shutil.rmtree(d)
 
-    def add_layer(self, name: str, bbox: list, srs: int, is_raster: bool) -> None:
+    def add_layer(self, name: str, bbox: list, srs: int, is_raster: bool) -> (bool, str):
+        if self.cfg is None:
+            return False, "Invalid MapProxy configuration"
+
         if "layers" not in self.cfg:
             self.cfg["layers"] = []
             self.cfg["caches"] = {}
@@ -64,6 +75,8 @@ class QSAMapProxy:
             "coverage": {"bbox": bbox, "srs": f"EPSG:{srs}"},
         }
         self.cfg["sources"][f"{name}_wms"] = s
+
+        return True, ""
 
     def remove_layer(self, name: str) -> None:
         # early return
