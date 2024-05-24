@@ -17,13 +17,17 @@ from qgis.core import (
     QgsVectorLayer,
     QgsRasterLayer,
     QgsMarkerSymbol,
+    QgsRasterRenderer,
     QgsFeatureRenderer,
     QgsReadWriteContext,
     QgsRasterMinMaxOrigin,
+    QgsRasterMinMaxOrigin,
+    QgsContrastEnhancement,
     QgsContrastEnhancement,
     QgsSingleSymbolRenderer,
     QgsSimpleFillSymbolLayer,
     QgsSimpleLineSymbolLayer,
+    QgsSingleBandGrayRenderer,
     QgsSimpleMarkerSymbolLayer,
 )
 from qgis.PyQt.QtXml import QDomDocument, QDomNode
@@ -129,11 +133,25 @@ class QSAProject:
         con.close()
         return default_style
 
-    def style(self, name: str) -> dict:
+    def style(self, name: str) -> (dict, str):
         if name not in self.styles:
-            return {}
+            return {}, "Invalid style"
 
         path = self._qgis_project_dir / f"{name}.qml"
+
+        # check if raster or vector style
+        style_type = QgsMapLayer.RasterLayer
+        with open(path, 'r') as file:
+            content = file.read()
+            if RENDERER_TAG_NAME in file.read():
+                style_type = QgsMapLayer.VectorLayer
+
+        if style_type == QgsMapLayer.VectorLayer:
+            return self._style_vector(path)
+        else:
+            return self._style_raster(path)
+
+    def _style_vector(self, path: Path) -> (dict, str):
         doc = QDomDocument()
         doc.setContent(open(path.as_posix()).read())
         node = QDomNode(doc.firstChild())
@@ -142,6 +160,10 @@ class QSAProject:
         renderer = QgsFeatureRenderer.load(
             renderer_node, QgsReadWriteContext()
         )
+
+        if renderer is None:
+            return {}, f"Internal error: vector style {path} cannot be loaded"
+
         symbol = renderer.symbol()
         props = symbol.symbolLayer(0).properties()
 
@@ -151,13 +173,64 @@ class QSAProject:
             geom = "polygon"
 
         m = {}
+        m["type"] = "vector"
         m["symbology"] = "single_symbol"
         m["name"] = name
         m["symbol"] = symbol
         m["geometry"] = geom
         m["properties"] = props
 
-        return m
+        return m, ""
+
+    def _style_raster(self, path: Path) -> (dict, str):
+        tif = Path(__file__).resolve().parent / "empty.tif"
+        rl = QgsRasterLayer(tif.as_posix(), "", "gdal")
+        rl.loadNamedStyle(path.as_posix())
+
+        renderer = rl.renderer()
+        renderer_type = RasterSymbologyRenderer(renderer.type()).type
+
+        m = {}
+        m["type"] = "raster"
+        m["symbology"] = {}
+        m["symbology"]["type"] = renderer.type()
+
+        props = {}
+
+        if renderer_type == RasterSymbologyRenderer.Type.SINGLE_BAND_GRAY:
+            props["gray_band"] = renderer.grayBand()
+
+            ce = renderer.contrastEnhancement()
+            props["min"] = ce.minimumValue()
+            props["max"] = ce.maximumValue()
+
+            gradient = renderer.gradient()
+            if gradient == QgsSingleBandGrayRenderer.Gradient.BlackToWhite:
+                props["color_gradient"] = "BlackToWhite"
+            else:
+                props["color_gradient"] = "WhiteToBlack"
+
+            props["contrast_enhancement"] = {}
+
+            alg = ce.contrastEnhancementAlgorithm()
+            props["contrast_enhancement"]["algorithm"] = "NoEnhancement"
+            if alg == QgsContrastEnhancement.ContrastEnhancementAlgorithm.StretchToMinimumMaximum:
+                props["contrast_enhancement"]["algorithm"] = "StretchToMinimumMaximum"
+
+            limits = renderer.minMaxOrigin().limits()
+            props["contrast_enhancement"]["limits_min_max"] = "UserDefined"
+            if limits == QgsRasterMinMaxOrigin.Limits.MinMax:
+                props["contrast_enhancement"]["limits_min_max"] = "MinMax"
+
+        m["symbology"]["properties"] = props
+
+        m["rendering"] = {}
+        m["rendering"]["brightness"] = rl.brightnessFilter().brightness()
+        m["rendering"]["contrast"] = rl.brightnessFilter().contrast()
+        m["rendering"]["gamma"] = rl.brightnessFilter().gamma()
+        m["rendering"]["saturation"] = rl.hueSaturationFilter().saturation()
+
+        return m, ""
 
     def style_update(self, geometry: str, style: str) -> None:
         con = sqlite3.connect(self.sqlite_db.as_posix())
