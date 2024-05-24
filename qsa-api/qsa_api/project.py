@@ -17,12 +17,9 @@ from qgis.core import (
     QgsVectorLayer,
     QgsRasterLayer,
     QgsMarkerSymbol,
-    QgsRasterRenderer,
     QgsFeatureRenderer,
     QgsReadWriteContext,
     QgsRasterMinMaxOrigin,
-    QgsRasterMinMaxOrigin,
-    QgsContrastEnhancement,
     QgsContrastEnhancement,
     QgsSingleSymbolRenderer,
     QgsSimpleFillSymbolLayer,
@@ -149,7 +146,7 @@ class QSAProject:
         if style_type == QgsMapLayer.VectorLayer:
             return self._style_vector(path)
         else:
-            return self._style_raster(path)
+            return RasterSymbologyRenderer.style_to_json(path)
 
     def _style_vector(self, path: Path) -> (dict, str):
         doc = QDomDocument()
@@ -179,57 +176,6 @@ class QSAProject:
         m["symbol"] = symbol
         m["geometry"] = geom
         m["properties"] = props
-
-        return m, ""
-
-    def _style_raster(self, path: Path) -> (dict, str):
-        tif = Path(__file__).resolve().parent / "empty.tif"
-        rl = QgsRasterLayer(tif.as_posix(), "", "gdal")
-        rl.loadNamedStyle(path.as_posix())
-
-        renderer = rl.renderer()
-        renderer_type = RasterSymbologyRenderer(renderer.type()).type
-
-        m = {}
-        m["name"] = path.stem
-        m["type"] = "raster"
-        m["symbology"] = {}
-        m["symbology"]["type"] = renderer.type()
-
-        props = {}
-
-        if renderer_type == RasterSymbologyRenderer.Type.SINGLE_BAND_GRAY:
-            props["gray_band"] = renderer.grayBand()
-
-            ce = renderer.contrastEnhancement()
-            props["min"] = ce.minimumValue()
-            props["max"] = ce.maximumValue()
-
-            gradient = renderer.gradient()
-            if gradient == QgsSingleBandGrayRenderer.Gradient.BlackToWhite:
-                props["color_gradient"] = "BlackToWhite"
-            else:
-                props["color_gradient"] = "WhiteToBlack"
-
-            props["contrast_enhancement"] = {}
-
-            alg = ce.contrastEnhancementAlgorithm()
-            props["contrast_enhancement"]["algorithm"] = "NoEnhancement"
-            if alg == QgsContrastEnhancement.ContrastEnhancementAlgorithm.StretchToMinimumMaximum:
-                props["contrast_enhancement"]["algorithm"] = "StretchToMinimumMaximum"
-
-            limits = renderer.minMaxOrigin().limits()
-            props["contrast_enhancement"]["limits_min_max"] = "UserDefined"
-            if limits == QgsRasterMinMaxOrigin.Limits.MinMax:
-                props["contrast_enhancement"]["limits_min_max"] = "MinMax"
-
-        m["symbology"]["properties"] = props
-
-        m["rendering"] = {}
-        m["rendering"]["brightness"] = rl.brightnessFilter().brightness()
-        m["rendering"]["contrast"] = rl.brightnessFilter().contrast()
-        m["rendering"]["gamma"] = rl.brightnessFilter().gamma()
-        m["rendering"]["saturation"] = rl.hueSaturationFilter().saturation()
 
         return m, ""
 
