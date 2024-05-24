@@ -33,7 +33,8 @@ from qgis.core import (
 from qgis.PyQt.QtXml import QDomDocument, QDomNode
 
 from .mapproxy import QSAMapProxy
-from .utils import RasterSymbologyRenderer, StorageBackend, config
+from .utils import StorageBackend, config
+from .raster import RasterSymbologyRenderer
 
 
 RENDERER_TAG_NAME = "renderer-v2"  # constant from core/symbology/renderer.h
@@ -142,7 +143,6 @@ class QSAProject:
         # check if raster or vector style
         style_type = QgsMapLayer.RasterLayer
         with open(path, 'r') as file:
-            content = file.read()
             if RENDERER_TAG_NAME in file.read():
                 style_type = QgsMapLayer.VectorLayer
 
@@ -175,7 +175,7 @@ class QSAProject:
         m = {}
         m["type"] = "vector"
         m["symbology"] = "single_symbol"
-        m["name"] = name
+        m["name"] = path.stem
         m["symbol"] = symbol
         m["geometry"] = geom
         m["properties"] = props
@@ -191,6 +191,7 @@ class QSAProject:
         renderer_type = RasterSymbologyRenderer(renderer.type()).type
 
         m = {}
+        m["name"] = path.stem
         m["type"] = "raster"
         m["symbology"] = {}
         m["symbology"]["type"] = renderer.type()
