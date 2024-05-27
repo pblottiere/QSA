@@ -212,6 +212,12 @@ class APITestCaseFilesystem(unittest.TestCase):
         p = self.app.post(f"/api/projects/{TEST_PROJECT_0}/styles", data)
         self.assertEqual(p.status_code, 201)
 
+        p = self.app.get(f"/api/projects/{TEST_PROJECT_0}/styles/style_multibandcolor")
+        print(p.get_json())
+        self.assertTrue("rendering" in p.get_json())
+        self.assertTrue("symbology" in p.get_json())
+        self.assertTrue("properties" in p.get_json()["symbology"])
+
         # 1 style
         p = self.app.get(f"/api/projects/{TEST_PROJECT_0}/styles")
         self.assertTrue("style_multibandcolor" in p.get_json())

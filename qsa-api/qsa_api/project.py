@@ -435,7 +435,7 @@ class QSAProject:
             return False, "`properties` is missing in `symbology`"
 
         # init renderer
-        tif = Path(__file__).resolve().parent / "empty.tif"
+        tif = Path(__file__).resolve().parent / "raster" / "empty.tif"
         rl = QgsRasterLayer(tif.as_posix(), "", "gdal")
 
         # symbology

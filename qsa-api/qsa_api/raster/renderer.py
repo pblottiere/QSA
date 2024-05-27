@@ -102,31 +102,10 @@ class RasterSymbologyRenderer:
         m["symbology"]["type"] = renderer.type()
 
         props = {}
-
         if renderer_type == RasterSymbologyRenderer.Type.SINGLE_BAND_GRAY:
-            props["gray_band"] = renderer.grayBand()
-
-            ce = renderer.contrastEnhancement()
-            props["min"] = ce.minimumValue()
-            props["max"] = ce.maximumValue()
-
-            gradient = renderer.gradient()
-            if gradient == QgsSingleBandGrayRenderer.Gradient.BlackToWhite:
-                props["color_gradient"] = "BlackToWhite"
-            else:
-                props["color_gradient"] = "WhiteToBlack"
-
-            props["contrast_enhancement"] = {}
-
-            alg = ce.contrastEnhancementAlgorithm()
-            props["contrast_enhancement"]["algorithm"] = "NoEnhancement"
-            if alg == QgsContrastEnhancement.ContrastEnhancementAlgorithm.StretchToMinimumMaximum:
-                props["contrast_enhancement"]["algorithm"] = "StretchToMinimumMaximum"
-
-            limits = renderer.minMaxOrigin().limits()
-            props["contrast_enhancement"]["limits_min_max"] = "UserDefined"
-            if limits == QgsRasterMinMaxOrigin.Limits.MinMax:
-                props["contrast_enhancement"]["limits_min_max"] = "MinMax"
+            props = RasterSymbologyRenderer._singlebandgray_properties(renderer)
+        elif renderer_type == RasterSymbologyRenderer.Type.MULTI_BAND_COLOR:
+            props = RasterSymbologyRenderer._multibandcolor_properties(renderer)
 
         m["symbology"]["properties"] = props
 
@@ -137,6 +116,94 @@ class RasterSymbologyRenderer:
         m["rendering"]["saturation"] = rl.hueSaturationFilter().saturation()
 
         return m, ""
+
+    @staticmethod
+    def _multibandcolor_properties(renderer) -> dict:
+        props = {}
+
+        # limits
+        limits = renderer.minMaxOrigin().limits()
+
+        props["contrast_enhancement"] = {}
+        props["contrast_enhancement"]["limits_min_max"] = "UserDefined"
+        if limits == QgsRasterMinMaxOrigin.Limits.MinMax:
+            props["contrast_enhancement"]["limits_min_max"] = "MinMax"
+
+        # bands
+        props["red"] = {}
+        props["red"]["band"] = renderer.redBand()
+
+        props["blue"] = {}
+        props["blue"]["band"] = renderer.blueBand()
+
+        props["green"] = {}
+        props["green"]["band"] = renderer.greenBand()
+
+        # red band
+        if renderer.redContrastEnhancement():
+            red_ce = QgsContrastEnhancement(
+                renderer.redContrastEnhancement()
+            )
+
+            props["red"]["min"] = red_ce.minimumValue()
+            props["red"]["max"] = red_ce.maximumValue()
+
+            # blue band
+            blue_ce = QgsContrastEnhancement(
+                renderer.blueContrastEnhancement()
+            )
+
+            props["blue"]["min"] = blue_ce.minimumValue()
+            props["blue"]["max"] = blue_ce.maximumValue()
+
+            # green band
+            green_ce = QgsContrastEnhancement(
+                renderer.greenContrastEnhancement()
+            )
+
+            props["green"]["min"] = green_ce.minimumValue()
+            props["green"]["max"] = green_ce.maximumValue()
+
+            # ce
+            alg = red_ce.contrastEnhancementAlgorithm()
+            props["contrast_enhancement"]["algorithm"] = "NoEnhancement"
+            if alg == QgsContrastEnhancement.ContrastEnhancementAlgorithm.StretchToMinimumMaximum:
+                props["contrast_enhancement"]["algorithm"] = "StretchToMinimumMaximum"
+        else:
+            # default behavior
+            props["contrast_enhancement"]["algorithm"] = "StretchToMinimumMaximum"
+
+        return props
+
+    @staticmethod
+    def _singlebandgray_properties(renderer) -> dict:
+        props = {}
+
+        props["gray_band"] = renderer.grayBand()
+
+        ce = renderer.contrastEnhancement()
+        props["min"] = ce.minimumValue()
+        props["max"] = ce.maximumValue()
+
+        gradient = renderer.gradient()
+        if gradient == QgsSingleBandGrayRenderer.Gradient.BlackToWhite:
+            props["color_gradient"] = "BlackToWhite"
+        else:
+            props["color_gradient"] = "WhiteToBlack"
+
+        props["contrast_enhancement"] = {}
+
+        alg = ce.contrastEnhancementAlgorithm()
+        props["contrast_enhancement"]["algorithm"] = "NoEnhancement"
+        if alg == QgsContrastEnhancement.ContrastEnhancementAlgorithm.StretchToMinimumMaximum:
+            props["contrast_enhancement"]["algorithm"] = "StretchToMinimumMaximum"
+
+        limits = renderer.minMaxOrigin().limits()
+        props["contrast_enhancement"]["limits_min_max"] = "UserDefined"
+        if limits == QgsRasterMinMaxOrigin.Limits.MinMax:
+            props["contrast_enhancement"]["limits_min_max"] = "MinMax"
+
+        return props
 
     def _refresh_min_max_multibandcolor(self, layer: QgsRasterLayer) -> None:
         renderer = layer.renderer()
