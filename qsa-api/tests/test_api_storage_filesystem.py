@@ -314,12 +314,12 @@ class APITestCaseFilesystem(unittest.TestCase):
         # style line metadata
         p = self.app.get(f"/api/projects/{TEST_PROJECT_0}/styles/style_line")
         j = p.get_json()
-        self.assertTrue(j["properties"]["line_width"], 0.75)
+        self.assertTrue(j["symbology"]["properties"]["line_width"], 0.75)
 
         # style fill metadata
         p = self.app.get(f"/api/projects/{TEST_PROJECT_0}/styles/style_fill")
         j = p.get_json()
-        self.assertTrue(j["properties"]["outline_width"], 0.75)
+        self.assertTrue(j["symbology"]["properties"]["outline_width"], 0.75)
 
         # add layers
         data = {}

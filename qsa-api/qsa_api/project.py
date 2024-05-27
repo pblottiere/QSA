@@ -17,21 +17,18 @@ from qgis.core import (
     QgsVectorLayer,
     QgsRasterLayer,
     QgsMarkerSymbol,
-    QgsFeatureRenderer,
-    QgsReadWriteContext,
     QgsRasterMinMaxOrigin,
     QgsContrastEnhancement,
     QgsSingleSymbolRenderer,
     QgsSimpleFillSymbolLayer,
     QgsSimpleLineSymbolLayer,
-    QgsSingleBandGrayRenderer,
     QgsSimpleMarkerSymbolLayer,
 )
-from qgis.PyQt.QtXml import QDomDocument, QDomNode
 
 from .mapproxy import QSAMapProxy
 from .utils import StorageBackend, config
 from .raster import RasterSymbologyRenderer
+from .vector import VectorSymbologyRenderer
 
 
 RENDERER_TAG_NAME = "renderer-v2"  # constant from core/symbology/renderer.h
@@ -137,47 +134,10 @@ class QSAProject:
 
         path = self._qgis_project_dir / f"{name}.qml"
 
-        # check if raster or vector style
-        style_type = QgsMapLayer.RasterLayer
-        with open(path, 'r') as file:
-            if RENDERER_TAG_NAME in file.read():
-                style_type = QgsMapLayer.VectorLayer
-
-        if style_type == QgsMapLayer.VectorLayer:
-            return self._style_vector(path)
+        if VectorSymbologyRenderer.style_is_vector(path):
+            return VectorSymbologyRenderer.style_to_json(path)
         else:
             return RasterSymbologyRenderer.style_to_json(path)
-
-    def _style_vector(self, path: Path) -> (dict, str):
-        doc = QDomDocument()
-        doc.setContent(open(path.as_posix()).read())
-        node = QDomNode(doc.firstChild())
-
-        renderer_node = node.firstChildElement(RENDERER_TAG_NAME)
-        renderer = QgsFeatureRenderer.load(
-            renderer_node, QgsReadWriteContext()
-        )
-
-        if renderer is None:
-            return {}, f"Internal error: vector style {path} cannot be loaded"
-
-        symbol = renderer.symbol()
-        props = symbol.symbolLayer(0).properties()
-
-        geom = "line"
-        symbol = QgsSymbol.symbolTypeToString(symbol.type()).lower()
-        if symbol == "fill":
-            geom = "polygon"
-
-        m = {}
-        m["type"] = "vector"
-        m["symbology"] = "single_symbol"
-        m["name"] = path.stem
-        m["symbol"] = symbol
-        m["geometry"] = geom
-        m["properties"] = props
-
-        return m, ""
 
     def style_update(self, geometry: str, style: str) -> None:
         con = sqlite3.connect(self.sqlite_db.as_posix())
