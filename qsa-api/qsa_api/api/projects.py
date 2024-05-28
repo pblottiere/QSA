@@ -270,6 +270,7 @@ def project_add_layer(name):
             "datasource": {"type": "string"},
             "crs": {"type": "number"},
             "type": {"type": "string"},
+            "overview": {"type": "boolean"},
         },
     }
 
@@ -287,8 +288,12 @@ def project_add_layer(name):
         if "crs" in data:
             crs = int(data["crs"])
 
+        overview = False
+        if "overview" in data:
+            overview = data["overview"]
+
         rc, err = project.add_layer(
-            data["datasource"], data["type"], data["name"], crs
+            data["datasource"], data["type"], data["name"], crs, overview
         )
         if rc:
             return jsonify(rc), 201

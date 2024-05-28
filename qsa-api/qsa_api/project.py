@@ -305,7 +305,7 @@ class QSAProject:
             QSAMapProxy(self.name).remove()
 
     def add_layer(
-        self, datasource: str, layer_type: str, name: str, epsg_code: int
+            self, datasource: str, layer_type: str, name: str, epsg_code: int, overview: bool,
     ) -> (bool, str):
         t = self._layer_type(layer_type)
         if t is None:
@@ -319,6 +319,15 @@ class QSAProject:
             lyr = QgsVectorLayer(datasource, name, provider)
         elif t == Qgis.LayerType.Raster:
             lyr = QgsRasterLayer(datasource, name, "gdal")
+
+            if not lyr.dataProvider().hasPyramids() and overview:
+                levels = lyr.dataProvider().buildPyramidList()
+                for idx, level in enumerate(levels):
+                    levels[idx].setBuild(True)
+                fmt = Qgis.RasterPyramidFormat.GeoTiff
+                err = lyr.dataProvider().buildPyramids(levels, "NEAREST", fmt)
+                if err:
+                    return False, f"Cannot build overview ({err})"
         else:
             return False, "Invalid layer type"
 
