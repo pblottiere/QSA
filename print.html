@@ -365,13 +365,19 @@ $ curl "http://localhost:5000/api/symbology/vector/polygon/single_symbol/fill/pr
 $ curl "http://localhost:5000/api/symbology/raster/multibandcolor/properties" | jq
 {
   "blue": {
-    "band": 3
+    "band": 3,
+    "min": 0.0,
+    "max": 1.0
   },
   "green": {
-    "band": 2
+    "band": 2,
+    "min": 0.0,
+    "max": 1.0
   },
   "red": {
-    "band": 1
+    "band": 1,
+    "min": 0.0,
+    "max": 1.0
   }
   "contrast_enhancement": {
     "algorithm": "StretchToMinimumMaximum (StretchToMinimumMaximum, NoEnhancement)",
@@ -905,7 +911,7 @@ true
     "symbology": {
       "type": "singlebandgray",
       "properties": {
-        "gray_band": 1
+        "gray_band": 1,
         "contrast_enhancement": {
           "algorithm": "StretchToMinimumMaximum",
           "limits_min_max": "MinMax"
