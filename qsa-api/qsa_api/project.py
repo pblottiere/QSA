@@ -17,8 +17,6 @@ from qgis.core import (
     QgsVectorLayer,
     QgsRasterLayer,
     QgsMarkerSymbol,
-    QgsFeatureRenderer,
-    QgsReadWriteContext,
     QgsRasterMinMaxOrigin,
     QgsContrastEnhancement,
     QgsSingleSymbolRenderer,
@@ -26,10 +24,11 @@ from qgis.core import (
     QgsSimpleLineSymbolLayer,
     QgsSimpleMarkerSymbolLayer,
 )
-from qgis.PyQt.QtXml import QDomDocument, QDomNode
 
 from .mapproxy import QSAMapProxy
-from .utils import RasterSymbologyRenderer, StorageBackend, config
+from .utils import StorageBackend, config
+from .raster import RasterSymbologyRenderer
+from .vector import VectorSymbologyRenderer
 
 
 RENDERER_TAG_NAME = "renderer-v2"  # constant from core/symbology/renderer.h
@@ -129,35 +128,16 @@ class QSAProject:
         con.close()
         return default_style
 
-    def style(self, name: str) -> dict:
+    def style(self, name: str) -> (dict, str):
         if name not in self.styles:
-            return {}
+            return {}, "Invalid style"
 
         path = self._qgis_project_dir / f"{name}.qml"
-        doc = QDomDocument()
-        doc.setContent(open(path.as_posix()).read())
-        node = QDomNode(doc.firstChild())
 
-        renderer_node = node.firstChildElement(RENDERER_TAG_NAME)
-        renderer = QgsFeatureRenderer.load(
-            renderer_node, QgsReadWriteContext()
-        )
-        symbol = renderer.symbol()
-        props = symbol.symbolLayer(0).properties()
-
-        geom = "line"
-        symbol = QgsSymbol.symbolTypeToString(symbol.type()).lower()
-        if symbol == "fill":
-            geom = "polygon"
-
-        m = {}
-        m["symbology"] = "single_symbol"
-        m["name"] = name
-        m["symbol"] = symbol
-        m["geometry"] = geom
-        m["properties"] = props
-
-        return m
+        if VectorSymbologyRenderer.style_is_vector(path):
+            return VectorSymbologyRenderer.style_to_json(path)
+        else:
+            return RasterSymbologyRenderer.style_to_json(path)
 
     def style_update(self, geometry: str, style: str) -> None:
         con = sqlite3.connect(self.sqlite_db.as_posix())
@@ -415,7 +395,7 @@ class QSAProject:
             return False, "`properties` is missing in `symbology`"
 
         # init renderer
-        tif = Path(__file__).resolve().parent / "empty.tif"
+        tif = Path(__file__).resolve().parent / "raster" / "empty.tif"
         rl = QgsRasterLayer(tif.as_posix(), "", "gdal")
 
         # symbology

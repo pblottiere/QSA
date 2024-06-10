@@ -63,7 +63,7 @@ def project_add():
             return {"error": "Project already exists"}
         rc, err = project.create(author)
         if not rc:
-            return {"error": err}
+            return {"error": err}, 415
         return jsonify(True), 201
     return {"error": "Request must be JSON"}, 415
 
@@ -94,8 +94,11 @@ def project_style(name, style):
     psql_schema = request.args.get("schema", default="public")
     project = QSAProject(name, psql_schema)
     if project.exists():
-        infos = project.style(style)
-        return jsonify(infos), 201
+        infos, err = project.style(style)
+        if err:
+            return {"error": err}, 415
+        else:
+            return jsonify(infos), 201
     else:
         return {"error": "Project does not exist"}, 415
 
