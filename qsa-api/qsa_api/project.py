@@ -1,5 +1,7 @@
 # coding: utf8
 
+import sys
+import boto3
 import shutil
 import sqlite3
 from pathlib import Path
@@ -25,6 +27,7 @@ from qgis.core import (
     QgsSimpleMarkerSymbolLayer,
 )
 
+from .config import QSAConfig
 from .mapproxy import QSAMapProxy
 from .utils import StorageBackend, config
 from .raster import RasterSymbologyRenderer
@@ -321,6 +324,9 @@ class QSAProject:
             lyr = QgsRasterLayer(datasource, name, "gdal")
 
             if not lyr.dataProvider().hasPyramids() and overview:
+                if "/vsis3" not in datasource:
+                    return False, "Building overviews is only supported for S3 rasters"
+
                 levels = lyr.dataProvider().buildPyramidList()
                 for idx, level in enumerate(levels):
                     levels[idx].setBuild(True)
@@ -328,6 +334,16 @@ class QSAProject:
                 err = lyr.dataProvider().buildPyramids(levels, "NEAREST", fmt)
                 if err:
                     return False, f"Cannot build overview ({err})"
+
+                ovrfile = Path(datasource).name
+                ovrpath = next(QSAConfig().gdal_pam_proxy_dir.glob(f"*{ovrfile}.ovr"), None)
+                if not ovrpath:
+                    return False, f"Cannot find OVR file in GDAL_PAM_PROXY_DIR"
+
+                bucket = datasource.split('/')[2]
+                subdir = Path(datasource.split(f'/vsis3/{bucket}/')[1]).parent
+                s3 = boto3.resource('s3')
+                s3.Bucket(bucket).upload_file(ovrpath.as_posix(), (subdir/ovrpath.name).as_posix())
         else:
             return False, "Invalid layer type"
 
