@@ -1,7 +1,5 @@
 # coding: utf8
 
-import sys
-import boto3
 import shutil
 import sqlite3
 from pathlib import Path
@@ -27,11 +25,10 @@ from qgis.core import (
     QgsSimpleMarkerSymbolLayer,
 )
 
-from .config import QSAConfig
 from .mapproxy import QSAMapProxy
 from .utils import StorageBackend, config
-from .raster import RasterSymbologyRenderer
 from .vector import VectorSymbologyRenderer
+from .raster import RasterSymbologyRenderer, RasterOverview
 
 
 RENDERER_TAG_NAME = "renderer-v2"  # constant from core/symbology/renderer.h
@@ -308,7 +305,12 @@ class QSAProject:
             QSAMapProxy(self.name).remove()
 
     def add_layer(
-            self, datasource: str, layer_type: str, name: str, epsg_code: int, overview: bool,
+        self,
+        datasource: str,
+        layer_type: str,
+        name: str,
+        epsg_code: int,
+        overview: bool,
     ) -> (bool, str):
         t = self._layer_type(layer_type)
         if t is None:
@@ -323,27 +325,11 @@ class QSAProject:
         elif t == Qgis.LayerType.Raster:
             lyr = QgsRasterLayer(datasource, name, "gdal")
 
-            if not lyr.dataProvider().hasPyramids() and overview:
-                if "/vsis3" not in datasource:
-                    return False, "Building overviews is only supported for S3 rasters"
-
-                levels = lyr.dataProvider().buildPyramidList()
-                for idx, level in enumerate(levels):
-                    levels[idx].setBuild(True)
-                fmt = Qgis.RasterPyramidFormat.GeoTiff
-                err = lyr.dataProvider().buildPyramids(levels, "NEAREST", fmt)
-                if err:
-                    return False, f"Cannot build overview ({err})"
-
-                ovrfile = Path(datasource).name
-                ovrpath = next(QSAConfig().gdal_pam_proxy_dir.glob(f"*{ovrfile}.ovr"), None)
-                if not ovrpath:
-                    return False, f"Cannot find OVR file in GDAL_PAM_PROXY_DIR"
-
-                bucket = datasource.split('/')[2]
-                subdir = Path(datasource.split(f'/vsis3/{bucket}/')[1]).parent
-                s3 = boto3.resource('s3')
-                s3.Bucket(bucket).upload_file(ovrpath.as_posix(), (subdir/ovrpath.name).as_posix())
+            ovr = RasterOverview(lyr)
+            if overview and not ovr.is_valid():
+                rc, err = ovr.build()
+                if not rc:
+                    return False, err
         else:
             return False, "Invalid layer type"
 
@@ -378,14 +364,16 @@ class QSAProject:
         )
 
         if self._mapproxy_enabled:
-            epsg_code = int(lyr.crs().authid().split(':')[1])
+            epsg_code = int(lyr.crs().authid().split(":")[1])
 
             mp = QSAMapProxy(self.name)
             rc, err = mp.read()
             if not rc:
                 return False, err
 
-            rc, err = mp.add_layer(name, bbox, epsg_code, t == Qgis.LayerType.Raster)
+            rc, err = mp.add_layer(
+                name, bbox, epsg_code, t == Qgis.LayerType.Raster
+            )
             if not rc:
                 return False, err
 

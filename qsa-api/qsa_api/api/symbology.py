@@ -23,18 +23,18 @@ def symbology_symbols_line():
 @symbology.get("/vector/polygon/single_symbol/fill/properties")
 def symbology_symbols_fill():
     props = QgsSimpleFillSymbolLayer().properties()
-    props[
-        "outline_style"
-    ] = "solid (no, solid, dash, dot, dash dot, dash dot dot)"
+    props["outline_style"] = (
+        "solid (no, solid, dash, dot, dash dot, dash dot dot)"
+    )
     return jsonify(props)
 
 
 @symbology.get("/vector/point/single_symbol/marker/properties")
 def symbology_symbols_marker():
     props = QgsSimpleMarkerSymbolLayer().properties()
-    props[
-        "outline_style"
-    ] = "solid (no, solid, dash, dot, dash dot, dash dot dot)"
+    props["outline_style"] = (
+        "solid (no, solid, dash, dot, dash dot, dash dot dot)"
+    )
     return jsonify(props)
 
 

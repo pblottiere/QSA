@@ -89,16 +89,12 @@ class APITestCaseFilesystem(unittest.TestCase):
         self.assertTrue("outline_style" in j)
 
     def test_vector_symbology_rendering(self):
-        p = self.app.get(
-            "/api/symbology/vector/rendering/properties"
-        )
+        p = self.app.get("/api/symbology/vector/rendering/properties")
         j = p.get_json()
         self.assertTrue("opacity" in j)
 
     def test_raster_symbology_rendering(self):
-        p = self.app.get(
-            "/api/symbology/raster/rendering/properties"
-        )
+        p = self.app.get("/api/symbology/raster/rendering/properties")
         j = p.get_json()
         self.assertTrue("gamma" in j)
         self.assertTrue("brightness" in j)
@@ -106,16 +102,12 @@ class APITestCaseFilesystem(unittest.TestCase):
         self.assertTrue("saturation" in j)
 
     def test_raster_symbology_singlebandgray(self):
-        p = self.app.get(
-            "/api/symbology/raster/singlebandgray/properties"
-        )
+        p = self.app.get("/api/symbology/raster/singlebandgray/properties")
         j = p.get_json()
         self.assertTrue("contrast_enhancement" in j)
 
     def test_raster_symbology_multibandcolor(self):
-        p = self.app.get(
-            "/api/symbology/raster/multibandcolor/properties"
-        )
+        p = self.app.get("/api/symbology/raster/multibandcolor/properties")
         j = p.get_json()
         self.assertTrue("contrast_enhancement" in j)
 
@@ -207,12 +199,23 @@ class APITestCaseFilesystem(unittest.TestCase):
         data["type"] = "raster"
         data["name"] = "style_multibandcolor"
         data["symbology"] = {"type": "multibandcolor"}
-        data["symbology"]["properties"] = {"red": {"band": 1}, "blue": {"band": 1}, "green": {"band": 1}}
-        data["rendering"] = {"brightness": 10, "gamma": 1.0, "contrast": 3, "saturation": 2}
+        data["symbology"]["properties"] = {
+            "red": {"band": 1},
+            "blue": {"band": 1},
+            "green": {"band": 1},
+        }
+        data["rendering"] = {
+            "brightness": 10,
+            "gamma": 1.0,
+            "contrast": 3,
+            "saturation": 2,
+        }
         p = self.app.post(f"/api/projects/{TEST_PROJECT_0}/styles", data)
         self.assertEqual(p.status_code, 201)
 
-        p = self.app.get(f"/api/projects/{TEST_PROJECT_0}/styles/style_multibandcolor")
+        p = self.app.get(
+            f"/api/projects/{TEST_PROJECT_0}/styles/style_multibandcolor"
+        )
         print(p.get_json())
         self.assertTrue("rendering" in p.get_json())
         self.assertTrue("symbology" in p.get_json())

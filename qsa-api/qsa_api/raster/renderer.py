@@ -103,9 +103,13 @@ class RasterSymbologyRenderer:
 
         props = {}
         if renderer_type == RasterSymbologyRenderer.Type.SINGLE_BAND_GRAY:
-            props = RasterSymbologyRenderer._singlebandgray_properties(renderer)
+            props = RasterSymbologyRenderer._singlebandgray_properties(
+                renderer
+            )
         elif renderer_type == RasterSymbologyRenderer.Type.MULTI_BAND_COLOR:
-            props = RasterSymbologyRenderer._multibandcolor_properties(renderer)
+            props = RasterSymbologyRenderer._multibandcolor_properties(
+                renderer
+            )
 
         m["symbology"]["properties"] = props
 
@@ -141,9 +145,7 @@ class RasterSymbologyRenderer:
 
         # red band
         if renderer.redContrastEnhancement():
-            red_ce = QgsContrastEnhancement(
-                renderer.redContrastEnhancement()
-            )
+            red_ce = QgsContrastEnhancement(renderer.redContrastEnhancement())
 
             props["red"]["min"] = red_ce.minimumValue()
             props["red"]["max"] = red_ce.maximumValue()
@@ -167,11 +169,18 @@ class RasterSymbologyRenderer:
             # ce
             alg = red_ce.contrastEnhancementAlgorithm()
             props["contrast_enhancement"]["algorithm"] = "NoEnhancement"
-            if alg == QgsContrastEnhancement.ContrastEnhancementAlgorithm.StretchToMinimumMaximum:
-                props["contrast_enhancement"]["algorithm"] = "StretchToMinimumMaximum"
+            if (
+                alg
+                == QgsContrastEnhancement.ContrastEnhancementAlgorithm.StretchToMinimumMaximum
+            ):
+                props["contrast_enhancement"][
+                    "algorithm"
+                ] = "StretchToMinimumMaximum"
         else:
             # default behavior
-            props["contrast_enhancement"]["algorithm"] = "StretchToMinimumMaximum"
+            props["contrast_enhancement"][
+                "algorithm"
+            ] = "StretchToMinimumMaximum"
 
         return props
 
@@ -195,8 +204,13 @@ class RasterSymbologyRenderer:
 
         alg = ce.contrastEnhancementAlgorithm()
         props["contrast_enhancement"]["algorithm"] = "NoEnhancement"
-        if alg == QgsContrastEnhancement.ContrastEnhancementAlgorithm.StretchToMinimumMaximum:
-            props["contrast_enhancement"]["algorithm"] = "StretchToMinimumMaximum"
+        if (
+            alg
+            == QgsContrastEnhancement.ContrastEnhancementAlgorithm.StretchToMinimumMaximum
+        ):
+            props["contrast_enhancement"][
+                "algorithm"
+            ] = "StretchToMinimumMaximum"
 
         limits = renderer.minMaxOrigin().limits()
         props["contrast_enhancement"]["limits_min_max"] = "UserDefined"
