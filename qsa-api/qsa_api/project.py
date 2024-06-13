@@ -393,7 +393,12 @@ class QSAProject:
                 )
             )
 
-            epsg_code = int(lyr.crs().authid().split(":")[1])
+            authid_items = lyr.crs().authid().split(":")
+            if len(authid_items) < 2:
+                return False, f"Invalid CRS {lyr.crs().authid()}"
+            epsg_code = int(authid_items[1])
+
+            self.debug(f"EPSG code {epsg_code}")
 
             mp = QSAMapProxy(self.name)
             rc, err = mp.read()
