@@ -19,6 +19,8 @@ class QSA:
         self.app.register_blueprint(symbology, url_prefix="/api/symbology")
         self.app.register_blueprint(instances, url_prefix="/api/instances")
 
+        self.app.logger.setLevel(cfg.loglevel)
+
     def run(self):
         self.app.run(host="0.0.0.0", threaded=False)
 

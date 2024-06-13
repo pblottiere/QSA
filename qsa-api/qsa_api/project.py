@@ -1,5 +1,6 @@
 # coding: utf8
 
+import sys
 import shutil
 import sqlite3
 from pathlib import Path
@@ -26,8 +27,8 @@ from qgis.core import (
 )
 
 from .mapproxy import QSAMapProxy
-from .utils import StorageBackend, config
 from .vector import VectorSymbologyRenderer
+from .utils import StorageBackend, config, logger
 from .raster import RasterSymbologyRenderer, RasterOverview
 
 
@@ -64,12 +65,14 @@ class QSAProject:
         p = []
 
         if StorageBackend.type() == StorageBackend.FILESYSTEM:
+            self.debug("List projects from filesystem")
             for i in QSAProject._qgis_projects_dir().glob("**/*.qgs"):
                 name = i.parent.name.replace(
                     QSAProject._qgis_project_dir_prefix(), ""
                 )
                 p.append(QSAProject(name))
         else:
+            self.debug("List projects from PostgreSQL database")
             service = config().qgisserver_projects_psql_service
             uri = f"postgresql:?service={service}&schema={schema}"
 
@@ -81,6 +84,8 @@ class QSAProject:
             for pname in storage.listProjects(uri):
                 p.append(QSAProject(pname, schema))
 
+        self.debug(f"{len(p)} projects found")
+
         return p
 
     @property
@@ -88,6 +93,7 @@ class QSAProject:
         s = []
         for qml in self._qgis_project_dir.glob("**/*.qml"):
             s.append(qml.stem)
+        self.debug(f"{len(s)} styles found")
         return s
 
     @property
@@ -102,6 +108,7 @@ class QSAProject:
         p = self.project
         for layer in p.mapLayers().values():
             layers.append(layer.name())
+        self.debug(f"{len(layers)} layers found")
         return layers
 
     @property
@@ -196,6 +203,7 @@ class QSAProject:
         layer = project.mapLayersByName(layer_name)[0]
 
         if style_name not in layer.styleManager().styles():
+            self.debug(f"Add new style {style_name} in style manager")
             l = layer.clone()
             l.loadNamedStyle(style_path.as_posix())  # set "default" style
 
@@ -204,18 +212,22 @@ class QSAProject:
             )
 
         if current:
+            self.debug(f"Set default style {style_name}")
             layer.styleManager().setCurrentStyle(style_name)
 
             # refresh min/max for the current layer if necessary
             # (because the style is built on an empty geotiff)
             if layer.type() == QgsMapLayer.RasterLayer:
+                self.debug("Refresh symbology renderer min/max")
                 renderer = RasterSymbologyRenderer(layer.renderer().type())
                 renderer.refresh_min_max(layer)
 
             if self._mapproxy_enabled:
+                self.debug("Clear MapProxy cache")
                 mp = QSAMapProxy(self.name)
                 mp.clear_cache(layer_name)
 
+        self.debug("Write project")
         project.write()
 
         return True, ""
@@ -278,10 +290,12 @@ class QSAProject:
         crs.createFromString("EPSG:3857")  # default to webmercator
         project.setCrs(crs)
 
+        self.debug("Write QGIS project")
         rc = project.write(self._qgis_project_uri)
 
         # create mapproxy config file
         if self._mapproxy_enabled:
+            self.debug("Write MapProxy configuration file")
             mp = QSAMapProxy(self.name)
             mp.create()
 
@@ -316,20 +330,29 @@ class QSAProject:
         if t is None:
             return False, "Invalid layer type"
 
+        if name in self.layers:
+            return False, f"A layer {name} already exists"
+
         lyr = None
         if t == Qgis.LayerType.Vector:
+            self.debug("Init vector layer")
             provider = "ogr"
             if "table=" in datasource:
                 provider = "postgres"
             lyr = QgsVectorLayer(datasource, name, provider)
         elif t == Qgis.LayerType.Raster:
+            self.debug("Init raster layer")
             lyr = QgsRasterLayer(datasource, name, "gdal")
 
             ovr = RasterOverview(lyr)
-            if overview and not ovr.is_valid():
-                rc, err = ovr.build()
-                if not rc:
-                    return False, err
+            if overview:
+                if not ovr.is_valid():
+                    self.debug("Build overviews")
+                    rc, err = ovr.build()
+                    if not rc:
+                        return False, err
+                else:
+                    self.debug("Overviews already exist")
         else:
             return False, "Invalid layer type"
 
@@ -344,26 +367,32 @@ class QSAProject:
         # create project
         project = QgsProject()
         project.read(self._qgis_project_uri)
-
         project.addMapLayer(lyr)
+
+        self.debug("Write QGIS project")
         project.write()
 
         # set default style
         if t == Qgis.LayerType.Vector:
+            self.debug("Set default style")
             geometry = lyr.geometryType().name.lower()
             default_style = self.style_default(geometry)
 
             self.layer_update_style(name, default_style, True)
 
         # add layer in mapproxy config file
-        bbox = list(
-            map(
-                float,
-                lyr.extent().asWktCoordinates().replace(",", "").split(" "),
-            )
-        )
-
         if self._mapproxy_enabled:
+            self.debug("Update MapProxy configuration file")
+            bbox = list(
+                map(
+                    float,
+                    lyr.extent()
+                    .asWktCoordinates()
+                    .replace(",", "")
+                    .split(" "),
+                )
+            )
+
             epsg_code = int(lyr.crs().authid().split(":")[1])
 
             mp = QSAMapProxy(self.name)
@@ -589,6 +618,14 @@ class QSAProject:
         p.write()
 
         return True, ""
+
+    def debug(self, msg) -> None:
+        caller = f"{self.__class__.__name__}.{sys._getframe().f_back.f_code.co_name}"
+        if StorageBackend.type() == StorageBackend.FILESYSTEM:
+            msg = f"[{caller}][{self.name}] {msg}"
+        else:
+            msg = f"[{caller}][{self.schema}:{self.name}] {msg}"
+        logger().debug(msg)
 
     @staticmethod
     def _qgis_projects_dir() -> Path:
