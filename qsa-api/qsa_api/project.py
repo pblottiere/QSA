@@ -65,14 +65,12 @@ class QSAProject:
         p = []
 
         if StorageBackend.type() == StorageBackend.FILESYSTEM:
-            self.debug("List projects from filesystem")
             for i in QSAProject._qgis_projects_dir().glob("**/*.qgs"):
                 name = i.parent.name.replace(
                     QSAProject._qgis_project_dir_prefix(), ""
                 )
                 p.append(QSAProject(name))
         else:
-            self.debug("List projects from PostgreSQL database")
             service = config().qgisserver_projects_psql_service
             uri = f"postgresql:?service={service}&schema={schema}"
 
@@ -83,8 +81,6 @@ class QSAProject:
             )
             for pname in storage.listProjects(uri):
                 p.append(QSAProject(pname, schema))
-
-        self.debug(f"{len(p)} projects found")
 
         return p
 
