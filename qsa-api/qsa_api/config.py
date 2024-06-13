@@ -1,6 +1,7 @@
 # coding: utf8
 
 import os
+import logging
 from pathlib import Path
 
 
@@ -10,6 +11,17 @@ class QSAConfig:
         if self.qgisserver_url and self.qgisserver_projects_dir:
             return True
         return False
+
+    @property
+    def loglevel(self):
+        level = os.environ.get("QSA_LOGLEVEL", "INFO").lower()
+
+        logging_level = logging.INFO
+        if level == "debug":
+            logging_level = logging.DEBUG
+        elif level == "error":
+            logging_level = logging.ERROR
+        return logging_level
 
     @property
     def gdal_pam_proxy_dir(self) -> Path:

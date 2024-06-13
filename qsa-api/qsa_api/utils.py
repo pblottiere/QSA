@@ -8,6 +8,10 @@ def config():
     return current_app.config["CONFIG"]
 
 
+def logger():
+    return current_app.logger
+
+
 class StorageBackend(Enum):
     FILESYSTEM = 0
     POSTGRESQL = 1
