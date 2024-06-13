@@ -1,6 +1,7 @@
 # coding: utf8
 
 import os
+from pathlib import Path
 
 
 class QSAConfig:
@@ -9,6 +10,10 @@ class QSAConfig:
         if self.qgisserver_url and self.qgisserver_projects_dir:
             return True
         return False
+
+    @property
+    def gdal_pam_proxy_dir(self) -> Path:
+        return Path(os.environ.get("GDAL_PAM_PROXY_DIR", ""))
 
     @property
     def monitoring_port(self) -> int:

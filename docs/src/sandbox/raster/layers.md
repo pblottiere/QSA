@@ -12,7 +12,6 @@ $ curl "http://localhost:5000/api/projects/my_project/layers?schema=my_schema" \
   -X POST \
   -H 'Content-Type: application/json' \
   -d '{
-    "crs": 4326,
     "datasource":"/dem.tif",
     "name":"dem",
     "type":"raster"

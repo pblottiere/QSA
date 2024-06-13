@@ -27,8 +27,8 @@ from qgis.core import (
 
 from .mapproxy import QSAMapProxy
 from .utils import StorageBackend, config
-from .raster import RasterSymbologyRenderer
 from .vector import VectorSymbologyRenderer
+from .raster import RasterSymbologyRenderer, RasterOverview
 
 
 RENDERER_TAG_NAME = "renderer-v2"  # constant from core/symbology/renderer.h
@@ -305,7 +305,12 @@ class QSAProject:
             QSAMapProxy(self.name).remove()
 
     def add_layer(
-        self, datasource: str, layer_type: str, name: str, epsg_code: int
+        self,
+        datasource: str,
+        layer_type: str,
+        name: str,
+        epsg_code: int,
+        overview: bool,
     ) -> (bool, str):
         t = self._layer_type(layer_type)
         if t is None:
@@ -319,6 +324,12 @@ class QSAProject:
             lyr = QgsVectorLayer(datasource, name, provider)
         elif t == Qgis.LayerType.Raster:
             lyr = QgsRasterLayer(datasource, name, "gdal")
+
+            ovr = RasterOverview(lyr)
+            if overview and not ovr.is_valid():
+                rc, err = ovr.build()
+                if not rc:
+                    return False, err
         else:
             return False, "Invalid layer type"
 
@@ -353,14 +364,16 @@ class QSAProject:
         )
 
         if self._mapproxy_enabled:
-            epsg_code = int(lyr.crs().authid().split(':')[1])
+            epsg_code = int(lyr.crs().authid().split(":")[1])
 
             mp = QSAMapProxy(self.name)
             rc, err = mp.read()
             if not rc:
                 return False, err
 
-            rc, err = mp.add_layer(name, bbox, epsg_code, t == Qgis.LayerType.Raster)
+            rc, err = mp.add_layer(
+                name, bbox, epsg_code, t == Qgis.LayerType.Raster
+            )
             if not rc:
                 return False, err
 

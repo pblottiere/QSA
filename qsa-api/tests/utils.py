@@ -44,9 +44,9 @@ class TestClient:
             os.environ["QSA_QGISSERVER_URL"] = "http://qgisserver/ogc/"
             os.environ["QSA_QGISSERVER_PROJECTS_DIR"] = projects_dir
             if projects_psql_service:
-                os.environ[
-                    "QSA_QGISSERVER_PROJECTS_PSQL_SERVICE"
-                ] = projects_psql_service
+                os.environ["QSA_QGISSERVER_PROJECTS_PSQL_SERVICE"] = (
+                    projects_psql_service
+                )
             self.app.application.config["CONFIG"] = QSAConfig()
             self.app.application.config["DEBUG"] = True
 

@@ -31,10 +31,16 @@ class QSAMapProxy:
             with open(self._mapproxy_project, "r") as file:
                 self.cfg = yaml.safe_load(file)
         except yaml.scanner.ScannerError as e:
-            return False, f"Failed to load MapProxy configuration file {self._mapproxy_project}"
+            return (
+                False,
+                f"Failed to load MapProxy configuration file {self._mapproxy_project}",
+            )
 
         if self.cfg is None:
-            return False, f"Failed to load MapProxy configuration file {self._mapproxy_project}"
+            return (
+                False,
+                f"Failed to load MapProxy configuration file {self._mapproxy_project}",
+            )
 
         return True, ""
 
@@ -43,7 +49,9 @@ class QSAMapProxy:
         for d in cache_dir.glob(f"**/{layer_name}_cache_*"):
             shutil.rmtree(d)
 
-    def add_layer(self, name: str, bbox: list, srs: int, is_raster: bool) -> (bool, str):
+    def add_layer(
+        self, name: str, bbox: list, srs: int, is_raster: bool
+    ) -> (bool, str):
         if self.cfg is None:
             return False, "Invalid MapProxy configuration"
 
@@ -55,10 +63,7 @@ class QSAMapProxy:
         lyr = {"name": name, "title": name, "sources": [f"{name}_cache"]}
         self.cfg["layers"].append(lyr)
 
-        c = {
-            "grids": ["webmercator"],
-            "sources": [f"{name}_wms"]
-        }
+        c = {"grids": ["webmercator"], "sources": [f"{name}_wms"]}
         if is_raster:
             c["use_direct_from_level"] = 14
             c["meta_size"] = [1, 1]
