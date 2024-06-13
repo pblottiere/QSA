@@ -227,7 +227,7 @@ empty.</p>
 <tr><td>GET</td><td><code>/api/projects/{project}/layers/{layer}</code></td><td>List layer’s metadata</td></tr>
 <tr><td>GET</td><td><code>/api/projects/{project}/layers/{layer}/map</code></td><td>WMS <code>GetMap</code> result with default parameters</td></tr>
 <tr><td>GET</td><td><code>/api/projects/{project}/layers/{layer}/map/url</code></td><td>WMS <code>GetMap</code> URL with default parameters</td></tr>
-<tr><td>POST</td><td><code>/api/projects/{project}/layers</code></td><td>Add layer to project with <code>type</code> (<code>vector</code> or <code>raster</code>), <code>name</code>, <code>datasource</code> and <code>crs</code> (optional)</td></tr>
+<tr><td>POST</td><td><code>/api/projects/{project}/layers</code></td><td>Add layer to project with <code>type</code> (<code>vector</code> or <code>raster</code>), <code>name</code>, <code>datasource</code>, <code>overview</code> (build overview for rasters on S3) and <code>crs</code> (optional)</td></tr>
 <tr><td>POST</td><td><code>/api/projects/{project}/layers/{layer}/style</code></td><td>Add/Update layer’s style with <code>name</code> (style name) and <code>current</code> (<code>true</code> or <code>false</code>)</td></tr>
 <tr><td>DELETE</td><td><code>/api/projects/{project}/layers/{layer}</code></td><td>Remove layer from project</td></tr>
 </tbody></table>
