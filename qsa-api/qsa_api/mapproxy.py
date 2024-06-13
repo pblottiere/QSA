@@ -45,8 +45,8 @@ class QSAMapProxy:
         return True, ""
 
     def clear_cache(self, layer_name: str) -> None:
-        cache_dir = self._mapproxy_project.parent
-        for d in cache_dir.glob(f"**/{layer_name}_cache_*"):
+        cache_dir = self._mapproxy_project.parent / "cache_data"
+        for d in cache_dir.glob(f"{layer_name}_cache_*"):
             shutil.rmtree(d)
 
     def add_layer(
