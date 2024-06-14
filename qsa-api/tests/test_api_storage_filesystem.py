@@ -104,6 +104,7 @@ class APITestCaseFilesystem(unittest.TestCase):
     def test_raster_symbology_singlebandgray(self):
         p = self.app.get("/api/symbology/raster/singlebandgray/properties")
         j = p.get_json()
+        self.assertTrue("gray" in j)
         self.assertTrue("contrast_enhancement" in j)
 
     def test_raster_symbology_multibandcolor(self):

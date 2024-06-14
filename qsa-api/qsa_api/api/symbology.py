@@ -50,9 +50,7 @@ def symbology_vector_rendering():
 )
 def symbology_raster_singlebandgray():
     props = {}
-    props["gray_band"] = 1
-    props["min"] = 0.0
-    props["max"] = 1.0
+    props["gray"] = {"band": 1, "min": 0.0, "max": 1.0}
     props["contrast_enhancement"] = {
         "algorithm": "NoEnhancement (StretchToMinimumMaximum, NoEnhancement)",
         "limits_min_max": "MinMax (MinMax, UserDefined)",
