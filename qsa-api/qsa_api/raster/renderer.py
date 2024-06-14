@@ -188,11 +188,12 @@ class RasterSymbologyRenderer:
     def _singlebandgray_properties(renderer) -> dict:
         props = {}
 
-        props["gray_band"] = renderer.grayBand()
+        props["gray"] = {}
+        props["gray"]["band"] = renderer.grayBand()
 
         ce = renderer.contrastEnhancement()
-        props["min"] = ce.minimumValue()
-        props["max"] = ce.maximumValue()
+        props["gray"]["min"] = ce.minimumValue()
+        props["gray"]["max"] = ce.maximumValue()
 
         gradient = renderer.gradient()
         if gradient == QgsSingleBandGrayRenderer.Gradient.BlackToWhite:
@@ -319,16 +320,16 @@ class RasterSymbologyRenderer:
                     self.green_max = float(green["max"])
 
     def _load_singlebandgray_properties(self, properties: dict) -> None:
-        if "gray_band" in properties:
-            band = properties["gray_band"]
-            self.renderer.setGrayBand(int(band))
+        if "gray" in properties:
+            gray = properties["gray"]
+            self.renderer.setGrayBand(int(gray["band"]))
 
-        if self.contrast_limits == QgsRasterMinMaxOrigin.Limits.None_:
-            if "min" in properties:
-                self.gray_min = float(properties["min"])
+            if self.contrast_limits == QgsRasterMinMaxOrigin.Limits.None_:
+                if "min" in gray:
+                    self.gray_min = float(gray["min"])
 
-            if "max" in properties:
-                self.gray_max = float(properties["max"])
+                if "max" in gray:
+                    self.gray_max = float(gray["max"])
 
         if "color_gradient" in properties:
             gradient = properties["color_gradient"]
