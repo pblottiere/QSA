@@ -379,10 +379,12 @@ class QSAProject:
         # add layer in mapproxy config file
         if self._mapproxy_enabled:
             self.debug("Update MapProxy configuration file")
+            e = lyr.extent()
+            buffer = max(abs(e.xMaximum()), abs(e.yMaximum())) * 10 / 100
             bbox = list(
                 map(
                     float,
-                    lyr.extent()
+                    e.buffered(buffer)
                     .asWktCoordinates()
                     .replace(",", "")
                     .split(" "),
