@@ -379,12 +379,16 @@ class QSAProject:
         # add layer in mapproxy config file
         if self._mapproxy_enabled:
             self.debug("Update MapProxy configuration file")
-            e = lyr.extent()
-            buffer = max(abs(e.xMaximum()), abs(e.yMaximum())) * 10 / 100
+
+            extent = lyr.extent()
+            if t == Qgis.LayerType.Vector:
+                buffer = max(abs(extent.xMaximum()), abs(extent.yMaximum()))
+                extent = extent.buffered(buffer * 10 / 100)
+
             bbox = list(
                 map(
                     float,
-                    e.buffered(buffer)
+                    extent
                     .asWktCoordinates()
                     .replace(",", "")
                     .split(" "),
