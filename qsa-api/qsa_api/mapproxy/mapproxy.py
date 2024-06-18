@@ -4,7 +4,7 @@ import yaml
 import shutil
 from pathlib import Path
 
-from .utils import config, qgisserver_base_url
+from ..utils import config, qgisserver_base_url
 
 
 class QSAMapProxy:
