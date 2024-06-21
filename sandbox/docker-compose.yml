@@ -16,7 +16,6 @@ services:
       - QSA_PORT=9999
   qsa:
     image: pblottiere/qsa
-    entrypoint: "qsa"
     build:
       context: ..
       dockerfile: sandbox/Dockerfile
