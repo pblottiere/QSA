@@ -234,26 +234,26 @@ class RasterSymbologyRenderer:
         ):
             return
 
-        # compute min/max
+        # compute min/max with "Accuracy: estimate"
         min_max_origin = renderer.minMaxOrigin().limits()
         if min_max_origin == QgsRasterMinMaxOrigin.Limits.MinMax:
             red_band = renderer.redBand()
             red_stats = layer.dataProvider().bandStatistics(
-                red_band, QgsRasterBandStats.Min | QgsRasterBandStats.Max
+                red_band, QgsRasterBandStats.Min | QgsRasterBandStats.Max, layer.extent(), 250000
             )
             red_ce.setMinimumValue(red_stats.minimumValue)
             red_ce.setMaximumValue(red_stats.maximumValue)
 
             green_band = renderer.greenBand()
             green_stats = layer.dataProvider().bandStatistics(
-                green_band, QgsRasterBandStats.Min | QgsRasterBandStats.Max
+                green_band, QgsRasterBandStats.Min | QgsRasterBandStats.Max, layer.extent(), 250000
             )
             green_ce.setMinimumValue(green_stats.minimumValue)
             green_ce.setMaximumValue(green_stats.maximumValue)
 
             blue_band = renderer.blueBand()
             blue_stats = layer.dataProvider().bandStatistics(
-                blue_band, QgsRasterBandStats.Min | QgsRasterBandStats.Max
+                blue_band, QgsRasterBandStats.Min | QgsRasterBandStats.Max, layer.extent(), 250000
             )
             blue_ce.setMinimumValue(blue_stats.minimumValue)
             blue_ce.setMaximumValue(blue_stats.maximumValue)
@@ -276,8 +276,9 @@ class RasterSymbologyRenderer:
         # compute min/max
         min_max_origin = layer.renderer().minMaxOrigin().limits()
         if min_max_origin == QgsRasterMinMaxOrigin.Limits.MinMax:
+            # Accuracy : estimate
             stats = layer.dataProvider().bandStatistics(
-                1, QgsRasterBandStats.Min | QgsRasterBandStats.Max
+                1, QgsRasterBandStats.Min | QgsRasterBandStats.Max, layer.extent(), 250000
             )
 
             ce.setMinimumValue(stats.minimumValue)
