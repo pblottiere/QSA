@@ -10,6 +10,7 @@ from qgis.core import (
     QgsContrastEnhancement,
     QgsSingleBandGrayRenderer,
     QgsMultiBandColorRenderer,
+    QgsSingleBandPseudoColorRenderer,
 )
 
 ContrastEnhancementAlgorithm = (
@@ -20,6 +21,7 @@ ContrastEnhancementAlgorithm = (
 class RasterSymbologyRenderer:
     class Type(Enum):
         SINGLE_BAND_GRAY = QgsSingleBandGrayRenderer(None, 1).type()
+        SINGLE_BAND_PSEUDOCOLOR = QgsSingleBandPseudoColorRenderer(None, 1).type()
         MULTI_BAND_COLOR = QgsMultiBandColorRenderer(None, 1, 1, 1).type()
 
     def __init__(self, name: str) -> None:
@@ -40,6 +42,8 @@ class RasterSymbologyRenderer:
             self.renderer = QgsSingleBandGrayRenderer(None, 1)
         elif name == RasterSymbologyRenderer.Type.MULTI_BAND_COLOR.value:
             self.renderer = QgsMultiBandColorRenderer(None, 1, 1, 1)
+        elif name == RasterSymbologyRenderer.Type.SINGLE_BAND_PSEUDOCOLOR.value:
+            self.renderer = QgsSingleBandPseudoColorRenderer(None, 1)
 
     @property
     def type(self):
@@ -53,6 +57,11 @@ class RasterSymbologyRenderer:
             == RasterSymbologyRenderer.Type.MULTI_BAND_COLOR.value
         ):
             return RasterSymbologyRenderer.Type.MULTI_BAND_COLOR
+        elif (
+            self.renderer.type()
+            == RasterSymbologyRenderer.Type.SINGLE_BAND_PSEUDOCOLOR.value
+        ):
+            return RasterSymbologyRenderer.Type.SINGLE_BAND_PSEUDOCOLOR
 
         return None
 
@@ -67,6 +76,8 @@ class RasterSymbologyRenderer:
             self._load_multibandcolor_properties(properties)
         elif self.type == RasterSymbologyRenderer.Type.SINGLE_BAND_GRAY:
             self._load_singlebandgray_properties(properties)
+        elif self.type == RasterSymbologyRenderer.Type.SINGLE_BAND_PSEUDOCOLOR:
+            self._load_singlebandpseudocolor_properties(properties)
 
         return True, ""
 
@@ -85,6 +96,8 @@ class RasterSymbologyRenderer:
             self._refresh_min_max_singlebandgray(layer)
         elif self.type == RasterSymbologyRenderer.Type.MULTI_BAND_COLOR:
             self._refresh_min_max_multibandcolor(layer)
+        elif self.type == RasterSymbologyRenderer.Type.SINGLE_BAND_PSEUDOCOLOR:
+            self._refresh_min_max_singlebandpseudocolor(layer)
 
     @staticmethod
     def style_to_json(path: Path) -> (dict, str):
@@ -108,6 +121,10 @@ class RasterSymbologyRenderer:
             )
         elif renderer_type == RasterSymbologyRenderer.Type.MULTI_BAND_COLOR:
             props = RasterSymbologyRenderer._multibandcolor_properties(
+                renderer
+            )
+        elif renderer_type == RasterSymbologyRenderer.Type.SINGLE_BAND_PSEUDOCOLOR:
+            props = RasterSymbologyRenderer._singlebandpseudocolor_properties(
                 renderer
             )
 
@@ -220,6 +237,10 @@ class RasterSymbologyRenderer:
 
         return props
 
+    @staticmethod
+    def _singlebandpseudocolor_properties(renderer) -> dict:
+        return {}
+
     def _refresh_min_max_multibandcolor(self, layer: QgsRasterLayer) -> None:
         renderer = layer.renderer()
         red_ce = QgsContrastEnhancement(renderer.redContrastEnhancement())
@@ -285,6 +306,9 @@ class RasterSymbologyRenderer:
             ce.setMaximumValue(stats.maximumValue)
 
         layer.renderer().setContrastEnhancement(ce)
+
+    def _refresh_min_max_singlebandpseudocolor(self, layer: QgsRasterLayer) -> None:
+        pass
 
     def _load_multibandcolor_properties(self, properties: dict) -> None:
         if "red" in properties:

@@ -96,6 +96,7 @@ corresponding parameters depending on QGIS Server version.
 | GET     | `/api/symbology/vector/rendering/properties` | Vector layer rendering properties                             |
 | GET     | `/api/symbology/raster/singlebandgray/properties`             | Single band gray properties                  |
 | GET     | `/api/symbology/raster/multibandcolor/properties`             | Multi band color properties                  |
+| GET     | `/api/symbology/raster/singlebandpseudocolor/properties`             | Single band pseudocolor properties                  |
 | GET     | `/api/symbology/raster/rendering/properties`                  | Raster layer rendering properties            |
 
 Examples:

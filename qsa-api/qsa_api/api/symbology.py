@@ -3,11 +3,13 @@
 from flask import Blueprint, jsonify
 
 from qgis.core import (
+    QgsStyle,
     QgsSimpleLineSymbolLayer,
     QgsSimpleFillSymbolLayer,
     QgsSingleBandGrayRenderer,
     QgsMultiBandColorRenderer,
     QgsSimpleMarkerSymbolLayer,
+    QgsSingleBandPseudoColorRenderer,
 )
 
 
@@ -72,6 +74,26 @@ def symbology_raster_multibandcolor():
         "limits_min_max": "MinMax (MinMax, UserDefined)",
     }
     return jsonify(props)
+
+
+@symbology.get(
+    f"/raster/{QgsSingleBandPseudoColorRenderer(None, 1).type()}/properties"
+)
+def symbology_raster_singlebandpseudocolor():
+    ramps = ", ".join(QgsStyle().defaultStyle().colorRampNames())
+
+    props = {}
+    props["band"] = {"band": 1, "min": 0.0, "max": 1.0}
+    props["ramp"] = {
+            "name" : f"Spectral ({ramps})",
+            "interpolation": "Linear (Linear, Discrete, Exact)"
+    }
+    props["contrast_enhancement"] = {
+        "algorithm": "NoEnhancement (StretchToMinimumMaximum, NoEnhancement)",
+        "limits_min_max": "MinMax (MinMax, UserDefined)",
+    }
+    return jsonify(props)
+
 
 
 @symbology.get("/raster/rendering/properties")
