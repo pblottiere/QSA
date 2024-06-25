@@ -3,11 +3,13 @@
 from flask import Blueprint, jsonify
 
 from qgis.core import (
+    QgsStyle,
     QgsSimpleLineSymbolLayer,
     QgsSimpleFillSymbolLayer,
     QgsSingleBandGrayRenderer,
     QgsMultiBandColorRenderer,
     QgsSimpleMarkerSymbolLayer,
+    QgsSingleBandPseudoColorRenderer,
 )
 
 
@@ -71,6 +73,44 @@ def symbology_raster_multibandcolor():
         "algorithm": "NoEnhancement (StretchToMinimumMaximum, NoEnhancement)",
         "limits_min_max": "MinMax (MinMax, UserDefined)",
     }
+    return jsonify(props)
+
+
+@symbology.get(
+    f"/raster/{QgsSingleBandPseudoColorRenderer(None, 1).type()}/properties"
+)
+def symbology_raster_singlebandpseudocolor():
+    ramps = ", ".join(QgsStyle().defaultStyle().colorRampNames())
+
+    props = {}
+    props["band"] = {"band": 1, "min": 0.0, "max": 1.0}
+    props["ramp"] = {
+            "name" : f"Spectral ({ramps})",
+            "color1": "0,0,0,255",
+            "color2": "255,255,255,255",
+            "interpolation": "Linear (Linear, Discrete, Exact)"
+    }
+    props["contrast_enhancement"] = {
+        "limits_min_max": "MinMax (MinMax, UserDefined)",
+    }
+    return jsonify(props)
+
+
+@symbology.get(
+    f"/raster/{QgsSingleBandPseudoColorRenderer(None, 1).type()}/ramp/<name>/properties"
+)
+def symbology_raster_singlebandpseudocolor_ramp_props(name):
+    proper_name = ""
+    for n in QgsStyle().defaultStyle().colorRampNames():
+        if n.lower() == name:
+            proper_name = n
+
+    props = {}
+    ramp = QgsStyle().defaultStyle().colorRamp(proper_name)
+    if ramp:
+        props["color1"] = ramp.properties()["color1"].split("rgb")[0]
+        props["color2"] = ramp.properties()["color2"].split("rgb")[0]
+
     return jsonify(props)
 
 

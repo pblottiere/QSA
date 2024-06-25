@@ -4,12 +4,17 @@ from enum import Enum
 from pathlib import Path
 
 from qgis.core import (
+    QgsStyle,
     QgsRasterLayer,
+    QgsRasterShader,
+    QgsColorRampShader,
     QgsRasterBandStats,
+    QgsGradientColorRamp,
     QgsRasterMinMaxOrigin,
     QgsContrastEnhancement,
     QgsSingleBandGrayRenderer,
     QgsMultiBandColorRenderer,
+    QgsSingleBandPseudoColorRenderer,
 )
 
 ContrastEnhancementAlgorithm = (
@@ -20,6 +25,7 @@ ContrastEnhancementAlgorithm = (
 class RasterSymbologyRenderer:
     class Type(Enum):
         SINGLE_BAND_GRAY = QgsSingleBandGrayRenderer(None, 1).type()
+        SINGLE_BAND_PSEUDOCOLOR = QgsSingleBandPseudoColorRenderer(None, 1).type()
         MULTI_BAND_COLOR = QgsMultiBandColorRenderer(None, 1, 1, 1).type()
 
     def __init__(self, name: str) -> None:
@@ -40,6 +46,8 @@ class RasterSymbologyRenderer:
             self.renderer = QgsSingleBandGrayRenderer(None, 1)
         elif name == RasterSymbologyRenderer.Type.MULTI_BAND_COLOR.value:
             self.renderer = QgsMultiBandColorRenderer(None, 1, 1, 1)
+        elif name == RasterSymbologyRenderer.Type.SINGLE_BAND_PSEUDOCOLOR.value:
+            self.renderer = QgsSingleBandPseudoColorRenderer(None, 1)
 
     @property
     def type(self):
@@ -53,6 +61,11 @@ class RasterSymbologyRenderer:
             == RasterSymbologyRenderer.Type.MULTI_BAND_COLOR.value
         ):
             return RasterSymbologyRenderer.Type.MULTI_BAND_COLOR
+        elif (
+            self.renderer.type()
+            == RasterSymbologyRenderer.Type.SINGLE_BAND_PSEUDOCOLOR.value
+        ):
+            return RasterSymbologyRenderer.Type.SINGLE_BAND_PSEUDOCOLOR
 
         return None
 
@@ -67,6 +80,8 @@ class RasterSymbologyRenderer:
             self._load_multibandcolor_properties(properties)
         elif self.type == RasterSymbologyRenderer.Type.SINGLE_BAND_GRAY:
             self._load_singlebandgray_properties(properties)
+        elif self.type == RasterSymbologyRenderer.Type.SINGLE_BAND_PSEUDOCOLOR:
+            self._load_singlebandpseudocolor_properties(properties)
 
         return True, ""
 
@@ -85,6 +100,8 @@ class RasterSymbologyRenderer:
             self._refresh_min_max_singlebandgray(layer)
         elif self.type == RasterSymbologyRenderer.Type.MULTI_BAND_COLOR:
             self._refresh_min_max_multibandcolor(layer)
+        elif self.type == RasterSymbologyRenderer.Type.SINGLE_BAND_PSEUDOCOLOR:
+            self._refresh_min_max_singlebandpseudocolor(layer)
 
     @staticmethod
     def style_to_json(path: Path) -> (dict, str):
@@ -108,6 +125,10 @@ class RasterSymbologyRenderer:
             )
         elif renderer_type == RasterSymbologyRenderer.Type.MULTI_BAND_COLOR:
             props = RasterSymbologyRenderer._multibandcolor_properties(
+                renderer
+            )
+        elif renderer_type == RasterSymbologyRenderer.Type.SINGLE_BAND_PSEUDOCOLOR:
+            props = RasterSymbologyRenderer._singlebandpseudocolor_properties(
                 renderer
             )
 
@@ -220,6 +241,40 @@ class RasterSymbologyRenderer:
 
         return props
 
+    @staticmethod
+    def _singlebandpseudocolor_properties(renderer) -> dict:
+        props = {}
+
+        props["band"] = {}
+        props["band"]["band"] = renderer.band()
+
+        props["band"]["min"] = renderer.classificationMin()
+        props["band"]["max"] = renderer.classificationMax()
+
+        props["ramp"] = {}
+        shader_fct = renderer.shader().rasterShaderFunction()
+        color_1 = shader_fct.sourceColorRamp().properties()["color1"].split("rgb")[0]
+        color_2 = shader_fct.sourceColorRamp().properties()["color2"].split("rgb")[0]
+        props["ramp"]["color1"] = color_1
+        props["ramp"]["color2"] = color_2
+
+        ramp_type = shader_fct.colorRampType()
+        if ramp_type == QgsColorRampShader.Discrete:
+            props["ramp"]["interpolation"] = "Discrete"
+        elif ramp_type == QgsColorRampShader.Exact:
+            props["ramp"]["interpolation"] = "Exact"
+        elif ramp_type == QgsColorRampShader.Interpolated:
+            props["ramp"]["interpolation"] = "Interpolated"
+
+        props["contrast_enhancement"] = {}
+
+        limits = renderer.minMaxOrigin().limits()
+        props["contrast_enhancement"]["limits_min_max"] = "UserDefined"
+        if limits == QgsRasterMinMaxOrigin.Limits.MinMax:
+            props["contrast_enhancement"]["limits_min_max"] = "MinMax"
+
+        return props
+
     def _refresh_min_max_multibandcolor(self, layer: QgsRasterLayer) -> None:
         renderer = layer.renderer()
         red_ce = QgsContrastEnhancement(renderer.redContrastEnhancement())
@@ -286,6 +341,19 @@ class RasterSymbologyRenderer:
 
         layer.renderer().setContrastEnhancement(ce)
 
+    def _refresh_min_max_singlebandpseudocolor(self, layer: QgsRasterLayer) -> None:
+        # compute min/max
+        min_max_origin = layer.renderer().minMaxOrigin().limits()
+        if min_max_origin == QgsRasterMinMaxOrigin.Limits.MinMax:
+            # Accuracy : estimate
+            stats = layer.dataProvider().bandStatistics(
+                1, QgsRasterBandStats.Min | QgsRasterBandStats.Max, layer.extent(), 250000
+            )
+
+            layer.renderer().setClassificationMin(stats.minimumValue)
+            layer.renderer().setClassificationMax(stats.maximumValue)
+            layer.renderer().shader().rasterShaderFunction().classifyColorRamp()
+
     def _load_multibandcolor_properties(self, properties: dict) -> None:
         if "red" in properties:
             red = properties["red"]
@@ -343,19 +411,71 @@ class RasterSymbologyRenderer:
                     QgsSingleBandGrayRenderer.Gradient.WhiteToBlack
                 )
 
-    def _load_contrast_enhancement(self, properties: dict) -> None:
-        alg = properties["algorithm"]
-        if alg == "StretchToMinimumMaximum":
-            self.contrast_algorithm = (
-                ContrastEnhancementAlgorithm.StretchToMinimumMaximum
-            )
-        elif alg == "NoEnhancement":
-            self.contrast_algorithm = (
-                ContrastEnhancementAlgorithm.NoEnhancement
-            )
+    def _load_singlebandpseudocolor_properties(self, properties: dict) -> None:
+        # always stretch to min/max in case of the singlepseudocolor renderer
+        self.contrast_algorithm = (
+            ContrastEnhancementAlgorithm.StretchToMinimumMaximum
+        )
 
-        limits = properties["limits_min_max"]
-        if limits == "UserDefined":
-            self.contrast_limits = QgsRasterMinMaxOrigin.Limits.None_
-        elif limits == "MinMax":
-            self.contrast_limits = QgsRasterMinMaxOrigin.Limits.MinMax
+        band_min = None
+        band_max = None
+        if "band" in properties:
+            band = properties["band"]
+            self.renderer.setBand(int(band["band"]))
+
+            if self.contrast_limits == QgsRasterMinMaxOrigin.Limits.None_:
+                if "min" in band:
+                    band_min = float(band["min"])
+
+                if "max" in band:
+                    band_max = float(band["max"])
+
+        if "ramp" in properties:
+            ramp = properties["ramp"]
+            shader_type = QgsColorRampShader.Type.Interpolated
+            if "interpolation" in ramp:
+                interpolation = ramp["interpolation"]
+                if interpolation == "Discrete":
+                    shader_type = QgsColorRampShader.Type.Discrete
+                elif interpolation == "Exact":
+                    shader_type = QgsColorRampShader.Type.Exact
+
+            color_ramp = QgsStyle().defaultStyle().colorRamp("Spectral")
+            if "name" in ramp:
+                color_ramp = QgsStyle().defaultStyle().colorRamp(ramp["name"])
+            elif "color1" in ramp and "color2" in ramp:
+                color_ramp = QgsGradientColorRamp.create(ramp)
+
+            ramp_shader = QgsColorRampShader()
+            ramp_shader.setSourceColorRamp(color_ramp)
+            ramp_shader.setColorRampType(shader_type)
+
+            shader = QgsRasterShader()
+            shader.setRasterShaderFunction(ramp_shader)
+            self.renderer.setShader(shader)
+
+            if band_min is not None:
+                self.renderer.setClassificationMin(band_min)
+            if band_max is not None:
+                self.renderer.setClassificationMax(band_max)
+
+            self.renderer.shader().rasterShaderFunction().classifyColorRamp()
+
+    def _load_contrast_enhancement(self, properties: dict) -> None:
+        if "algorithm" in properties:
+            alg = properties["algorithm"]
+            if alg == "StretchToMinimumMaximum":
+                self.contrast_algorithm = (
+                    ContrastEnhancementAlgorithm.StretchToMinimumMaximum
+                )
+            elif alg == "NoEnhancement":
+                self.contrast_algorithm = (
+                    ContrastEnhancementAlgorithm.NoEnhancement
+                )
+
+        if "limits_min_max" in properties:
+            limits = properties["limits_min_max"]
+            if limits == "UserDefined":
+                self.contrast_limits = QgsRasterMinMaxOrigin.Limits.None_
+            elif limits == "MinMax":
+                self.contrast_limits = QgsRasterMinMaxOrigin.Limits.MinMax
