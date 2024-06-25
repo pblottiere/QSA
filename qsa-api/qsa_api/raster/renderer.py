@@ -352,6 +352,7 @@ class RasterSymbologyRenderer:
 
             layer.renderer().setClassificationMin(stats.minimumValue)
             layer.renderer().setClassificationMax(stats.maximumValue)
+            layer.renderer().shader().rasterShaderFunction().classifyColorRamp()
 
     def _load_multibandcolor_properties(self, properties: dict) -> None:
         if "red" in properties:
@@ -457,6 +458,8 @@ class RasterSymbologyRenderer:
                 self.renderer.setClassificationMin(band_min)
             if band_max is not None:
                 self.renderer.setClassificationMax(band_max)
+
+            self.renderer.shader().rasterShaderFunction().classifyColorRamp()
 
     def _load_contrast_enhancement(self, properties: dict) -> None:
         if "algorithm" in properties:
