@@ -6,6 +6,8 @@ from jsonschema import validate
 from jsonschema.exceptions import ValidationError
 from flask import send_file, Blueprint, jsonify, request
 
+from qgis.PyQt.QtCore import QDateTime
+
 from ..wms import WMS
 from ..project import QSAProject
 
@@ -271,6 +273,7 @@ def project_add_layer(name):
             "crs": {"type": "number"},
             "type": {"type": "string"},
             "overview": {"type": "boolean"},
+            "datetime": {"type": "string"},
         },
     }
 
@@ -292,8 +295,15 @@ def project_add_layer(name):
         if "overview" in data:
             overview = data["overview"]
 
+        datetime = None
+        if "datetime" in data:
+            # check format "yyyy-MM-dd HH:mm:ss"
+            datetime = QDateTime.fromString(data["datetime"], "yyyy-MM-dd HH:mm:ss")
+            if not datetime.isValid():
+                return {"error": "Invalid datetime"}, 415
+
         rc, err = project.add_layer(
-            data["datasource"], data["type"], data["name"], crs, overview
+            data["datasource"], data["type"], data["name"], crs, overview, datetime
         )
         if rc:
             return jsonify(rc), 201

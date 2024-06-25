@@ -5,7 +5,7 @@ import shutil
 import sqlite3
 from pathlib import Path
 
-from qgis.PyQt.QtCore import Qt
+from qgis.PyQt.QtCore import Qt, QDateTime
 from qgis.core import (
     Qgis,
     QgsSymbol,
@@ -18,12 +18,14 @@ from qgis.core import (
     QgsVectorLayer,
     QgsRasterLayer,
     QgsMarkerSymbol,
+    QgsDateTimeRange,
     QgsRasterMinMaxOrigin,
     QgsContrastEnhancement,
     QgsSingleSymbolRenderer,
     QgsSimpleFillSymbolLayer,
     QgsSimpleLineSymbolLayer,
     QgsSimpleMarkerSymbolLayer,
+    QgsRasterLayerTemporalProperties,
 )
 
 from .mapproxy import QSAMapProxy
@@ -321,6 +323,7 @@ class QSAProject:
         name: str,
         epsg_code: int,
         overview: bool,
+        datetime: QDateTime
     ) -> (bool, str):
         t = self._layer_type(layer_type)
         if t is None:
@@ -349,6 +352,15 @@ class QSAProject:
                         return False, err
                 else:
                     self.debug("Overviews already exist")
+
+            if datetime:
+                self.debug("Activate temporal properties")
+                mode = QgsRasterLayerTemporalProperties.ModeFixedTemporalRange
+                props = lyr.temporalProperties()
+                props.setMode(mode)
+                dt_range = QgsDateTimeRange(datetime, datetime)
+                props.setFixedTemporalRange(dt_range)
+                props.setIsActive(True)
         else:
             return False, "Invalid layer type"
 
