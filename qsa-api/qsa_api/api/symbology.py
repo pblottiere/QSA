@@ -89,11 +89,27 @@ def symbology_raster_singlebandpseudocolor():
             "interpolation": "Linear (Linear, Discrete, Exact)"
     }
     props["contrast_enhancement"] = {
-        "algorithm": "NoEnhancement (StretchToMinimumMaximum, NoEnhancement)",
         "limits_min_max": "MinMax (MinMax, UserDefined)",
     }
     return jsonify(props)
 
+
+@symbology.get(
+    f"/raster/{QgsSingleBandPseudoColorRenderer(None, 1).type()}/ramp/<name>/properties"
+)
+def symbology_raster_singlebandpseudocolor_ramp_props(name):
+    proper_name = ""
+    for n in QgsStyle().defaultStyle().colorRampNames():
+        if n.lower() == name:
+            proper_name = n
+
+    props = {}
+    ramp = QgsStyle().defaultStyle().colorRamp(proper_name)
+    if ramp:
+        props["color1"] = ramp.properties()["color1"].split("rgb")[0]
+        props["color2"] = ramp.properties()["color2"].split("rgb")[0]
+
+    return jsonify(props)
 
 
 @symbology.get("/raster/rendering/properties")
