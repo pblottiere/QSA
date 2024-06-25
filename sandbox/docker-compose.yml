@@ -16,7 +16,6 @@ services:
       - QSA_PORT=9999
   qsa:
     image: pblottiere/qsa
-    entrypoint: "qsa"
     build:
       context: ..
       dockerfile: sandbox/Dockerfile
@@ -28,6 +27,7 @@ services:
     ports:
       - 5000:5000
     environment:
+      - QSA_LOGLEVEL=DEBUG
       - QSA_QGISSERVER_URL=http://qgisserver/ogc/
       - QSA_QGISSERVER_PROJECTS_DIR=/projects
       - QSA_QGISSERVER_PROJECTS_PSQL_SERVICE=qsa
