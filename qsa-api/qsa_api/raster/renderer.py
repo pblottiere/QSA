@@ -4,7 +4,10 @@ from enum import Enum
 from pathlib import Path
 
 from qgis.core import (
+    QgsStyle,
     QgsRasterLayer,
+    QgsRasterShader,
+    QgsColorRampShader,
     QgsRasterBandStats,
     QgsRasterMinMaxOrigin,
     QgsContrastEnhancement,
@@ -366,6 +369,41 @@ class RasterSymbologyRenderer:
                 self.renderer.setGradient(
                     QgsSingleBandGrayRenderer.Gradient.WhiteToBlack
                 )
+
+    def _load_singlebandpseudocolor_properties(self, properties: dict) -> None:
+        if "band" in properties:
+            band = properties["band"]
+            self.renderer.setBand(int(band["band"]))
+
+            if self.contrast_limits == QgsRasterMinMaxOrigin.Limits.None_:
+                if "min" in band:
+                    self.band_min = float(band["min"])
+
+                if "max" in band:
+                    self.band_max = float(band["max"])
+
+        if "ramp" in properties:
+            ramp = properties["ramp"]
+            shader_type = QgsColorRampShader.Type.Interpolated
+            if "interpolation" in ramp:
+                interpolation = ramp["interpolation"]
+                if interpolation == "Discrete":
+                    shader_type = QgsColorRampShader.Type.Discrete
+                elif interpolation == "Exact":
+                    shader_type = QgsColorRampShader.Type.Exact
+
+            color_ramp = QgsStyle().defaultStyle().colorRamp("Spectral")
+            if "name" in ramp:
+                color_ramp = QgsStyle().defaultStyle().colorRamp(ramp["name"])
+
+            ramp_shader = QgsColorRampShader()
+            ramp_shader.setSourceColorRamp(color_ramp)
+            ramp_shader.setColorRampType(shader_type)
+
+            shader = QgsRasterShader()
+            shader.setRasterShaderFunction(ramp_shader)
+
+            self.renderer.setShader(shader)
 
     def _load_contrast_enhancement(self, properties: dict) -> None:
         alg = properties["algorithm"]
