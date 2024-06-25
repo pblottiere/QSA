@@ -88,16 +88,17 @@ in QGIS is very dense but for now, only Marker, Line and Fill simple symbols
 are supported. The `/api/symbology` endpoint allows to dynamically retrieve the
 corresponding parameters depending on QGIS Server version.
 
-| Method  |                      URL                                      |         Description                          |
-|---------|---------------------------------------------------------------|----------------------------------------------|
-| GET     | `/api/symbology/vector/point/single_symbol/marker/properties` | Marker simple symbol properties              |
-| GET     | `/api/symbology/vector/line/single_symbol/line/properties`    | Line simple symbol properties                |
-| GET     | `/api/symbology/vector/polygon/single_symbol/fill/properties` | Polygon simple symbol properties             |
-| GET     | `/api/symbology/vector/rendering/properties` | Vector layer rendering properties                             |
-| GET     | `/api/symbology/raster/singlebandgray/properties`             | Single band gray properties                  |
-| GET     | `/api/symbology/raster/multibandcolor/properties`             | Multi band color properties                  |
-| GET     | `/api/symbology/raster/singlebandpseudocolor/properties`             | Single band pseudocolor properties                  |
-| GET     | `/api/symbology/raster/rendering/properties`                  | Raster layer rendering properties            |
+| Method  |                      URL                                                  |         Description                          |
+|---------|---------------------------------------------------------------------------|----------------------------------------------|
+| GET     | `/api/symbology/vector/point/single_symbol/marker/properties`             | Marker simple symbol properties              |
+| GET     | `/api/symbology/vector/line/single_symbol/line/properties`                | Line simple symbol properties                |
+| GET     | `/api/symbology/vector/polygon/single_symbol/fill/properties`             | Polygon simple symbol properties             |
+| GET     | `/api/symbology/vector/rendering/properties`                              | Vector layer rendering properties            |
+| GET     | `/api/symbology/raster/singlebandgray/properties`                         | Single band gray properties                  |
+| GET     | `/api/symbology/raster/multibandcolor/properties`                         | Multi band color properties                  |
+| GET     | `/api/symbology/raster/singlebandpseudocolor/properties`                  | Single band pseudocolor properties           |
+| GET     | `/api/symbology/raster/singlebandpseudocolor/ramp/{name}/properties`      | Single band pseudocolor ramp properties      |
+| GET     | `/api/symbology/raster/rendering/properties`                              | Raster layer rendering properties            |
 
 Examples:
 

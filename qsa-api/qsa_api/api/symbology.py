@@ -86,6 +86,8 @@ def symbology_raster_singlebandpseudocolor():
     props["band"] = {"band": 1, "min": 0.0, "max": 1.0}
     props["ramp"] = {
             "name" : f"Spectral ({ramps})",
+            "color1": "0,0,0,255",
+            "color2": "255,255,255,255",
             "interpolation": "Linear (Linear, Discrete, Exact)"
     }
     props["contrast_enhancement"] = {
