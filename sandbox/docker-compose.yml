@@ -1,7 +1,7 @@
 version: '2'
 services:
   qgisserver:
-    image: opengisch/qgis-server:3.30-jammy
+    image: qgis/qgis-server:3.38
     volumes:
       - ./dem.tif:/dem.tif
       - ./data.gpkg:/data.gpkg
