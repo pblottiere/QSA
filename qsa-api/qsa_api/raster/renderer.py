@@ -266,8 +266,12 @@ class RasterSymbologyRenderer:
         color_2 = (
             shader_fct.sourceColorRamp().properties()["color2"].split("rgb")[0]
         )
+        stops = (
+            shader_fct.sourceColorRamp().properties()["stops"]
+        )
         props["ramp"]["color1"] = color_1
         props["ramp"]["color2"] = color_2
+        props["ramp"]["stops"] = stops
 
         ramp_type = shader_fct.colorRampType()
         if ramp_type == QgsColorRampShader.Discrete:
