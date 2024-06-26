@@ -298,12 +298,19 @@ def project_add_layer(name):
         datetime = None
         if "datetime" in data:
             # check format "yyyy-MM-dd HH:mm:ss"
-            datetime = QDateTime.fromString(data["datetime"], "yyyy-MM-dd HH:mm:ss")
+            datetime = QDateTime.fromString(
+                data["datetime"], "yyyy-MM-dd HH:mm:ss"
+            )
             if not datetime.isValid():
                 return {"error": "Invalid datetime"}, 415
 
         rc, err = project.add_layer(
-            data["datasource"], data["type"], data["name"], crs, overview, datetime
+            data["datasource"],
+            data["type"],
+            data["name"],
+            crs,
+            overview,
+            datetime,
         )
         if rc:
             return jsonify(rc), 201

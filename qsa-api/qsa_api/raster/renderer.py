@@ -25,7 +25,9 @@ ContrastEnhancementAlgorithm = (
 class RasterSymbologyRenderer:
     class Type(Enum):
         SINGLE_BAND_GRAY = QgsSingleBandGrayRenderer(None, 1).type()
-        SINGLE_BAND_PSEUDOCOLOR = QgsSingleBandPseudoColorRenderer(None, 1).type()
+        SINGLE_BAND_PSEUDOCOLOR = QgsSingleBandPseudoColorRenderer(
+            None, 1
+        ).type()
         MULTI_BAND_COLOR = QgsMultiBandColorRenderer(None, 1, 1, 1).type()
 
     def __init__(self, name: str) -> None:
@@ -46,7 +48,9 @@ class RasterSymbologyRenderer:
             self.renderer = QgsSingleBandGrayRenderer(None, 1)
         elif name == RasterSymbologyRenderer.Type.MULTI_BAND_COLOR.value:
             self.renderer = QgsMultiBandColorRenderer(None, 1, 1, 1)
-        elif name == RasterSymbologyRenderer.Type.SINGLE_BAND_PSEUDOCOLOR.value:
+        elif (
+            name == RasterSymbologyRenderer.Type.SINGLE_BAND_PSEUDOCOLOR.value
+        ):
             self.renderer = QgsSingleBandPseudoColorRenderer(None, 1)
 
     @property
@@ -127,7 +131,10 @@ class RasterSymbologyRenderer:
             props = RasterSymbologyRenderer._multibandcolor_properties(
                 renderer
             )
-        elif renderer_type == RasterSymbologyRenderer.Type.SINGLE_BAND_PSEUDOCOLOR:
+        elif (
+            renderer_type
+            == RasterSymbologyRenderer.Type.SINGLE_BAND_PSEUDOCOLOR
+        ):
             props = RasterSymbologyRenderer._singlebandpseudocolor_properties(
                 renderer
             )
@@ -253,8 +260,12 @@ class RasterSymbologyRenderer:
 
         props["ramp"] = {}
         shader_fct = renderer.shader().rasterShaderFunction()
-        color_1 = shader_fct.sourceColorRamp().properties()["color1"].split("rgb")[0]
-        color_2 = shader_fct.sourceColorRamp().properties()["color2"].split("rgb")[0]
+        color_1 = (
+            shader_fct.sourceColorRamp().properties()["color1"].split("rgb")[0]
+        )
+        color_2 = (
+            shader_fct.sourceColorRamp().properties()["color2"].split("rgb")[0]
+        )
         props["ramp"]["color1"] = color_1
         props["ramp"]["color2"] = color_2
 
@@ -294,21 +305,30 @@ class RasterSymbologyRenderer:
         if min_max_origin == QgsRasterMinMaxOrigin.Limits.MinMax:
             red_band = renderer.redBand()
             red_stats = layer.dataProvider().bandStatistics(
-                red_band, QgsRasterBandStats.Min | QgsRasterBandStats.Max, layer.extent(), 250000
+                red_band,
+                QgsRasterBandStats.Min | QgsRasterBandStats.Max,
+                layer.extent(),
+                250000,
             )
             red_ce.setMinimumValue(red_stats.minimumValue)
             red_ce.setMaximumValue(red_stats.maximumValue)
 
             green_band = renderer.greenBand()
             green_stats = layer.dataProvider().bandStatistics(
-                green_band, QgsRasterBandStats.Min | QgsRasterBandStats.Max, layer.extent(), 250000
+                green_band,
+                QgsRasterBandStats.Min | QgsRasterBandStats.Max,
+                layer.extent(),
+                250000,
             )
             green_ce.setMinimumValue(green_stats.minimumValue)
             green_ce.setMaximumValue(green_stats.maximumValue)
 
             blue_band = renderer.blueBand()
             blue_stats = layer.dataProvider().bandStatistics(
-                blue_band, QgsRasterBandStats.Min | QgsRasterBandStats.Max, layer.extent(), 250000
+                blue_band,
+                QgsRasterBandStats.Min | QgsRasterBandStats.Max,
+                layer.extent(),
+                250000,
             )
             blue_ce.setMinimumValue(blue_stats.minimumValue)
             blue_ce.setMaximumValue(blue_stats.maximumValue)
@@ -333,7 +353,10 @@ class RasterSymbologyRenderer:
         if min_max_origin == QgsRasterMinMaxOrigin.Limits.MinMax:
             # Accuracy : estimate
             stats = layer.dataProvider().bandStatistics(
-                1, QgsRasterBandStats.Min | QgsRasterBandStats.Max, layer.extent(), 250000
+                1,
+                QgsRasterBandStats.Min | QgsRasterBandStats.Max,
+                layer.extent(),
+                250000,
             )
 
             ce.setMinimumValue(stats.minimumValue)
@@ -341,13 +364,18 @@ class RasterSymbologyRenderer:
 
         layer.renderer().setContrastEnhancement(ce)
 
-    def _refresh_min_max_singlebandpseudocolor(self, layer: QgsRasterLayer) -> None:
+    def _refresh_min_max_singlebandpseudocolor(
+        self, layer: QgsRasterLayer
+    ) -> None:
         # compute min/max
         min_max_origin = layer.renderer().minMaxOrigin().limits()
         if min_max_origin == QgsRasterMinMaxOrigin.Limits.MinMax:
             # Accuracy : estimate
             stats = layer.dataProvider().bandStatistics(
-                1, QgsRasterBandStats.Min | QgsRasterBandStats.Max, layer.extent(), 250000
+                1,
+                QgsRasterBandStats.Min | QgsRasterBandStats.Max,
+                layer.extent(),
+                250000,
             )
 
             layer.renderer().setClassificationMin(stats.minimumValue)

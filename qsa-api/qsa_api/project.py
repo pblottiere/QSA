@@ -323,7 +323,7 @@ class QSAProject:
         name: str,
         epsg_code: int,
         overview: bool,
-        datetime: QDateTime | None
+        datetime: QDateTime | None,
     ) -> (bool, str):
         t = self._layer_type(layer_type)
         if t is None:
