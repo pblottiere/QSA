@@ -83,6 +83,9 @@ class QSAMapProxy:
             },
             "coverage": {"bbox": bbox, "srs": f"EPSG:{srs}"},
         }
+        if datetime and is_raster:
+            s["forward_req_params"] = ['TIME']
+
         self.cfg["sources"][f"{name}_wms"] = s
 
         return True, ""
