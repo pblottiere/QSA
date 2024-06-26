@@ -4,7 +4,7 @@ import yaml
 import shutil
 from pathlib import Path
 
-from qgis.PyQt.QtCore import QDateTime
+from qgis.PyQt.QtCore import Qt, QDateTime
 
 from ..utils import config, qgisserver_base_url
 
@@ -64,9 +64,8 @@ class QSAMapProxy:
 
         lyr = {"name": name, "title": name, "sources": [f"{name}_cache"]}
         if datetime and is_raster:
-            fmt = "yyyy-MM-ddTHH:mm:ss"
             lyr["dimensions"] = {}
-            lyr["dimensions"]["time"] = {"values": [datetime.toString(fmt)]}
+            lyr["dimensions"]["time"] = {"values": [datetime.toString(Qt.ISODate)]}
 
         self.cfg["layers"].append(lyr)
 
