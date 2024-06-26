@@ -4,6 +4,8 @@ import yaml
 import shutil
 from pathlib import Path
 
+from qgis.PyQt.QtCore import QDateTime
+
 from ..utils import config, qgisserver_base_url
 
 
