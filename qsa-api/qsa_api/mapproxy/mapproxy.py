@@ -50,7 +50,7 @@ class QSAMapProxy:
             shutil.rmtree(d)
 
     def add_layer(
-        self, name: str, bbox: list, srs: int, is_raster: bool
+        self, name: str, bbox: list, srs: int, is_raster: bool, datetime: QDateTime | None
     ) -> (bool, str):
         if self.cfg is None:
             return False, "Invalid MapProxy configuration"
@@ -61,6 +61,10 @@ class QSAMapProxy:
             self.cfg["sources"] = {}
 
         lyr = {"name": name, "title": name, "sources": [f"{name}_cache"]}
+        if datetime and is_raster:
+            lyr["dimensions"] = {}
+            lyr["dimensions"]["time"] = {"values": [datetime.toString()]}
+
         self.cfg["layers"].append(lyr)
 
         c = {"grids": ["webmercator"], "sources": [f"{name}_wms"]}

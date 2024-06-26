@@ -323,7 +323,7 @@ class QSAProject:
         name: str,
         epsg_code: int,
         overview: bool,
-        datetime: QDateTime
+        datetime: QDateTime | None
     ) -> (bool, str):
         t = self._layer_type(layer_type)
         if t is None:
@@ -415,7 +415,7 @@ class QSAProject:
                 return False, err
 
             rc, err = mp.add_layer(
-                name, bbox, epsg_code, t == Qgis.LayerType.Raster
+                name, bbox, epsg_code, t == Qgis.LayerType.Raster, datetime
             )
             if not rc:
                 return False, err
