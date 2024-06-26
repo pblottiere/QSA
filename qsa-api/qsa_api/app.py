@@ -34,6 +34,7 @@ class QSA:
     def run(self):
         app.run(host="0.0.0.0", threaded=False)
 
+
 qsa = QSA()
 
 
