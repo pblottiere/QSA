@@ -64,8 +64,9 @@ class QSAMapProxy:
 
         lyr = {"name": name, "title": name, "sources": [f"{name}_cache"]}
         if datetime and is_raster:
+            fmt = "yyyy-MM-dd HH:mm:ss"
             lyr["dimensions"] = {}
-            lyr["dimensions"]["time"] = {"values": [datetime.toString()]}
+            lyr["dimensions"]["time"] = {"values": [datetime.toString(fmt)]}
 
         self.cfg["layers"].append(lyr)
 
