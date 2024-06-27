@@ -327,8 +327,6 @@ class QSAProject:
         datetime: QDateTime | None,
     ) -> (bool, str):
         t = self._layer_type(layer_type)
-        print("PLOUF!!!!!!!!!!!!!", file=sys.stderr)
-        print(layer_type, file=sys.stderr)
         if t is None:
             return False, "Invalid layer type"
 
