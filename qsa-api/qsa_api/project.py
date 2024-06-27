@@ -31,10 +31,11 @@ from qgis.core import (
 from .mapproxy import QSAMapProxy
 from .vector import VectorSymbologyRenderer
 from .utils import StorageBackend, config, logger
-from .raster import RasterSymbologyRenderer, RasterOverview
+from .raster import RasterSymbologyRenderer, RasterOverview, RasterCalculator
 
 
 RENDERER_TAG_NAME = "renderer-v2"  # constant from core/symbology/renderer.h
+QSA_LAYER_TYPE_RASTER_CALCULATOR = 100
 
 
 class QSAProject:
@@ -326,6 +327,8 @@ class QSAProject:
         datetime: QDateTime | None,
     ) -> (bool, str):
         t = self._layer_type(layer_type)
+        print("PLOUF!!!!!!!!!!!!!", file=sys.stderr)
+        print(layer_type, file=sys.stderr)
         if t is None:
             return False, "Invalid layer type"
 
@@ -361,6 +364,13 @@ class QSAProject:
                 dt_range = QgsDateTimeRange(datetime, datetime)
                 props.setFixedTemporalRange(dt_range)
                 props.setIsActive(True)
+        elif t == QSA_LAYER_TYPE_RASTER_CALCULATOR:
+            self.debug("Init raster layer with raster calculator")
+            calc = RasterCalculator(self._qgis_project_uri, datasource, name)
+            if not calc.is_valid():
+                return False, "Invalid calculator"
+            vuri = calc.virtual_uri()
+            lyr = QgsRasterLayer(vuri, name, "virtualraster")
         else:
             return False, "Invalid layer type"
 
@@ -651,6 +661,8 @@ class QSAProject:
             return Qgis.LayerType.Vector
         elif layer_type.lower() == "raster":
             return Qgis.LayerType.Raster
+        elif layer_type.lower() == "raster_calculator":
+            return QSA_LAYER_TYPE_RASTER_CALCULATOR
         return None
 
     @property
