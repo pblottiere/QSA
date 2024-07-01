@@ -5,11 +5,11 @@ import sys
 from qgis.PyQt.QtCore import QUrl, QUrlQuery
 from qgis.analysis import QgsRasterCalcNode
 from qgis.core import (
-    QgsRasterDataProvider,
     QgsProject,
     QgsMapLayer,
-    QgsCoordinateReferenceSystem,
+    QgsRasterDataProvider,
     QgsCoordinateTransform,
+    QgsCoordinateReferenceSystem,
 )
 
 
@@ -37,6 +37,9 @@ class RasterCalculator:
             if layer.type() != QgsMapLayer.RasterLayer:
                 continue
 
+            if layer.dataProvider().name() == "virtualraster":
+                continue
+
             if layer.name in lyr_names:
                 continue
 
@@ -61,14 +64,15 @@ class RasterCalculator:
             vlayer.provider = layer.dataProvider().name()
             vlayer.uri = layer.source()
 
-            lyr_names.append(layer.name())
-
             # rInputLayers cannot be set from Python :(
             # hack based on QgsRasterDataProvider.encodeVirtualRasterProviderUri
-            params_query.addQueryItem(vlayer.name + ":uri", vlayer.uri)
-            params_query.addQueryItem(
-                vlayer.name + ":provider", vlayer.provider
-            )
+            if vlayer.name not in lyr_names:
+                params_query.addQueryItem(vlayer.name + ":uri", vlayer.uri)
+                params_query.addQueryItem(
+                    vlayer.name + ":provider", vlayer.provider
+                )
+
+            lyr_names.append(layer.name())
 
         params.width = width
         params.height = height
