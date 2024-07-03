@@ -325,6 +325,7 @@ class QSAProject:
         epsg_code: int,
         overview: bool,
         datetime: QDateTime | None,
+        raster_calculator_output: str,
     ) -> (bool, str):
         t = self._layer_type(layer_type)
         if t is None:
@@ -364,17 +365,19 @@ class QSAProject:
                 props.setFixedTemporalRange(dt_range)
                 props.setIsActive(True)
         elif t == QSA_LAYER_TYPE_RASTER_CALCULATOR:
+            if not raster_calculator_output:
+                return False, "'raster_calculator_output' parameter is mandatory."
+
             self.debug("Init raster layer with raster calculator")
             calc = RasterCalculator(self._qgis_project_uri, datasource, name)
             if not calc.is_valid():
                 return False, "Invalid calculator"
 
-            s3_uri = "/vsis3/hytech-storage-dev/RASTER/PLOUF.tif"
-            rc, msg = calc.process(s3_uri)
+            rc, msg = calc.process(raster_calculator_output)
             if not rc:
                 return False, msg
 
-            lyr = QgsRasterLayer(s3_uri, name, "gdal")
+            lyr = QgsRasterLayer(raster_calculator_output, name, "gdal")
         else:
             return False, "Invalid layer type"
 
