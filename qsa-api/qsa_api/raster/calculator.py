@@ -9,7 +9,6 @@ from qgis.PyQt.QtCore import QUrl, QUrlQuery
 from qgis.analysis import QgsRasterCalcNode
 from qgis.core import (
     Qgis,
-    QgsRaster,
     QgsProject,
     QgsMapLayer,
     QgsRasterPipe,
@@ -121,7 +120,13 @@ class RasterCalculator:
             file_writer = QgsRasterFileWriter(fp.name)
             pipe = QgsRasterPipe()
             pipe.set(lyr.dataProvider().clone())
-            rc = file_writer.writeRaster(pipe, lyr.width(), lyr.height(), lyr.extent(), lyr.crs(),)
+            rc = file_writer.writeRaster(
+                pipe,
+                lyr.width(),
+                lyr.height(),
+                lyr.extent(),
+                lyr.crs(),
+            )
             if rc != Qgis.RasterFileWriterResult.Success:
                 return False, "Failed to write raster"
 
@@ -136,7 +141,10 @@ class RasterCalculator:
             )
 
             for t in Qgis.DataType:
-                if stats.minimumValue == QgsContrastEnhancement.minimumValuePossible(t):
+                if (
+                    stats.minimumValue
+                    == QgsContrastEnhancement.minimumValuePossible(t)
+                ):
                     self.debug(f"Set no data value to {stats.minimumValue}")
                     with rasterio.open(fp.name, "r+") as dataset:
                         dataset.nodata = stats.minimumValue

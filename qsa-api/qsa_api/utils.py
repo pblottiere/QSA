@@ -88,7 +88,9 @@ def s3_bucket_upload(bucket: str, source: str, dest: str) -> (bool, str):
 
     size = float(os.path.getsize(source) >> 20)
 
-    logger().debug(f"[utils.s3_bucket_upload] Upload {source} ({size}MB) to S3 bucket {bucket} in {dest}")
+    logger().debug(
+        f"[utils.s3_bucket_upload] Upload {source} ({size}MB) to S3 bucket {bucket} in {dest}"
+    )
 
     try:
         s3 = boto3.resource("s3")

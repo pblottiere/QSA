@@ -1,8 +1,6 @@
 # coding: utf8
 
-import os
 import sys
-import logging
 from pathlib import Path
 
 from qgis.core import QgsRasterLayer, Qgis
@@ -43,7 +41,7 @@ class RasterOverview:
             QSAConfig().gdal_pam_proxy_dir.glob(f"*{ovrfile}"), None
         )
         if not ovrpath:
-            return False, f"Cannot find OVR file in GDAL_PAM_PROXY_DIR"
+            return False, "Cannot find OVR file in GDAL_PAM_PROXY_DIR"
 
         # upload
         bucket, subdirs, _ = s3_parse_uri(ds)
