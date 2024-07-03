@@ -1,16 +1,28 @@
 # coding: utf8
 
 import sys
+import rasterio
+import tempfile
+from pathlib import Path
 
 from qgis.PyQt.QtCore import QUrl, QUrlQuery
 from qgis.analysis import QgsRasterCalcNode
 from qgis.core import (
+    Qgis,
+    QgsRaster,
     QgsProject,
     QgsMapLayer,
+    QgsRasterPipe,
+    QgsRasterLayer,
+    QgsRasterBandStats,
+    QgsRasterFileWriter,
     QgsRasterDataProvider,
+    QgsContrastEnhancement,
     QgsCoordinateTransform,
     QgsCoordinateReferenceSystem,
 )
+
+from ..utils import s3_bucket_upload, s3_parse_uri, logger
 
 
 class RasterCalculator:
@@ -40,7 +52,10 @@ class RasterCalculator:
             if layer.dataProvider().name() == "virtualraster":
                 continue
 
-            if layer.name in lyr_names:
+            if layer.name() in lyr_names:
+                continue
+
+            if layer.name() not in self.datasource:
                 continue
 
             transform = QgsCoordinateTransform(
@@ -93,8 +108,76 @@ class RasterCalculator:
 
         return f"{vuri}%26{params_vuri}"
 
+    def process(self, out_uri: str) -> (bool, str):
+        vuri = self.virtual_uri()
+        lyr = QgsRasterLayer(vuri, "", "virtualraster")
+
+        rc = False
+        msg = ""
+
+        with tempfile.NamedTemporaryFile() as fp:
+            self.debug("Write temporary raster on disk")
+
+            file_writer = QgsRasterFileWriter(fp.name)
+            pipe = QgsRasterPipe()
+            pipe.set(lyr.dataProvider().clone())
+            rc = file_writer.writeRaster(pipe, lyr.width(), lyr.height(), lyr.extent(), lyr.crs(),)
+            if rc != Qgis.RasterFileWriterResult.Success:
+                return False, "Failed to write raster"
+
+            # check if min is minimumValuePossible for the corresponding type
+            # if yes, update noDataValue
+            new_lyr = QgsRasterLayer(fp.name, "", "gdal")
+            stats = new_lyr.dataProvider().bandStatistics(
+                1,
+                QgsRasterBandStats.Min | QgsRasterBandStats.Max,
+                new_lyr.extent(),
+                250000,
+            )
+
+            for t in Qgis.DataType:
+                if stats.minimumValue == QgsContrastEnhancement.minimumValuePossible(t):
+                    self.debug(f"Set no data value to {stats.minimumValue}")
+                    with rasterio.open(fp.name, "r+") as dataset:
+                        dataset.nodata = stats.minimumValue
+                    break
+
+            # reopen layer after setting nodata
+            new_lyr = QgsRasterLayer(fp.name, "", "gdal")
+
+            # upload
+            bucket, subdirs, filename = s3_parse_uri(out_uri)
+            dest = Path(subdirs) / Path(filename)
+            rc, msg = s3_bucket_upload(bucket, fp.name, dest.as_posix())
+            if not rc:
+                return False, msg
+
+            # build overview
+            self.debug(f"Build overview")
+            fmt = Qgis.RasterPyramidFormat.GeoTiff
+            levels = new_lyr.dataProvider().buildPyramidList()
+            for idx, level in enumerate(levels):
+                levels[idx].setBuild(True)
+            err = new_lyr.dataProvider().buildPyramids(levels, "NEAREST", fmt)
+            if err:
+                return False, f"Cannot build overview ({err})"
+
+            # upload overview
+            ovr = f"{fp.name}.ovr"
+            dest = f"{dest.as_posix()}.ovr"
+            rc, msg = s3_bucket_upload(bucket, ovr, dest)
+            if not rc:
+                return False, msg
+
+        return rc, msg
+
     def is_valid(self) -> bool:
         node = QgsRasterCalcNode.parseRasterCalcString(self.datasource, "")
         if node is None:
             return False
         return True
+
+    def debug(self, msg) -> None:
+        caller = f"{self.__class__.__name__}.{sys._getframe().f_back.f_code.co_name}"
+        msg = f"[{caller}] {msg}"
+        logger().debug(msg)

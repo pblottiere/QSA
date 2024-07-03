@@ -344,15 +344,16 @@ class QSAProject:
             self.debug("Init raster layer")
             lyr = QgsRasterLayer(datasource, name, "gdal")
 
-            ovr = RasterOverview(lyr)
-            if overview:
-                if not ovr.is_valid():
-                    self.debug("Build overviews")
-                    rc, err = ovr.build()
-                    if not rc:
-                        return False, err
-                else:
-                    self.debug("Overviews already exist")
+            if lyr.type() == Qgis.LayerType.Raster and overview:
+                ovr = RasterOverview(lyr)
+                if overview:
+                    if not ovr.is_valid():
+                        self.debug("Build overviews")
+                        rc, err = ovr.build()
+                        if not rc:
+                            return False, err
+                    else:
+                        self.debug("Overviews already exist")
 
             if datetime:
                 self.debug("Activate temporal properties")
@@ -367,10 +368,21 @@ class QSAProject:
             calc = RasterCalculator(self._qgis_project_uri, datasource, name)
             if not calc.is_valid():
                 return False, "Invalid calculator"
-            vuri = calc.virtual_uri()
-            lyr = QgsRasterLayer(vuri, name, "virtualraster")
+
+            s3_uri = "/vsis3/hytech-storage-dev/RASTER/PLOUF.tif"
+            rc, msg = calc.process(s3_uri)
+            if not rc:
+                return False, msg
+
+            lyr = QgsRasterLayer(s3_uri, name, "gdal")
         else:
             return False, "Invalid layer type"
+
+        if lyr is None:
+            return False, "Invalid layer (None)"
+
+        if not lyr.isValid():
+            return False, f"Invalid layer ({lyr.error()})"
 
         if epsg_code > 0:
             crs = lyr.crs()
