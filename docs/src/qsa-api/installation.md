@@ -1,6 +1,6 @@
 # QSA REST API : installation
 
-From sources:
+## From sources
 
 ```` shell
 $ cd qsa-api
@@ -10,6 +10,6 @@ $ . venv/bin/activate
 (venv)$ poetry install
 ````
 
-Binary distributions:
+## Docker image
 
-TODO : provide a docker image on Dockerhub
+A prebuilt image can be found on `ghcr.io/pblottiere/qsa`. Otherwise the image can be manually be built using: `docker build -t my-custom-qsa-image .` See [Sandbox](sandbox/) for details how to use it.
