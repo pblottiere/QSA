@@ -1,0 +1,22 @@
+name: Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  run_tests:
+    runs-on: ubuntu-latest
+    container:
+      image: qgis/qgis:3.34
+    steps:
+      - uses: actions/checkout@v4
+      - name: install system dependencies 
+        run: apt update && apt install -y python3-poetry python3-flask python3-boto3
+      - name: Install Python dependencies
+        working-directory: qsa-api
+        run: poetry install
+      - name: Run test without Postgres Dependency
+        working-directory: qsa-api
+        run: pytest -sv tests/test_api_storage_filesystem.py
