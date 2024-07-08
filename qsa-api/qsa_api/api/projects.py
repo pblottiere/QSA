@@ -274,7 +274,6 @@ def project_add_layer(name):
             "type": {"type": "string"},
             "overview": {"type": "boolean"},
             "datetime": {"type": "string"},
-            "raster_calculator_output": {"type": "string"},
         },
     }
 
@@ -296,10 +295,6 @@ def project_add_layer(name):
         if "overview" in data:
             overview = data["overview"]
 
-        raster_calculator_output = ""
-        if "raster_calculator_output" in data:
-            raster_calculator_output = data["raster_calculator_output"]
-
         datetime = None
         if "datetime" in data:
             # check format "yyyy-MM-dd HH:mm:ss"
@@ -316,7 +311,6 @@ def project_add_layer(name):
             crs,
             overview,
             datetime,
-            raster_calculator_output,
         )
         if rc:
             return jsonify(rc), 201
