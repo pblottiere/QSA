@@ -44,7 +44,7 @@ class RasterCalculator:
         return out["rc"], out["error"]
 
     @staticmethod
-    def _process(expression: str, project_uri: str, out_uri: str, out: dict) -> None:
+    def _process(project_uri: str, expression:str, out_uri: str, out: dict) -> None:
         vuri = RasterCalculator._virtual_uri(project_uri, expression)
         lyr = QgsRasterLayer(vuri, "", "virtualraster")
 
