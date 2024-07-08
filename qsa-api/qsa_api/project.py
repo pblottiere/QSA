@@ -31,7 +31,7 @@ from qgis.core import (
 from .mapproxy import QSAMapProxy
 from .vector import VectorSymbologyRenderer
 from .utils import StorageBackend, config, logger
-from .raster import RasterSymbologyRenderer, RasterOverview, RasterCalculator
+from .raster import RasterSymbologyRenderer, RasterOverview
 
 
 RENDERER_TAG_NAME = "renderer-v2"  # constant from core/symbology/renderer.h
@@ -344,16 +344,15 @@ class QSAProject:
             self.debug("Init raster layer")
             lyr = QgsRasterLayer(datasource, name, "gdal")
 
-            if lyr.type() == Qgis.LayerType.Raster and overview:
-                ovr = RasterOverview(lyr)
-                if overview:
-                    if not ovr.is_valid():
-                        self.debug("Build overviews")
-                        rc, err = ovr.build()
-                        if not rc:
-                            return False, err
-                    else:
-                        self.debug("Overviews already exist")
+            ovr = RasterOverview(lyr)
+            if overview:
+                if not ovr.is_valid():
+                    self.debug("Build overviews")
+                    rc, err = ovr.build()
+                    if not rc:
+                        return False, err
+                else:
+                    self.debug("Overviews already exist")
 
             if datetime:
                 self.debug("Activate temporal properties")
@@ -659,8 +658,6 @@ class QSAProject:
             return Qgis.LayerType.Vector
         elif layer_type.lower() == "raster":
             return Qgis.LayerType.Raster
-        elif layer_type.lower() == "raster_calculator":
-            return QSA_LAYER_TYPE_RASTER_CALCULATOR
         return None
 
     @property
