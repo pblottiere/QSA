@@ -8,6 +8,7 @@ from qsa_api.monitor import QSAMonitor
 from qsa_api.api.projects import projects
 from qsa_api.api.symbology import symbology
 from qsa_api.api.instances import instances
+from qsa_api.api.processing import processing
 
 app = Flask(__name__)
 
@@ -28,6 +29,7 @@ class QSA:
         app.register_blueprint(projects, url_prefix="/api/projects")
         app.register_blueprint(symbology, url_prefix="/api/symbology")
         app.register_blueprint(instances, url_prefix="/api/instances")
+        app.register_blueprint(processing, url_prefix="/api/processing")
 
         app.logger.setLevel(self.cfg.loglevel)
 
