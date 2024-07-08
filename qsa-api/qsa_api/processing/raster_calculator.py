@@ -37,18 +37,23 @@ class RasterCalculator:
         manager = Manager()
         out = manager.dict()
 
-        p = Process(target=RasterCalculator._process, args=(self.project_uri, self.expression, out_uri, out))
+        p = Process(
+            target=RasterCalculator._process,
+            args=(self.project_uri, self.expression, out_uri, out),
+        )
         p.start()
         p.join()
 
         return out["rc"], out["error"]
 
     @staticmethod
-    def _process(project_uri: str, expression:str, out_uri: str, out: dict) -> None:
+    def _process(
+        project_uri: str, expression: str, out_uri: str, out: dict
+    ) -> None:
         vuri = RasterCalculator._virtual_uri(project_uri, expression)
         lyr = QgsRasterLayer(vuri, "", "virtualraster")
 
-        with tempfile.NamedTemporaryFile(suffix='.tif') as fp:
+        with tempfile.NamedTemporaryFile(suffix=".tif") as fp:
             RasterCalculator._debug("Write temporary raster on disk")
 
             file_writer = QgsRasterFileWriter(fp.name)
@@ -120,7 +125,9 @@ class RasterCalculator:
                 stats.minimumValue
                 == QgsContrastEnhancement.minimumValuePossible(t)
             ):
-                RasterCalculator._debug(f"Set no data value to {stats.minimumValue}")
+                RasterCalculator._debug(
+                    f"Set no data value to {stats.minimumValue}"
+                )
                 with rasterio.open(filename, "r+") as dataset:
                     dataset.nodata = stats.minimumValue
                 break
