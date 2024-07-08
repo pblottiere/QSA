@@ -35,7 +35,6 @@ from .raster import RasterSymbologyRenderer, RasterOverview
 
 
 RENDERER_TAG_NAME = "renderer-v2"  # constant from core/symbology/renderer.h
-QSA_LAYER_TYPE_RASTER_CALCULATOR = 100
 
 
 class QSAProject:
