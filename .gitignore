@@ -3,6 +3,7 @@ tests/projects
 venv
 symbology-style.db
 poetry.lock
+tests/data/data.gpkg
 tests/data/data.gpkg-shm
 tests/data/data.gpkg-wal
 examples
