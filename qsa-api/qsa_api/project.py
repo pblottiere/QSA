@@ -364,6 +364,12 @@ class QSAProject:
         else:
             return False, "Invalid layer type"
 
+        if lyr is None:
+            return False, "Invalid layer (None)"
+
+        if not lyr.isValid():
+            return False, f"Invalid layer ({lyr.error()})"
+
         if epsg_code > 0:
             crs = lyr.crs()
             crs.createFromString(f"EPSG:{epsg_code}")

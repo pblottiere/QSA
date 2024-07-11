@@ -240,6 +240,13 @@ $ curl "http://localhost:5000/api/projects/my_project/styles" \
   }'
 ````
 
+## Processing
+
+| Method  |                      URL                      |         Description                                                  |
+|---------|-----------------------------------------------|----------------------------------------------------------------------|
+| POST    | `/api/processing/raster/calculator/{project}` | Create a raster based on an `expression` and an `output` filename    |
+
+
 ## Instances
 
 When `qsa-plugin` is installed, an `/api/instances` endpoint is available to
