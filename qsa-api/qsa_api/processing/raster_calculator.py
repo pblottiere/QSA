@@ -51,6 +51,11 @@ class RasterCalculator:
         project_uri: str, expression: str, out_uri: str, out: dict
     ) -> None:
         vuri = RasterCalculator._virtual_uri(project_uri, expression)
+        if not vuri:
+            out["rc"] = False
+            out["error"] = "Failed to build virtual uri"
+            return
+
         lyr = QgsRasterLayer(vuri, "", "virtualraster")
 
         with tempfile.NamedTemporaryFile(suffix=".tif") as fp:
@@ -190,6 +195,9 @@ class RasterCalculator:
                 )
 
             lyr_names.append(layer.name())
+
+        if extent is None:
+            return ""
 
         params.width = width
         params.height = height

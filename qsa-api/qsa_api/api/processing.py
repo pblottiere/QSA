@@ -11,13 +11,12 @@ from ..processing import RasterCalculator
 processing = Blueprint("processing", __name__)
 
 
-@processing.post("/raster_calculator/")
-def raster_calculator():
+@processing.post("/raster/calculator/<project>")
+def raster_calculator(project: str):
     schema = {
         "type": "object",
-        "required": ["project", "expression", "output"],
+        "required": ["expression", "output"],
         "properties": {
-            "project": {"type": "string"},
             "expression": {"type": "string"},
             "output": {"type": "string"},
         },
@@ -29,17 +28,16 @@ def raster_calculator():
     except ValidationError as e:
         return {"error": e.message}, 415
 
-    project = data["project"]
     expression = data["expression"]
     output = data["output"]
 
     psql_schema = request.args.get("schema", default="public")
-    project = QSAProject(project, psql_schema)
+    proj = QSAProject(project, psql_schema)
 
-    if not project.exists():
+    if not proj.exists():
         return {"error": "Project doesn't exist"}, 415
 
-    calc = RasterCalculator(project._qgis_project_uri, expression)
+    calc = RasterCalculator(proj._qgis_project_uri, expression)
     if not calc.is_valid():
         return {"error": "Invalid expression"}, 415
 
