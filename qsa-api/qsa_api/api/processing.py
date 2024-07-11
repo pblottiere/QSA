@@ -51,17 +51,17 @@ def raster_calculator(project: str):
 
 
 @processing.get("/raster/histogram/<project>/<layer>")
-def raster_histogram():
+def raster_histogram(project: str, layer: str):
    proj = QSAProject(project)
    if proj.exists():
       layer_infos = proj.layer(layer)
       if layer_infos:
-         qgs_proj = proj.project()
+         qgs_proj = proj.project
          lyr = qgs_proj.mapLayersByName(layer)[0]
 
          histo = {}
          for band in range(lyr.bandCount()):
-            hist[band] = lyr.dataProvider().histogram(band)
+            histo[band+1] = lyr.dataProvider().histogram(band+1).histogramVector
 
          return jsonify(histo), 201
       else:
