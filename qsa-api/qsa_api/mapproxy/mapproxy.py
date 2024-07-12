@@ -86,7 +86,7 @@ class QSAMapProxy:
         s = {
             "type": "wms",
             "wms_opts": {
-                "legendgraphic": "True",
+                "legendgraphic": True,
             },
             "req": {
                 "url": qgisserver_base_url(self.name, self.schema),
