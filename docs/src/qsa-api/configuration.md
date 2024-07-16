@@ -11,7 +11,7 @@ QSA web server can be configured thanks to the next environment variables:
 | No         | `QSA_QGISSERVER_MONITORING_PORT`       | Connection port for `qsa-plugin`                                                 |
 | No         | `QSA_MAPPROXY_PROJECTS_DIR`            | Storage location on the filesystem for MapProxy configuration files              |
 | No         | `QSA_MAPPROXY_CACHE_S3_BUCKET`         | Activate S3 cache for MapProxy if bucket is set                                  |
-| No         | `QSA_MAPPROXY_CACHE_S3_DIR`            | S3 cache directory for MapProxy if enabled with `QSA_MAPPROXY_CACHE_S3_BUCKET`   |
+| No         | `QSA_MAPPROXY_CACHE_S3_DIR`            | S3 cache directory for MapProxy. Default to `/mapproxy/cache`                    |
 
 
 ## PostgreSQL support {#postgresql-support}
