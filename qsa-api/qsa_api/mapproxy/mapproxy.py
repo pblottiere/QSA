@@ -1,12 +1,14 @@
 # coding: utf8
 
+import sys
 import yaml
+import boto3
 import shutil
 from pathlib import Path
 
 from qgis.PyQt.QtCore import Qt, QDateTime
 
-from ..utils import config, qgisserver_base_url
+from ..utils import config, logger, qgisserver_base_url
 
 
 class QSAMapProxy:
@@ -47,9 +49,21 @@ class QSAMapProxy:
         return True, ""
 
     def clear_cache(self, layer_name: str) -> None:
-        cache_dir = self._mapproxy_project.parent / "cache_data"
-        for d in cache_dir.glob(f"{layer_name}_cache_*"):
-            shutil.rmtree(d)
+        if config().mapproxy_cache_s3_bucket:
+            bucket = config().mapproxy_cache_s3_bucket
+            cache_dir = f"{config().mapproxy_cache_s3_dir}/{layer_name}"
+            self.debug(f"Clear S3 cache 's3://{bucket}/{cache_dir}'")
+            s3 = boto3.resource(
+                "s3",
+                aws_access_key_id=config().aws_access_key_id,
+                aws_secret_access_key=config().aws_secret_access_key,
+            )
+            s3.delete_object(Bucket=bucket, Key=cache_dir)
+        else:
+            cache_dir = self._mapproxy_project.parent / "cache_data"
+            self.debug(f"Clear cache '{cache_dir}'")
+            for d in cache_dir.glob(f"{layer_name}_cache_*"):
+                shutil.rmtree(d)
 
     def add_layer(
         self,
@@ -83,9 +97,10 @@ class QSAMapProxy:
             c["meta_buffer"] = 0
 
         if config().mapproxy_cache_s3_bucket:
+            s3_cache_dir = f"{config().mapproxy_cache_s3_dir}/{name}"
             c["cache"] = {}
             c["cache"]["type"] = "s3"
-            c["cache"]["directory"] = config().mapproxy_cache_s3_dir
+            c["cache"]["directory"] = s3_cache_dir
             c["cache"]["bucket_name"] = config().mapproxy_cache_s3_bucket
 
         self.cfg["caches"][f"{name}_cache"] = c
@@ -114,6 +129,9 @@ class QSAMapProxy:
         if "layers" not in self.cfg:
             return
 
+        # clear cache
+        self.clear_cache(name)
+
         # clean layers
         layers = []
         for layer in self.cfg["layers"]:
@@ -130,6 +148,11 @@ class QSAMapProxy:
         source_name = f"{name}_wms"
         if source_name in self.cfg["sources"]:
             self.cfg["sources"].pop(source_name)
+
+    def debug(self, msg: str) -> None:
+        caller = f"{self.__class__.__name__}.{sys._getframe().f_back.f_code.co_name}"
+        msg = f"[{caller}][{self.name}] {msg}"
+        logger().debug(msg)
 
     @staticmethod
     def _mapproxy_projects_dir() -> Path:

@@ -54,3 +54,11 @@ class QSAConfig:
     @property
     def mapproxy_cache_s3_dir(self) -> str:
         return os.environ.get("QSA_MAPPROXY_CACHE_S3_DIR", "/mapproxy/cache")
+
+    @property
+    def aws_access_key_id(self) -> str:
+        return os.environ.get("AWS_ACCESS_KEY_ID", "")
+
+    @property
+    def aws_secret_access_key(self) -> str:
+        return os.environ.get("AWS_SECRET_ACCESS_KEY", "")
