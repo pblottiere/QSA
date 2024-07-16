@@ -52,15 +52,14 @@ class QSAMapProxy:
         if config().mapproxy_cache_s3_bucket:
             bucket_name = config().mapproxy_cache_s3_bucket
             cache_dir = f"{config().mapproxy_cache_s3_dir}/{layer_name}"
+            if cache_dir[0] == "/":
+                cache_dir = cache_dir[1:]
             self.debug(f"Clear S3 cache 's3://{bucket_name}/{cache_dir}'")
             s3 = boto3.resource(
                 "s3",
                 aws_access_key_id=config().aws_access_key_id,
                 aws_secret_access_key=config().aws_secret_access_key,
             )
-            print(s3, file=sys.stderr)
-            print(config().aws_access_key_id, file=sys.stderr)
-            print(config().aws_secret_access_key, file=sys.stderr)
             bucket = s3.Bucket(bucket_name)
             bucket.objects.filter(Prefix=cache_dir).delete()
         else:
