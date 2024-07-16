@@ -58,7 +58,8 @@ class QSAMapProxy:
                 aws_access_key_id=config().aws_access_key_id,
                 aws_secret_access_key=config().aws_secret_access_key,
             )
-            s3.delete_object(Bucket=bucket, Key=cache_dir)
+            bucket = s3.Bucket(bucket)
+            bucket.objects.filter(Prefix=cache_dir).delete()
         else:
             cache_dir = self._mapproxy_project.parent / "cache_data"
             self.debug(f"Clear cache '{cache_dir}'")
