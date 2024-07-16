@@ -303,8 +303,14 @@ class QSAProject:
         return rc, project.error()
 
     def remove(self) -> None:
+        # clear cache and stuff
+        for layer in self.layers:
+            self.remove_layer(layer)
+
+        # remove qsa projects dir
         shutil.rmtree(self._qgis_project_dir)
 
+        # remove remove qgis prohect in db if necessary
         if StorageBackend.type() == StorageBackend.POSTGRESQL:
             storage = (
                 QgsApplication.instance()
@@ -312,9 +318,6 @@ class QSAProject:
                 .projectStorageFromType("postgresql")
             )
             storage.removeProject(self._qgis_project_uri)
-
-        if self._mapproxy_enabled:
-            QSAMapProxy(self.name).remove()
 
     def add_layer(
         self,
@@ -639,7 +642,7 @@ class QSAProject:
 
         return True, ""
 
-    def debug(self, msg) -> None:
+    def debug(self, msg: str) -> None:
         caller = f"{self.__class__.__name__}.{sys._getframe().f_back.f_code.co_name}"
         if StorageBackend.type() == StorageBackend.FILESYSTEM:
             msg = f"[{caller}][{self.name}] {msg}"
