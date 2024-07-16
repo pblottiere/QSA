@@ -86,7 +86,7 @@ class QSAMapProxy:
             c["cache"] = {}
             c["cache"]["type"] = "s3"
             c["cache"]["directory"] = config().mapproxy_cache_s3_dir
-            c["cache"]["bucket"] = config().mapproxy_cache_s3_bucket
+            c["cache"]["bucket_name"] = config().mapproxy_cache_s3_bucket
 
         self.cfg["caches"][f"{name}_cache"] = c
 
