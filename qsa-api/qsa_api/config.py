@@ -46,3 +46,11 @@ class QSAConfig:
     @property
     def mapproxy_projects_dir(self) -> str:
         return os.environ.get("QSA_MAPPROXY_PROJECTS_DIR", "").replace('"', "")
+
+    @property
+    def mapproxy_cache_s3_bucket(self) -> str:
+        return os.environ.get("QSA_MAPPROXY_CACHE_S3_BUCKET", "")
+
+    @property
+    def mapproxy_cache_s3_dir(self) -> str:
+        return os.environ.get("QSA_MAPPROXY_CACHE_S3_DIR", "/mapproxy/cache")

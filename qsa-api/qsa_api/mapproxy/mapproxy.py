@@ -81,6 +81,13 @@ class QSAMapProxy:
             c["use_direct_from_level"] = 14
             c["meta_size"] = [1, 1]
             c["meta_buffer"] = 0
+
+        if self.cfg.mapproxy_cache_s3_bucket:
+            c["cache"] = {}
+            c["cache"]["type"] = "s3"
+            c["cache"]["directory"] = self.cfg.mapproxy_cache_s3_dir
+            c["cache"]["bucket"] = self.cfg.mapproxy_cache_s3_bucket
+
         self.cfg["caches"][f"{name}_cache"] = c
 
         s = {
