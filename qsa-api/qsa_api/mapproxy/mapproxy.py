@@ -50,15 +50,18 @@ class QSAMapProxy:
 
     def clear_cache(self, layer_name: str) -> None:
         if config().mapproxy_cache_s3_bucket:
-            bucket = config().mapproxy_cache_s3_bucket
+            bucket_name = config().mapproxy_cache_s3_bucket
             cache_dir = f"{config().mapproxy_cache_s3_dir}/{layer_name}"
-            self.debug(f"Clear S3 cache 's3://{bucket}/{cache_dir}'")
+            self.debug(f"Clear S3 cache 's3://{bucket_name}/{cache_dir}'")
             s3 = boto3.resource(
                 "s3",
                 aws_access_key_id=config().aws_access_key_id,
                 aws_secret_access_key=config().aws_secret_access_key,
             )
-            bucket = s3.Bucket(bucket)
+            print(s3, file=sys.stderr)
+            print(config().aws_access_key_id, file=sys.stderr)
+            print(config().aws_secret_access_key, file=sys.stderr)
+            bucket = s3.Bucket(bucket_name)
             bucket.objects.filter(Prefix=cache_dir).delete()
         else:
             cache_dir = self._mapproxy_project.parent / "cache_data"
