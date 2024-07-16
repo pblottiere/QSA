@@ -252,6 +252,9 @@ class RasterSymbologyRenderer:
     def _singlebandpseudocolor_properties(renderer) -> dict:
         props = {}
 
+        if renderer.shader() is None:
+            return {}, "Invalid shader in singlebandpseudocolor renderer"
+
         props["band"] = {}
         props["band"]["band"] = renderer.band()
 

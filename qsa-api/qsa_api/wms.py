@@ -10,6 +10,9 @@ class WMS:
         p = QSAProject(project, psql_schema)
         props = p.layer(layer)
 
+        if "bbox" not in props:
+            return "Invalid layer"
+
         bbox = props["bbox"].replace(" ", ",").replace(",,", ",").split(",")
         wms_bbox = f"{bbox[1]},{bbox[0]},{bbox[3]},{bbox[2]}"
 
