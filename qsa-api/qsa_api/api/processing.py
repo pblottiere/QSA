@@ -58,7 +58,7 @@ def raster_histogram(project: str, layer: str):
       if layer_infos:
          if "type" in layer_infos and layer_infos["type"] != "raster":
             return {"error": "Histogram is available for raster layer only"}
-         histo = Histogram(proj.project._qgis_project_uri, layer)
+         histo = Histogram(proj._qgis_project_uri, layer)
          return jsonify(histo.process()), 201
       else:
          return {"error": "Layer does not exist"}, 415

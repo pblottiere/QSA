@@ -255,6 +255,9 @@ class RasterSymbologyRenderer:
         if renderer.shader() is None:
             return {}, "Invalid shader in singlebandpseudocolor renderer"
 
+        if renderer.shader().rasterShaderFunction().sourceColorRamp() is None:
+            return {}, "Invalid color ramp in singlebandpseudocolor renderer"
+
         props["band"] = {}
         props["band"]["band"] = renderer.band()
 
