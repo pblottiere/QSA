@@ -5,7 +5,7 @@ from flask import Blueprint, jsonify, request
 from jsonschema.exceptions import ValidationError
 
 from ..project import QSAProject
-from ..processing import RasterCalculator
+from ..processing import RasterCalculator, Histogram
 
 
 processing = Blueprint("processing", __name__)
@@ -56,14 +56,10 @@ def raster_histogram(project: str, layer: str):
    if proj.exists():
       layer_infos = proj.layer(layer)
       if layer_infos:
-         qgs_proj = proj.project
-         lyr = qgs_proj.mapLayersByName(layer)[0]
-
-         histo = {}
-         for band in range(lyr.bandCount()):
-            histo[band+1] = lyr.dataProvider().histogram(band+1).histogramVector
-
-         return jsonify(histo), 201
+         if "type" in layer_infos and layer_infos["type"] != "raster":
+            return {"error": "Histogram is available for raster layer only"}
+         histo = Histogram(proj._qgis_project_uri, layer)
+         return jsonify(histo.process()), 201
       else:
          return {"error": "Layer does not exist"}, 415
    else:
