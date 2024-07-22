@@ -169,7 +169,7 @@ class QSAProject:
 
     def layer(self, name: str) -> dict:
         project = QgsProject()
-        project.read(self._qgis_project_uri, Qgis.ProjectReadFlag.DontResolveLayers)
+        project.read(self._qgis_project_uri)
 
         layers = project.mapLayersByName(name)
         if layers:
@@ -186,16 +186,8 @@ class QSAProject:
             infos["crs"] = layer.crs().authid()
             infos["current_style"] = layer.styleManager().currentStyle()
             infos["styles"] = layer.styleManager().styles()
-
-            # project is read with DontResolveLayers to optimize access time,
-            # but we need to access data for this specific layer to get extent
-            infos["bbox"] = []
-            infos["valid"] = False
-
-            layer_clone = QSAProject._layer_clone(layer)
-            if layer_clone:
-                infos["valid"] = layer_clone.isValid()
-                infos["bbox"] = layer_clone.extent().asWktCoordinates()
+            infos["valid"] = layer.isValid()
+            infos["bbox"] = layer.extent().asWktCoordinates()
 
             return infos
         return {}
@@ -707,16 +699,6 @@ class QSAProject:
         elif layer_type == Qgis.LayerType.Raster:
             provider = "gdal"
         return provider
-
-    @staticmethod
-    def _layer_clone(layer):
-        provider = QSAProject._layer_provider(layer.type(), layer.source())
-        if layer.type() == Qgis.LayerType.Vector:
-            return QgsVectorLayer(layer.source(), "", provider)
-        elif layer.type() == Qgis.LayerType.Raster:
-            return QgsRasterLayer(layer.source(), "", provider)
-
-        return None
 
     @property
     def _qgis_project_uri(self) -> str:
