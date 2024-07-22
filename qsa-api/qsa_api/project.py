@@ -176,7 +176,6 @@ class QSAProject:
             layer = layers[0]
 
             infos = {}
-            infos["valid"] = layer.isValid()
             infos["name"] = layer.name()
             infos["type"] = layer.type().name.lower()
 
@@ -190,8 +189,13 @@ class QSAProject:
 
             # project is read with DontResolveLayers to optimize access time,
             # but we need to access data for this specific layer to get extent
-            extent = QSAProject._layer_extent(layer.type(), layer.source())
-            infos["bbox"] = extent
+            infos["bbox"] = []
+            infos["valid"] = False
+
+            layer_clone = QSAProject._layer_clone(layer)
+            if layer_clone:
+                infos["valid"] = layer_clone.isValid()
+                infos["bbox"] = layer_clone.extent().asWktCoordinates()
 
             return infos
         return {}
@@ -206,7 +210,7 @@ class QSAProject:
             return False, f"Style '{style_name}' does not exist"
 
         project = QgsProject()
-        project.read(self._qgis_project_uri, Qgis.ProjectReadFlag.DontResolveLayers)
+        project.read(self._qgis_project_uri)
 
         style_path = self._qgis_project_dir / f"{style_name}.qml"
 
@@ -639,7 +643,7 @@ class QSAProject:
             return False, f"Style '{name}' does not exist"
 
         p = QgsProject()
-        p.read(self._qgis_project_uri, Qgis.ProjectReadFlag.DontResolveLayers)
+        p.read(self._qgis_project_uri)
 
         for layer in p.mapLayers().values():
             if name == layer.styleManager().currentStyle():
@@ -705,19 +709,14 @@ class QSAProject:
         return provider
 
     @staticmethod
-    def _layer_extent(layer_type: Qgis.LayerType, datasource: str) -> list:
-        extent = []
+    def _layer_clone(layer):
+        provider = QSAProject._layer_provider(layer.type(), layer.source())
+        if layer.type() == Qgis.LayerType.Vector:
+            return QgsVectorLayer(layer.source(), "", provider)
+        elif layer.type() == Qgis.LayerType.Raster:
+            return QgsRasterLayer(layer.source(), "", provider)
 
-        provider = QSAProject._layer_provider(layer_type, datasource)
-        if layer_type == Qgis.LayerType.Vector:
-            extent = QgsVectorLayer(datasource, "", provider).extent()
-        elif layer_type == Qgis.LayerType.Raster:
-            extent = QgsRasterLayer(datasource, "", provider).extent()
-
-        if extent:
-            extent = extent.asWktCoordinates()
-
-        return extent
+        return None
 
     @property
     def _qgis_project_uri(self) -> str:
