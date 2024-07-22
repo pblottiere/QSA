@@ -2,7 +2,7 @@
 
 from multiprocessing import Process, Manager
 
-from qgis.core import QgsProject
+from qgis.core import QgsProject, QgsRectangle
 
 
 class Histogram:
@@ -30,9 +30,7 @@ class Histogram:
         return {}
 
     @staticmethod
-    def _process(
-        project_uri: str, layer: str, out: dict
-    ) -> None:
+    def _process(project_uri: str, layer: str, out: dict) -> None:
 
         project = QgsProject.instance()
         project.read(project_uri)
@@ -40,6 +38,10 @@ class Histogram:
 
         histo = {}
         for band in range(lyr.bandCount()):
-           histo[band+1] = lyr.dataProvider().histogram(band+1).histogramVector
+            histo[band + 1] = (
+                lyr.dataProvider()
+                .histogram(band + 1, 1000, None, None, QgsRectangle(), 250000)
+                .histogramVector
+            )
 
         out["histo"] = histo

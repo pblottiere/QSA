@@ -52,15 +52,17 @@ def raster_calculator(project: str):
 
 @processing.get("/raster/histogram/<project>/<layer>")
 def raster_histogram(project: str, layer: str):
-   proj = QSAProject(project)
-   if proj.exists():
-      layer_infos = proj.layer(layer)
-      if layer_infos:
-         if "type" in layer_infos and layer_infos["type"] != "raster":
-            return {"error": "Histogram is available for raster layer only"}
-         histo = Histogram(proj._qgis_project_uri, layer)
-         return jsonify(histo.process()), 201
-      else:
-         return {"error": "Layer does not exist"}, 415
-   else:
-      return {"error": "Project does not exist"}, 415
+    proj = QSAProject(project)
+    if proj.exists():
+        layer_infos = proj.layer(layer)
+        if layer_infos:
+            if "type" in layer_infos and layer_infos["type"] != "raster":
+                return {
+                    "error": "Histogram is available for raster layer only"
+                }
+            histo = Histogram(proj._qgis_project_uri, layer)
+            return jsonify(histo.process()), 201
+        else:
+            return {"error": "Layer does not exist"}, 415
+    else:
+        return {"error": "Project does not exist"}, 415
