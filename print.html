@@ -223,15 +223,15 @@ plugin</a>)</li>
 <li>Cache management with MapProxy</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="qsa-rest-api--installation"><a class="header" href="#qsa-rest-api--installation">QSA REST API : installation</a></h1>
-<p>From sources:</p>
+<h2 id="from-sources"><a class="header" href="#from-sources">From sources</a></h2>
 <pre><code class="language-shell">$ cd qsa-api
 $ virtualenv --system-site-packages venv  # system aware for pyqgis
 $ . venv/bin/activate
 (venv)$ pip install poetry
 (venv)$ poetry install
 </code></pre>
-<p>Binary distributions:</p>
-<p>TODO : provide a docker image on Dockerhub</p>
+<h2 id="docker-image"><a class="header" href="#docker-image">Docker image</a></h2>
+<p>A prebuilt image can be found on <code>ghcr.io/pblottiere/qsa</code>. Otherwise the image can be manually be built using: <code>docker build -t my-custom-qsa-image .</code> See <a href="qsa-api/sandbox/">Sandbox</a> for details how to use it.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="qsa-rest-api--configuration"><a class="header" href="#qsa-rest-api--configuration">QSA REST API : configuration</a></h1>
 <p>QSA web server can be configured thanks to the next environment variables:</p>
 <div class="table-wrapper"><table><thead><tr><th>Mandatory</th><th>Environment variable</th><th>Description</th></tr></thead><tbody>
