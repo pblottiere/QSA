@@ -2,7 +2,7 @@
 
 from multiprocessing import Process, Manager
 
-from qgis.core import QgsProject
+from qgis.core import QgsProject, QgsRectangle
 
 
 class Histogram:
@@ -10,7 +10,7 @@ class Histogram:
         self.layer = layer
         self.project_uri = project_uri
 
-    def process(self) -> (bool, dict):
+    def process(self, mini, maxi, count) -> (bool, dict):
         # Some kind of cache is bothering us because when a raster layer is
         # added on S3, we cannot open it with GDAL provider later. The
         # QgsApplication needs to be restarted... why???
@@ -19,20 +19,18 @@ class Histogram:
 
         p = Process(
             target=Histogram._process,
-            args=(self.project_uri, self.layer, out),
+            args=(self.project_uri, self.layer, mini, maxi, count, out),
         )
         p.start()
         p.join()
 
         if "histo" in out:
-            return out["histo"]
+            return out["histo"].copy()
 
         return {}
 
     @staticmethod
-    def _process(
-        project_uri: str, layer: str, out: dict
-    ) -> None:
+    def _process(project_uri: str, layer: str, mini, maxi, count, out: dict) -> None:
 
         project = QgsProject.instance()
         project.read(project_uri)
@@ -40,6 +38,14 @@ class Histogram:
 
         histo = {}
         for band in range(lyr.bandCount()):
-           histo[band+1] = lyr.dataProvider().histogram(band+1).histogramVector
+            h = (
+                lyr.dataProvider()
+                .histogram(band + 1, count, mini, maxi, QgsRectangle(), 250000)
+            )
+
+            histo[band + 1] = {}
+            histo[band + 1]["min"] = h.minimum
+            histo[band + 1]["max"] = h.maximum
+            histo[band + 1]["values"] = h.histogramVector
 
         out["histo"] = histo

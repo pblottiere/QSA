@@ -245,7 +245,7 @@ $ curl "http://localhost:5000/api/projects/my_project/styles" \
 
 | Method  |                      URL                              |         Description                                                  |
 |---------|-------------------------------------------------------|----------------------------------------------------------------------|
-| GET     | `/api/processing/raster/histogram/{project}/{layer}`  | Return an histogram in JSON                                          |
+| POST    | `/api/processing/raster/histogram/{project}/{layer}`  | Return an histogram in JSON                                          |
 | POST    | `/api/processing/raster/calculator/{project}`         | Create a raster based on an `expression` and an `output` filename    |
 
 
