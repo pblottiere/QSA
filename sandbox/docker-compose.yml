@@ -18,7 +18,7 @@ services:
     image: pblottiere/qsa
     build:
       context: ..
-      dockerfile: sandbox/Dockerfile
+      dockerfile: Dockerfile
     volumes:
       - ./dem.tif:/dem.tif
       - ./data.gpkg:/data.gpkg
