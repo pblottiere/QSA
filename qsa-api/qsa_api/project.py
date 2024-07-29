@@ -201,8 +201,11 @@ class QSAProject:
         if style_name != "default" and style_name not in self.styles:
             return False, f"Style '{style_name}' does not exist"
 
+        flags = Qgis.ProjectReadFlags()
+        flags |= Qgis.ProjectReadFlag.ForceReadOnlyLayers
+
         project = QgsProject()
-        project.read(self._qgis_project_uri)
+        project.read(self._qgis_project_uri, flags)
 
         style_path = self._qgis_project_dir / f"{style_name}.qml"
 
