@@ -4,6 +4,7 @@ from jsonschema import validate
 from flask import Blueprint, jsonify, request
 from jsonschema.exceptions import ValidationError
 
+from ..utils import logger
 from ..project import QSAProject
 from ..processing import RasterCalculator, Histogram
 

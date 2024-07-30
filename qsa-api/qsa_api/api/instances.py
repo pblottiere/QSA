@@ -4,6 +4,7 @@ from flask import Blueprint
 from flask import current_app
 from datetime import datetime
 
+from ..utils import logger
 from .utils import log_request
 
 

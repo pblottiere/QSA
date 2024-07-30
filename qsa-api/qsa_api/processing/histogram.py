@@ -30,7 +30,9 @@ class Histogram:
         return {}
 
     @staticmethod
-    def _process(project_uri: str, layer: str, mini, maxi, count, out: dict) -> None:
+    def _process(
+        project_uri: str, layer: str, mini, maxi, count, out: dict
+    ) -> None:
 
         project = QgsProject.instance()
         project.read(project_uri)
@@ -38,9 +40,8 @@ class Histogram:
 
         histo = {}
         for band in range(lyr.bandCount()):
-            h = (
-                lyr.dataProvider()
-                .histogram(band + 1, count, mini, maxi, QgsRectangle(), 250000)
+            h = lyr.dataProvider().histogram(
+                band + 1, count, mini, maxi, QgsRectangle(), 250000
             )
 
             histo[band + 1] = {}

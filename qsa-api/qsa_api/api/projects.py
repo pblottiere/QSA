@@ -183,7 +183,9 @@ def project_layer_update_style(name, layer_name):
 
             current = data["current"]
             style_name = data["name"]
-            rc, msg = project.layer_update_style(layer_name, style_name, current)
+            rc, msg = project.layer_update_style(
+                layer_name, style_name, current
+            )
             if not rc:
                 return {"error": msg}, 415
             return jsonify(True), 201

@@ -12,6 +12,7 @@ from qgis.core import (
     QgsSingleBandPseudoColorRenderer,
 )
 
+from ..utils import logger
 from .utils import log_request
 
 
