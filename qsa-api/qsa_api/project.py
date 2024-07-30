@@ -97,13 +97,16 @@ class QSAProject:
     @property
     def project(self) -> QgsProject:
         project = QgsProject()
-        project.read(self._qgis_project_uri)
+        project.read(self._qgis_project_uri, Qgis.ProjectReadFlag.DontResolveLayers)
         return project
 
     @property
     def layers(self) -> list:
         layers = []
-        p = self.project
+
+        p = QgsProject()
+        p.read(self._qgis_project_uri, Qgis.ProjectReadFlag.DontResolveLayers)
+
         for layer in p.mapLayers().values():
             layers.append(layer.name())
         self.debug(f"{len(layers)} layers found")
@@ -112,7 +115,10 @@ class QSAProject:
     @property
     def metadata(self) -> dict:
         m = {}
-        p = self.project
+
+        p = QgsProject()
+        p.read(self._qgis_project_uri, Qgis.ProjectReadFlag.DontResolveLayers)
+
         m["author"] = p.metadata().author()
         m["creation_datetime"] = (
             p.metadata().creationDateTime().toString(Qt.ISODate)
@@ -164,12 +170,12 @@ class QSAProject:
     def layer(self, name: str) -> dict:
         project = QgsProject()
         project.read(self._qgis_project_uri)
+
         layers = project.mapLayersByName(name)
         if layers:
             layer = layers[0]
 
             infos = {}
-            infos["valid"] = layer.isValid()
             infos["name"] = layer.name()
             infos["type"] = layer.type().name.lower()
 
@@ -180,7 +186,9 @@ class QSAProject:
             infos["crs"] = layer.crs().authid()
             infos["current_style"] = layer.styleManager().currentStyle()
             infos["styles"] = layer.styleManager().styles()
+            infos["valid"] = layer.isValid()
             infos["bbox"] = layer.extent().asWktCoordinates()
+
             return infos
         return {}
 
@@ -193,8 +201,11 @@ class QSAProject:
         if style_name != "default" and style_name not in self.styles:
             return False, f"Style '{style_name}' does not exist"
 
+        flags = Qgis.ProjectReadFlags()
+        flags |= Qgis.ProjectReadFlag.ForceReadOnlyLayers
+
         project = QgsProject()
-        project.read(self._qgis_project_uri)
+        project.read(self._qgis_project_uri, flags)
 
         style_path = self._qgis_project_dir / f"{style_name}.qml"
 
@@ -236,7 +247,7 @@ class QSAProject:
     def remove_layer(self, name: str) -> None:
         # remove layer in qgis project
         project = QgsProject()
-        project.read(self._qgis_project_uri)
+        project.read(self._qgis_project_uri, Qgis.ProjectReadFlag.DontResolveLayers)
 
         ids = []
         for layer in project.mapLayersByName(name):
@@ -335,16 +346,15 @@ class QSAProject:
         if name in self.layers:
             return False, f"A layer {name} already exists"
 
+        provider = QSAProject._layer_provider(t, datasource)
+
         lyr = None
         if t == Qgis.LayerType.Vector:
             self.debug("Init vector layer")
-            provider = "ogr"
-            if "table=" in datasource:
-                provider = "postgres"
             lyr = QgsVectorLayer(datasource, name, provider)
         elif t == Qgis.LayerType.Raster:
             self.debug("Init raster layer")
-            lyr = QgsRasterLayer(datasource, name, "gdal")
+            lyr = QgsRasterLayer(datasource, name, provider)
 
             ovr = RasterOverview(lyr)
             if overview:
@@ -383,7 +393,7 @@ class QSAProject:
 
         # create project
         project = QgsProject()
-        project.read(self._qgis_project_uri)
+        project.read(self._qgis_project_uri, Qgis.ProjectReadFlag.DontResolveLayers)
         project.addMapLayer(lyr)
 
         self.debug("Write QGIS project")
@@ -627,7 +637,9 @@ class QSAProject:
         if name not in self.styles:
             return False, f"Style '{name}' does not exist"
 
-        p = self.project
+        p = QgsProject()
+        p.read(self._qgis_project_uri)
+
         for layer in p.mapLayers().values():
             if name == layer.styleManager().currentStyle():
                 return False, f"Style is used by {layer.name()}"
@@ -679,6 +691,17 @@ class QSAProject:
         if StorageBackend.type() == StorageBackend.POSTGRESQL:
             prefix = f"{schema}_"
         return prefix
+
+    @staticmethod
+    def _layer_provider(layer_type: Qgis.LayerType, datasource: str) -> str:
+        provider = ""
+        if layer_type == Qgis.LayerType.Vector:
+            provider = "ogr"
+            if "table=" in datasource:
+                provider = "postgres"
+        elif layer_type == Qgis.LayerType.Raster:
+            provider = "gdal"
+        return provider
 
     @property
     def _qgis_project_uri(self) -> str:
