@@ -14,13 +14,19 @@ QSA web server can be configured thanks to the next environment variables:
 | No         | `QSA_MAPPROXY_CACHE_S3_DIR`            | S3 cache directory for MapProxy. Default to `/mapproxy/cache`                    |
 
 
+<div class="warning">
+MapProxy
+
+Time dimension caching is not supported with S3 backend storage.
+</div>
+
+
 ## PostgreSQL support {#postgresql-support}
 
 When PostgreSQL support is enabled to store QGIS projects thanks to the
 `QSA_QGISSERVER_PROJECTS_PSQL_SERVICE` environment variable, the directory
 `QSA_QGISSERVER_PROJECTS_DIR` is only used to store the QSA SQLite database as
-well as QGIS QML styles. In the future, the QSA database and QGIS styles will
-also be stored in PostgreSQL when enabled.
+well as QGIS QML styles.
 
 The PostgreSQL support relies on a `service` defined in a [PostgreSQL connection
 service file](https://www.postgresql.org/docs/current/libpq-pgservice.html).
@@ -38,3 +44,10 @@ password=
 
 A query string parameter can be used to specify a `schema` through the QSA API
 (`public` is used by default).
+
+<div class="warning">
+Roadmap
+
+In the future, the QSA database and QGIS styles will also be stored in
+PostgreSQL when enabled.
+</div>

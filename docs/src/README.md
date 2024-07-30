@@ -26,5 +26,4 @@ Roadmap:
 * Add more documentation
 * Add PostgreSQL support to store QGIS styles and QSA internals data
 * Publish `qsa-cli` on PyPI
-* Publish a `qsa-api` Docker image on DockerHub
 * Publish `qsa-plugin` on QGIS plugin repository

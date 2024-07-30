@@ -1,15 +1,4 @@
-# QSA REST API : endpoints
-
-## PostgreSQL schema
-
-When PostgreSQL support is enabled, a query string parameter `schema` may be
-used to specify the schema in which the QGIS project is stored in the database
-(`public` is used by default).
-
-```` shell
-# call a specific endpoint using projects stored in PostgreSQL schema named `myschema`
-$ curl "http://localhost/api/xxx/yyy?schema=myschema"
-````
+# QSA REST API : /api/projects
 
 ## Project
 
@@ -61,89 +50,36 @@ empty.
 | GET     | `/api/projects/{project}/layers/{layer}`         | List layer's metadata                                                                                                                              |
 | GET     | `/api/projects/{project}/layers/{layer}/map`     | WMS `GetMap` result with default parameters                                                                                                        |
 | GET     | `/api/projects/{project}/layers/{layer}/map/url` | WMS `GetMap` URL with default parameters                                                                                                           |
-| POST    | `/api/projects/{project}/layers`                 | Add layer to project with `type` (`vector` or `raster`), `name`, `datasource`, `overview` (build overview for rasters on S3) and `crs` (optional)  |
+| POST    | `/api/projects/{project}/layers`                 | Add layer to project. See [Layer definition](#layer-definition) for more information.                                                              |
 | POST    | `/api/projects/{project}/layers/{layer}/style`   | Add/Update layer's style with `name` (style name) and `current` (`true` or `false`)                                                                |
 | DELETE  | `/api/projects/{project}/layers/{layer}`         | Remove layer from project                                                                                                                          |
+
+#### Layer definition {#layer-definition}
+
+A layer can be added to a project thanks to the next parameters:
+
+- `type` : `raster` or `vector`
+- `name` : the layer's name
+- `datasource` : the link to the datasource according to the storage backend
+    - filesystem : `/tmp/raster.tif`
+    - AWS S3 : `/vsis3/bucket/raster.tif`
+    - PostGIS : `service=qsa table=\"public\".\"lines\" (geom)`
+- `overview` (optional) : automatically build overviews for raster layers stored in S3 buckets
+- `crs` (optional) : CRS (automatically detected by default)
 
 Example:
 
 ```` shell
-# Add a FlatGeobuf vector layer in project `my_project`
+# Add a FlatGeobuf vector layer stored on S3 bucket in project `my_project`
 $ curl "http://localhost/api/projects/my_project/layers" \
   -X POST \
   -H 'Content-Type: application/json' \
   -d '{
-    "crs": 4326,
     "name":"my_layer",
     "type":"vector",
     "datasource":"/vsis3/my-storage/vector/my_layer.fgb",
   }'
 ````
-
-## Symbology
-
-Vector layers rendering can be configured with several kinds of symbols
-according to the geometry type. The [symbol selector](https://docs.qgis.org/3.34/en/docs/user_manual/style_library/symbol_selector.html)
-in QGIS is very dense but for now, only Marker, Line and Fill simple symbols
-are supported. The `/api/symbology` endpoint allows to dynamically retrieve the
-corresponding parameters depending on QGIS Server version.
-
-| Method  |                      URL                                                  |         Description                          |
-|---------|---------------------------------------------------------------------------|----------------------------------------------|
-| GET     | `/api/symbology/vector/point/single_symbol/marker/properties`             | Marker simple symbol properties              |
-| GET     | `/api/symbology/vector/line/single_symbol/line/properties`                | Line simple symbol properties                |
-| GET     | `/api/symbology/vector/polygon/single_symbol/fill/properties`             | Polygon simple symbol properties             |
-| GET     | `/api/symbology/vector/rendering/properties`                              | Vector layer rendering properties            |
-| GET     | `/api/symbology/raster/singlebandgray/properties`                         | Single band gray properties                  |
-| GET     | `/api/symbology/raster/multibandcolor/properties`                         | Multi band color properties                  |
-| GET     | `/api/symbology/raster/singlebandpseudocolor/properties`                  | Single band pseudocolor properties           |
-| GET     | `/api/symbology/raster/singlebandpseudocolor/ramp/{name}/properties`      | Single band pseudocolor ramp properties      |
-| GET     | `/api/symbology/raster/rendering/properties`                              | Raster layer rendering properties            |
-
-Examples:
-
-```` shell
-# Return single symbol properties for polygon layers
-$ curl "http://localhost:5000/api/symbology/vector/polygon/single_symbol/fill/properties" | jq
-{
-  "border_width_map_unit_scale": "3x:0,0,0,0,0,0",
-  "color": "0,0,255,255",
-  "joinstyle": "bevel",
-  "offset": "0,0",
-  "offset_map_unit_scale": "3x:0,0,0,0,0,0",
-  "offset_unit": "MM",
-  "outline_color": "35,35,35,255",
-  "outline_style": "solid (no, solid, dash, dot, dash dot, dash dot dot)",
-  "outline_width": "0.26",
-  "outline_width_unit": "MM",
-  "style": "solid"
-}
-
-# Return multi band gray properties for raster layers
-$ curl "http://localhost:5000/api/symbology/raster/multibandcolor/properties" | jq
-{
-  "blue": {
-    "band": 3,
-    "min": 0.0,
-    "max": 1.0
-  },
-  "green": {
-    "band": 2,
-    "min": 0.0,
-    "max": 1.0
-  },
-  "red": {
-    "band": 1,
-    "min": 0.0,
-    "max": 1.0
-  }
-  "contrast_enhancement": {
-    "algorithm": "StretchToMinimumMaximum (StretchToMinimumMaximum, NoEnhancement)",
-    "limits_min_max": "MinMax (MinMax, UserDefined)"
-  }
-}
-````
-
 
 ## Style
 
@@ -239,24 +175,3 @@ $ curl "http://localhost:5000/api/projects/my_project/styles" \
     }
   }'
 ````
-
-
-## Processing
-
-| Method  |                      URL                              |         Description                                                  |
-|---------|-------------------------------------------------------|----------------------------------------------------------------------|
-| POST    | `/api/processing/raster/histogram/{project}/{layer}`  | Return an histogram in JSON                                          |
-| POST    | `/api/processing/raster/calculator/{project}`         | Create a raster based on an `expression` and an `output` filename    |
-
-
-## Instances
-
-When `qsa-plugin` is installed, an `/api/instances` endpoint is available to
-retrieve information about QGIS Server underlying instances.
-
-| Method  |                      URL                      |         Description                        |
-|---------|-----------------------------------------------|--------------------------------------------|
-| GET     | `/api/instances`                              | List online QGIS Server instances          |
-| GET     | `/api/instances/{instance}`                   | List QGIS Server instance metadata         |
-| GET     | `/api/instances/{instance}/logs`              | Return logs of QGIS Server instance        |
-| GET     | `/api/instances/{instance}/stats`             | Return stats of QGIS Server instance       |

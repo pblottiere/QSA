@@ -75,7 +75,7 @@ $ curl http://localhost:5000/api/projects/my_project?schema=my_schema | jq
 {
   "author": "pblottiere",
   "creation_datetime": "2024-03-14T20:17:45",
-  "crs": "",
+  "crs": "EPSG:3857",
   "schema": "my_schema",
   "storage": "postgresql"
 }
