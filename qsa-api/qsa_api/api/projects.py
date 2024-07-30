@@ -9,6 +9,7 @@ from flask import send_file, Blueprint, jsonify, request
 from qgis.PyQt.QtCore import QDateTime
 
 from ..wms import WMS
+from ..utils import logger
 from ..project import QSAProject
 
 
@@ -17,12 +18,17 @@ projects = Blueprint("projects", __name__)
 
 @projects.get("/")
 def projects_list():
-    psql_schema = request.args.get("schema", default="public")
+    logger().debug("[GET] api.projects.projects_list")
+    try:
+        psql_schema = request.args.get("schema", default="public")
 
-    p = []
-    for project in QSAProject.projects(psql_schema):
-        p.append(project.name)
-    return jsonify(p)
+        p = []
+        for project in QSAProject.projects(psql_schema):
+            p.append(project.name)
+        return jsonify(p)
+    except Exception as e:
+        logger().exception(str(e))
+        return {"error": "Could not get project list"}, 415
 
 
 @projects.get("/<name>")
