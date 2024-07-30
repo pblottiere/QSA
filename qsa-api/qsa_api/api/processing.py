@@ -89,7 +89,8 @@ def raster_histogram(project: str, layer: str):
         if "count" in data:
             count = data["count"]
 
-        proj = QSAProject(project)
+        psql_schema = request.args.get("schema", default="public")
+        proj = QSAProject(project, psql_schema)
         if proj.exists():
             layer_infos = proj.layer(layer)
             if layer_infos:
