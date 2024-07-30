@@ -1,6 +1,7 @@
 # QGIS Server Administration
 
 [![Release](https://img.shields.io/badge/release-0.0.2-green.svg)](https://github.com/pblottiere/QSA/releases)
+[![CI](https://img.shields.io/github/actions/workflow/status/pblottiere/QSA/tests.yml)](https://github.com/pblottiere/QSA/actions)
 [![Documentation](https://img.shields.io/badge/docs-Book-informational)](https://pblottiere.github.io/QSA/)
 
 Components:
