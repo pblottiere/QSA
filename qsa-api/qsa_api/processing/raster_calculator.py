@@ -1,6 +1,5 @@
 # coding: utf8
 
-import sys
 import rasterio
 import tempfile
 from pathlib import Path
