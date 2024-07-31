@@ -477,7 +477,7 @@ class RasterSymbologyRenderer:
                     shader_type = QgsColorRampShader.Type.Exact
 
             color_ramp = QgsStyle().defaultStyle().colorRamp("Spectral")
-            if "name" in ramp:
+            if "name" in ramp and ramp["name"]:
                 color_ramp = QgsStyle().defaultStyle().colorRamp(ramp["name"])
             elif "color1" in ramp and "color2" in ramp:
                 color_ramp = QgsGradientColorRamp.create(ramp)
