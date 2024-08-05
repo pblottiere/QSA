@@ -6,7 +6,6 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /qsa
-ADD qsa-api/qsa_api /qsa/qsa_api
 ADD qsa-api/pyproject.toml .
 
 RUN rm -rf venv \
@@ -15,6 +14,8 @@ RUN rm -rf venv \
     && pip install poetry \
     && pip install gunicorn \
     && poetry install
+
+ADD qsa-api/qsa_api /qsa/qsa_api
 
 ENV PATH=/qsa/venv/bin:$PATH
 EXPOSE 5000
