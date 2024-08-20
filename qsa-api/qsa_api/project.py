@@ -161,6 +161,8 @@ class QSAProject:
                     layer.name(), bbox, epsg_code, t == Qgis.LayerType.Raster, None
                 )
 
+                mp.write()
+
             return True, ""
 
         return False, "Cache is disabled"
@@ -356,6 +358,11 @@ class QSAProject:
         # clear cache and stuff
         for layer in self.layers:
             self.remove_layer(layer)
+
+        # remove mapproxy config file
+        if self._mapproxy_enabled:
+            mp = QSAMapProxy(self.name)
+            mp.remove()
 
         # remove qsa projects dir
         shutil.rmtree(self._qgis_project_dir, ignore_errors=True)
