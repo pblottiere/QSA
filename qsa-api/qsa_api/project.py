@@ -136,8 +136,7 @@ class QSAProject:
 
         return m
 
-    @property
-    def cache(self) -> (dict, str):
+    def cache_metadata(self) -> (dict, str):
         if self._mapproxy_enabled:
             return QSAMapProxy(self.name).metadata(), ""
         return {}, "Cache is disabled"

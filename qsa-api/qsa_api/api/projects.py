@@ -445,7 +445,7 @@ def project_cache(name):
         psql_schema = request.args.get("schema", default="public")
         project = QSAProject(name, psql_schema)
         if project.exists():
-            cache_infos, err = project.cache()
+            cache_infos, err = project.cache_metadata()
             if err:
                 return {"error": err}, 415
             return jsonify(cache_infos), 201
