@@ -48,6 +48,7 @@ class QSAProject:
     def sqlite_db(self) -> Path:
         p = self._qgis_project_dir / "qsa.db"
         if not p.exists():
+            p.parent.mkdir(parents=True, exist_ok=True)
             con = sqlite3.connect(p)
             cur = con.cursor()
             cur.execute("CREATE TABLE styles_default(geometry, style)")
