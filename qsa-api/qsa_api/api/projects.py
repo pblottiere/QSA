@@ -466,7 +466,7 @@ def project_cache_reset(name):
             rc, err = project.cache_reset()
             if err:
                 return {"error": err}, 415
-            return jsonify(cache_infos), 201
+            return jsonify(rc), 201
         else:
             return {"error": "Project does not exist"}, 415
     except Exception as e:

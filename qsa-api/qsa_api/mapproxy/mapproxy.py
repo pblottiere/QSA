@@ -1,6 +1,5 @@
 # coding: utf8
 
-import os
 import sys
 import yaml
 import boto3
@@ -18,15 +17,6 @@ class QSAMapProxy:
         self.schema = "public"
         if schema:
             self.schema = schema
-
-    @property
-    def size_bytes(self) -> float:
-        total = 0
-        for root, dirs, files in os.walk(self._mapproxy_project.parent):
-            for file in files:
-                path = Path(root) / file
-                total += path.stat().st_size
-        return total
 
     def create(self) -> None:
         parent = Path(__file__).resolve().parent
@@ -66,18 +56,15 @@ class QSAMapProxy:
     def metadata(self) -> dict:
         md = {}
 
-        md["type"] = ""
+        md["storage"] = ""
         md["valid"] = False
-        md["size"] = 0
 
         if self._mapproxy_project.exists():
             md["valid"] = True
 
-            md["type"] = "filesystem"
+            md["storage"] = "filesystem"
             if config().mapproxy_cache_s3_bucket:
-                md["type"] = "s3"
-            else:
-                md["size"] = f"{self.size_bytes/(1<<20):,.0f} MB"
+                md["storage"] = "s3"
 
         return md
 
