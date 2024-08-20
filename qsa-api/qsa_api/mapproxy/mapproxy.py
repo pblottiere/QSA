@@ -1,5 +1,6 @@
 # coding: utf8
 
+import os
 import sys
 import yaml
 import boto3

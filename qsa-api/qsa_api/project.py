@@ -359,7 +359,7 @@ class QSAProject:
             self.remove_layer(layer)
 
         # remove qsa projects dir
-        shutil.rmtree(self._qgis_project_dir)
+        shutil.rmtree(self._qgis_project_dir, ignore_errors=True)
 
         # remove remove qgis prohect in db if necessary
         if StorageBackend.type() == StorageBackend.POSTGRESQL:
