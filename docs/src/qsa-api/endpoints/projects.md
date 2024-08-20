@@ -77,7 +77,7 @@ $ curl "http://localhost/api/projects/my_project/layers" \
   -d '{
     "name":"my_layer",
     "type":"vector",
-    "datasource":"/vsis3/my-storage/vector/my_layer.fgb",
+    "datasource":"/vsis3/my-storage/vector/my_layer.fgb"
   }'
 ````
 
