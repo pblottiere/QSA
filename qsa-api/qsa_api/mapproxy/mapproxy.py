@@ -18,6 +18,15 @@ class QSAMapProxy:
         if schema:
             self.schema = schema
 
+    @property
+    def size_bytes(self) -> float:
+        total = 0
+        for root, dirs, files in os.walk(self._mapproxy_project.parent):
+            for file in files:
+                path = Path(root) / file
+                total += path.stat().st_size
+        return total
+
     def create(self) -> None:
         parent = Path(__file__).resolve().parent
         template = parent / "mapproxy.yaml"
@@ -30,7 +39,12 @@ class QSAMapProxy:
         with open(self._mapproxy_project, "w") as file:
             yaml.safe_dump(self.cfg, file, sort_keys=False)
 
-    def read(self) -> bool:
+    def read(self) -> (bool, str):
+        # if a QGIS project is created manually without QSA, the MapProxy
+        # configuration file may not be created at this point.
+        if not self._mapproxy_project.exists():
+            self.create()
+
         try:
             with open(self._mapproxy_project, "r") as file:
                 self.cfg = yaml.safe_load(file)
@@ -47,6 +61,24 @@ class QSAMapProxy:
             )
 
         return True, ""
+
+    def metadata(self) -> dict:
+        md = {}
+
+        md["type"] = ""
+        md["valid"] = False
+        md["size"] = 0
+
+        if self._mapproxy_project.exists():
+            md["valid"] = True
+
+            md["type"] = "filesystem"
+            if config().mapproxy_cache_s3_bucket:
+                md["type"] = "s3"
+            else:
+                md["size"] = f"{self.size_bytes/(1<<20):,.0f} MB"
+
+        return md
 
     def clear_cache(self, layer_name: str) -> None:
         if config().mapproxy_cache_s3_bucket:

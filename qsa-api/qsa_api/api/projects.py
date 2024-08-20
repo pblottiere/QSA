@@ -436,3 +436,39 @@ def project_del_layer(name, layer_name):
     except Exception as e:
         logger().exception(str(e))
         return {"error": "internal server error"}, 415
+
+
+@projects.get("/<name>/cache")
+def project_cache(name):
+    log_request()
+    try:
+        psql_schema = request.args.get("schema", default="public")
+        project = QSAProject(name, psql_schema)
+        if project.exists():
+            cache_infos, err = project.cache()
+            if err:
+                return {"error": err}, 415
+            return jsonify(cache_infos), 201
+        else:
+            return {"error": "Project does not exist"}, 415
+    except Exception as e:
+        logger().exception(str(e))
+        return {"error": "internal server error"}, 415
+
+
+@projects.post("/<name>/cache/reset")
+def project_cache_reset(name):
+    log_request()
+    try:
+        psql_schema = request.args.get("schema", default="public")
+        project = QSAProject(name, psql_schema)
+        if project.exists():
+            rc, err = project.cache_reset()
+            if err:
+                return {"error": err}, 415
+            return jsonify(cache_infos), 201
+        else:
+            return {"error": "Project does not exist"}, 415
+    except Exception as e:
+        logger().exception(str(e))
+        return {"error": "internal server error"}, 415
