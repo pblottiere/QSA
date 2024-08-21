@@ -175,3 +175,28 @@ $ curl "http://localhost:5000/api/projects/my_project/styles" \
     }
   }'
 ````
+
+## Cache
+
+| Method  |                      URL                         |         Description                                                                                                          |
+|---------|--------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------|
+| GET     | `/api/projects/{project}/cache`                  | Return metadata about the cache                                                                                              |
+| POST    | `/api/projects/{project}/cache/reset`            | Clear cached data and reset cache configuration                                                                              |
+
+Example:
+
+```` shell
+$ curl "http://localhost:5000/api/projects/my_project/cache"
+{
+  "valid":true,
+  "storage":"filesystem"
+}
+````
+
+<div class="warning">
+Reset cache
+
+When a QGIS project is created manually without QSA, the cache is not
+initialized. This method allows to create the MapProxy configuration file
+accordingly.
+</div>

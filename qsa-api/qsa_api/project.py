@@ -129,7 +129,43 @@ class QSAProject:
 
         if StorageBackend.type() == StorageBackend.POSTGRESQL:
             m["schema"] = self.schema
+
+        m["cache"] = "disabled"
+        if self._mapproxy_enabled:
+            m["cache"] = "mapproxy"
+
         return m
+
+    def cache_metadata(self) -> (dict, str):
+        if self._mapproxy_enabled:
+            return QSAMapProxy(self.name).metadata(), ""
+        return {}, "Cache is disabled"
+
+    def cache_reset(self) -> (bool, str):
+        if self._mapproxy_enabled:
+            mp = QSAMapProxy(self.name)
+            rc, err = mp.read()
+            if not rc:
+                return False, err
+
+            p = QgsProject()
+            p.read(self._qgis_project_uri)
+
+            for layer in p.mapLayers().values():
+                t = layer.type()
+                bbox = QSAProject._layer_bbox(layer)
+                epsg_code = QSAProject._layer_epsg_code(layer)
+
+                mp.remove_layer(layer.name())
+                mp.add_layer(
+                    layer.name(), bbox, epsg_code, t == Qgis.LayerType.Raster, None
+                )
+
+                mp.write()
+
+            return True, ""
+
+        return False, "Cache is disabled"
 
     def style_default(self, geometry: str) -> bool:
         con = sqlite3.connect(self.sqlite_db.as_posix())
@@ -245,7 +281,7 @@ class QSAProject:
     def layer_exists(self, name: str) -> bool:
         return bool(self.layer(name))
 
-    def remove_layer(self, name: str) -> None:
+    def remove_layer(self, name: str) -> bool:
         # remove layer in qgis project
         project = QgsProject()
         project.read(self._qgis_project_uri, Qgis.ProjectReadFlag.DontResolveLayers)
@@ -260,7 +296,11 @@ class QSAProject:
         # remove layer in mapproxy config
         if self._mapproxy_enabled:
             mp = QSAMapProxy(self.name)
-            mp.read()
+            rc, err = mp.read()
+            if not rc:
+                self.debug(err)
+                return False
+
             mp.remove_layer(name)
             mp.write()
 
@@ -319,8 +359,13 @@ class QSAProject:
         for layer in self.layers:
             self.remove_layer(layer)
 
+        # remove mapproxy config file
+        if self._mapproxy_enabled:
+            mp = QSAMapProxy(self.name)
+            mp.remove()
+
         # remove qsa projects dir
-        shutil.rmtree(self._qgis_project_dir)
+        shutil.rmtree(self._qgis_project_dir, ignore_errors=True)
 
         # remove remove qgis prohect in db if necessary
         if StorageBackend.type() == StorageBackend.POSTGRESQL:
@@ -412,20 +457,10 @@ class QSAProject:
         if self._mapproxy_enabled:
             self.debug("Update MapProxy configuration file")
 
-            bbox = list(
-                map(
-                    float,
-                    lyr.extent()
-                    .asWktCoordinates()
-                    .replace(",", "")
-                    .split(" "),
-                )
-            )
-
-            authid_items = lyr.crs().authid().split(":")
-            if len(authid_items) < 2:
+            bbox = QSAProject._layer_bbox(lyr)
+            epsg_code = QSAProject._layer_epsg_code(lyr)
+            if epsg_code < 0:
                 return False, f"Invalid CRS {lyr.crs().authid()}"
-            epsg_code = int(authid_items[1])
 
             self.debug(f"EPSG code {epsg_code}")
 
@@ -703,6 +738,25 @@ class QSAProject:
         elif layer_type == Qgis.LayerType.Raster:
             provider = "gdal"
         return provider
+
+    @staticmethod
+    def _layer_epsg_code(lyr) -> int:
+        authid_items = lyr.crs().authid().split(":")
+        if len(authid_items) < 2:
+            return -1
+        return int(authid_items[1])
+
+    @staticmethod
+    def _layer_bbox(lyr) -> list:
+        return list(
+            map(
+                float,
+                lyr.extent()
+                .asWktCoordinates()
+                .replace(",", "")
+                .split(" "),
+            )
+        )
 
     @property
     def _qgis_project_uri(self) -> str:
