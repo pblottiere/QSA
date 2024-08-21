@@ -511,6 +511,25 @@ $ curl "http://localhost:5000/api/projects/my_project/styles" \
     }
   }'
 </code></pre>
+<h2 id="cache"><a class="header" href="#cache">Cache</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Method</th><th>URL</th><th>Description</th></tr></thead><tbody>
+<tr><td>GET</td><td><code>/api/projects/{project}/cache</code></td><td>Return metadata about the cache</td></tr>
+<tr><td>POST</td><td><code>/api/projects/{project}/cache/reset</code></td><td>Clear cached data and reset cache configuration</td></tr>
+</tbody></table>
+</div>
+<p>Example:</p>
+<pre><code class="language-shell">$ curl "http://localhost:5000/api/projects/my_project/cache"
+{
+  "valid":true,
+  "storage":"filesystem"
+}
+</code></pre>
+<div class="warning">
+Reset cache
+<p>When a QGIS project is created manually without QSA, the cache is not
+initialized. This method allows to create the MapProxy configuration file
+accordingly.</p>
+</div>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="qsa-rest-api--apiprocessing"><a class="header" href="#qsa-rest-api--apiprocessing">QSA REST API : /api/processing</a></h1>
 <p>The QSA REST API provides some basic processing methods to create on-the-fly
 rasters or get histogram for raster layers.</p>
