@@ -53,17 +53,25 @@ empty.
 | POST    | `/api/projects/{project}/layers`                 | Add layer to project. See [Layer definition](#layer-definition) for more information.                                                              |
 | POST    | `/api/projects/{project}/layers/{layer}/style`   | Add/Update layer's style with `name` (style name) and `current` (`true` or `false`)                                                                |
 | DELETE  | `/api/projects/{project}/layers/{layer}`         | Remove layer from project                                                                                                                          |
+| GET     | `/api/projects/{project}/layers/wms`             | List all published WMS layers                                                                                                                      |
+| GET     | `/api/projects/{project}/layers/wms/feature-info`| List WMS Feature Info settings                                                                                                                     |
+| POST    | `/api/projects/{project}/layers/wms/feature-info`| Change WMS Feature Info settings                                                                                                                   |
+| GET     | `/api/projects/{project}/layers/{layer}/wms`     | List a published WMS layer's metadata                                                                                                              |
+| POST    | `/api/projects/{project}/layers/{layer}/wms`     | Toggle WMS publication status of an existing layer                                                                                                 |
+| GET     | `/api/projects/{project}/layers/wfs`             | List all published WFS layers                                                                                                                      |
+| GET     | `/api/projects/{project}/layers/{layer}/wfs`     | List a published WFS layer's metadata                                                                                                              |
+| POST    | `/api/projects/{project}/layers/{layer}/wfs`     | Toggle WFS publication status of an existing vector layer                                                                                          |
 
-#### Layer definition {#layer-definition}
+### Layer definition {#layer-definition}
 
 A layer can be added to a project thanks to the next parameters:
 
 - `type` : `raster` or `vector`
 - `name` : the layer's name
 - `datasource` : the link to the datasource according to the storage backend
-    - filesystem : `/tmp/raster.tif`
-    - AWS S3 : `/vsis3/bucket/raster.tif`
-    - PostGIS : `service=qsa table=\"public\".\"lines\" (geom)`
+  - filesystem : `/tmp/raster.tif`
+  - AWS S3 : `/vsis3/bucket/raster.tif`
+  - PostGIS : `service=qsa table=\"public\".\"lines\" (geom)`
 - `overview` (optional) : automatically build overviews for raster layers stored in S3 buckets
 - `crs` (optional) : CRS (automatically detected by default)
 
@@ -79,6 +87,54 @@ $ curl "http://localhost/api/projects/my_project/layers" \
     "type":"vector",
     "datasource":"/vsis3/my-storage/vector/my_layer.fgb"
   }'
+````
+
+### WMS
+
+### Publication
+
+QGIS Server publishes WMS layers automatically. These parameters are needed to change the publication status of a layer:
+
+- `published` : If the layer shall be published as boolean. Allowed values: `true`, `false`
+
+```` shell
+$ curl "http://localhost/api/projects/my_project/layers/my_layer/wms" \
+  -X POST \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "published": false
+  }'  
+````
+
+### Feature Info
+
+By default QGIS Server does not send the geometry on a WMS Feature Info request. This can be changed with this configuration:
+
+- `publish_geometry`: If WMS Feature Info request shall return the geometry. Allowed values: `true`, `false`
+
+```` shell
+$ curl "http://localhost/api/projects/my_project/layers/wms/feature-info" \
+  -X POST \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "publish_geometry": true
+  }'  
+````
+
+### WFS Publication
+
+These parameters are needed to publish an existing vector layer as WFS:
+
+- `published` : If the layer shall be published as boolean. Allowed values: `true`, `false`
+- `geometry_precision` (optional) : the geometric precision as integer, default is `8`
+
+```` shell
+$ curl "http://localhost/api/projects/my_project/layers/my_layer/wfs" \
+  -X POST \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "published": true
+  }'  
 ````
 
 ## Style
