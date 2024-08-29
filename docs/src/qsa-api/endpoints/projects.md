@@ -69,9 +69,9 @@ A layer can be added to a project thanks to the next parameters:
 - `type` : `raster` or `vector`
 - `name` : the layer's name
 - `datasource` : the link to the datasource according to the storage backend
-  - filesystem : `/tmp/raster.tif`
-  - AWS S3 : `/vsis3/bucket/raster.tif`
-  - PostGIS : `service=qsa table=\"public\".\"lines\" (geom)`
+ - filesystem : `/tmp/raster.tif`
+ - AWS S3 : `/vsis3/bucket/raster.tif`
+ - PostGIS : `service=qsa table=\"public\".\"lines\" (geom)`
 - `overview` (optional) : automatically build overviews for raster layers stored in S3 buckets
 - `crs` (optional) : CRS (automatically detected by default)
 
