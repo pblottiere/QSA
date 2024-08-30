@@ -7,7 +7,7 @@ The QSA REST API provides several endpoints:
 * [/api/instances](instances.md)
 * [/api/processing](processing.md)
 
-### PostgreSQL schema
+## PostgreSQL schema
 
 When PostgreSQL support is enabled, a query string parameter `schema` may be
 used to specify the schema in which the QGIS project is stored in the database

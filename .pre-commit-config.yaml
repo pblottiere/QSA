@@ -13,3 +13,8 @@ repos:
     -   id: check-xml
     -   id: detect-private-key
     -   id: mixed-line-ending
+
+- repo: https://github.com/DavidAnson/markdownlint-cli2
+  rev: v0.13.0
+  hooks:
+  - id: markdownlint-cli2

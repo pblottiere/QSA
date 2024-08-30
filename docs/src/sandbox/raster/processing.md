@@ -1,7 +1,6 @@
 # Sandbox : raster processing
 
-
-### Histogram
+## Histogram
 
 To get an histogram for a specific raster layer:
 

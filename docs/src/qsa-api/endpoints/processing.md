@@ -8,7 +8,6 @@ rasters or get histogram for raster layers.
 | POST    | `/api/processing/raster/histogram/{project}/{layer}`  | Return an histogram in JSON                                          |
 | POST    | `/api/processing/raster/calculator/{project}`         | Create a raster based on an `expression` and an `output` filename    |
 
-
 Examples:
 
 ``` shell
@@ -21,7 +20,6 @@ $ curl "http://localhost/api/projects/" \
         "output":"/vsis3/my-storage/result.tif"
      }'
 ```
-
 
 <div class="warning">
 Processing

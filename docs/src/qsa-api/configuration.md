@@ -13,13 +13,11 @@ QSA web server can be configured thanks to the next environment variables:
 | No         | `QSA_MAPPROXY_CACHE_S3_BUCKET`         | Activate S3 cache for MapProxy if bucket is set                                  |
 | No         | `QSA_MAPPROXY_CACHE_S3_DIR`            | S3 cache directory for MapProxy. Default to `/mapproxy/cache`                    |
 
-
 <div class="warning">
 MapProxy
 
 Time dimension caching is not supported with S3 backend storage.
 </div>
-
 
 ## PostgreSQL support {#postgresql-support}
 

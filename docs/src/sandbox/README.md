@@ -3,7 +3,6 @@
 The sandbox directory provides a plug-and-play `Docker` environment to discover
 QSA tools with PostgreSQL support enabled.
 
-
 First, a QSA REST API server is set up with 4 QGIS Server instances:
 
 ```` shell

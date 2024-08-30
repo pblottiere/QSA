@@ -1,6 +1,6 @@
 # Sandbox : projects
 
-### Create and delete projects in PostgreSQL
+## Create and delete projects in PostgreSQL
 
 First we create a schema to store QGIS projects:
 

@@ -1,7 +1,6 @@
 # Sandbox : vector styles
 
-
-### Add style to project
+## Add style to project
 
 To list available properties for the polygon single symbol renderer:
 
@@ -53,8 +52,7 @@ $ curl "http://localhost:5000/api/projects/my_project/styles?schema=my_schema"
 ["my_fill_style"]
 ````
 
-
-### Apply style to layer
+## Apply style to layer
 
 To apply a specific style to a layer:
 
@@ -72,7 +70,7 @@ true
 The layer rendering has changed now:
 
 ```` shell
-$ curl "http://localhost:5000/api/projects/my_project/layers/polygons/map?schema=my_schema" --output map.png
+curl "http://localhost:5000/api/projects/my_project/layers/polygons/map?schema=my_schema" --output map.png
 ````
 
 <img src="../../images/map_style.png" width="300">

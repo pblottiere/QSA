@@ -54,18 +54,18 @@ empty.
 | POST    | `/api/projects/{project}/layers/{layer}/style`   | Add/Update layer's style with `name` (style name) and `current` (`true` or `false`)                                                                |
 | DELETE  | `/api/projects/{project}/layers/{layer}`         | Remove layer from project                                                                                                                          |
 
-#### Layer definition {#layer-definition}
+### Layer definition {#layer-definition}
 
 A layer can be added to a project thanks to the next parameters:
 
-- `type` : `raster` or `vector`
-- `name` : the layer's name
-- `datasource` : the link to the datasource according to the storage backend
-    - filesystem : `/tmp/raster.tif`
-    - AWS S3 : `/vsis3/bucket/raster.tif`
-    - PostGIS : `service=qsa table=\"public\".\"lines\" (geom)`
-- `overview` (optional) : automatically build overviews for raster layers stored in S3 buckets
-- `crs` (optional) : CRS (automatically detected by default)
+* `type` : `raster` or `vector`
+* `name` : the layer's name
+* `datasource` : the link to the datasource according to the storage backend
+  * filesystem : `/tmp/raster.tif`
+  * AWS S3 : `/vsis3/bucket/raster.tif`
+  * PostGIS : `service=qsa table=\"public\".\"lines\" (geom)`
+* `overview` (optional) : automatically build overviews for raster layers stored in S3 buckets
+* `crs` (optional) : CRS (automatically detected by default)
 
 Example:
 
@@ -96,14 +96,14 @@ automatically used when a vector layer is added to a QSA project.
 | POST    | `/api/projects/{project}/styles/default`      | Set a default layer's style. See [Vector style](#vector-style) and [Raster style](#raster-style) for more information.         |
 | DELETE  | `/api/projects/{project}/styles/{style}`      | Remove style from project                                                                                                      |
 
-
-#### Vector style {#vector-style}
+### Vector style {#vector-style}
 
 For vector layers, a style can be defined with the parameters listed below:
-- `type` : `vector`
-- `name` : the name of the style
-- `rendering` : rendering parameters (only `opacity` is supported for now)
-- `symbology` : dictionary with `type` (only `single_symbol` is supported for
+
+* `type` : `vector`
+* `name` : the name of the style
+* `rendering` : rendering parameters (only `opacity` is supported for now)
+* `symbology` : dictionary with `type` (only `single_symbol` is supported for
                 now), `symbol` and `properties`
 
 Example:
@@ -130,17 +130,18 @@ $ curl "http://localhost:5000/api/projects/my_project/styles" \
 ````
 
 To set a default style for a specific geometry, the parameters listed below are available:
-- `name` : the name of the style to use by default
-- `geometry` : the geometry for which the style needs to be applied
 
+* `name` : the name of the style to use by default
+* `geometry` : the geometry for which the style needs to be applied
 
 #### Raster style {#raster-style}
 
 For raster layers, a style can be defined with the parameters listed below:
-- `type` : `raster`
-- `name` : the name of the style
-- `rendering` : rendering parameters
-- `symbology` : dictionary with `type` (only `singlebandgray` and
+
+* `type` : `raster`
+* `name` : the name of the style
+* `rendering` : rendering parameters
+* `symbology` : dictionary with `type` (only `singlebandgray` and
   `multibandcolor` are supported for now) and `properties`
 
 Example:

@@ -3,7 +3,7 @@
 `qsa-cli` allows to inspect online QGIS Server instances registered to
 `qsa-api` server, but it's also possible to use the REST API.
 
-### List online instances
+## List online instances
 
 To list these instances with `qsa-cli`:
 
@@ -48,8 +48,7 @@ $ curl http://localhost:5000/api/instances/ | jq
 }
 ````
 
-
-### Get metadata
+## Get metadata
 
 To get some metadata about a specific QGIS Server instance with `qsa-cli`:
 
@@ -100,8 +99,7 @@ $ qsa inspect 4464d3c5
 
 Or with the API ``curl http://localhost:5000/api/instances/4464d3c5``.
 
-
-### Fetch the log
+## Fetch the log
 
 A bad request to QGIS Server to have something in the log:
 
@@ -142,8 +140,7 @@ Trying URL path: '/ogc/' for '/wfs3'
 Request finished in 3 ms
 ````
 
-
-### Display stats
+## Display stats
 
 To display stats for all QGIS Server online instances:
 

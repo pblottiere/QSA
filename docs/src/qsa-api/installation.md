@@ -15,7 +15,7 @@ $ . venv/bin/activate
 A prebuilt image can be found on `ghcr.io/pblottiere/qsa`:
 
 ```` shell
-$ docker pull ghcr.io/pblottiere/qsa:1.0.0
+docker pull ghcr.io/pblottiere/qsa:1.0.0
 ````
 
 Otherwise the image can manually be built using:

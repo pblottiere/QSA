@@ -2,8 +2,7 @@
 
 Layers are based on the `data.gpkg` file mounted in the Docker containers.
 
-
-### Add layers
+## Add layers
 
 To add a polygon layer from a geopackage to a project:
 
@@ -39,8 +38,7 @@ $ curl "http://localhost:5000/api/projects/my_project/layers?schema=my_schema" \
 true
 ````
 
-
-### List layers and get metadata
+## List layers and get metadata
 
 ```` shell
 $ curl "http://localhost:5000/api/projects/my_project/layers?schema=my_schema"
@@ -62,19 +60,17 @@ $ curl "http://localhost:5000/api/projects/my_project/layers/lines?schema=my_sch
 }
 ````
 
-
-### Map sample
+## Map sample
 
 To execute a WMS `GetMap` request with basic parameters:
 
 ```` shell
-$ curl "http://localhost:5000/api/projects/my_project/layers/polygons/map?schema=my_schema" --output map.png
+curl "http://localhost:5000/api/projects/my_project/layers/polygons/map?schema=my_schema" --output map.png
 ````
 
 <img src="../../images/map.png" width="300">
 
-
-### Delete layers
+## Delete layers
 
 ```` shell
 $ curl -X DELETE "http://localhost:5000/api/projects/my_project/layers/lines?schema=my_schema"
