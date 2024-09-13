@@ -602,7 +602,6 @@ class QSAProject:
         project = QgsProject()
         project.read(self._qgis_project_uri, Qgis.ProjectReadFlag.DontResolveLayers)
 
-        # get layer ID
         layers = project.mapLayersByName(name)
         if not layers:
             return False, f"Layer '{name}' does not exist"
