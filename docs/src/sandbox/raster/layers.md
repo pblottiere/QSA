@@ -23,8 +23,26 @@ true
 ### List layers and get metadata
 
 ```` shell
+# list layers
 $ curl "http://localhost:5000/api/projects/my_project/layers?schema=my_schema"
 ["polygons","dem"]
+
+# get metadata
+$ curl "http://localhost:5000/api/projects/my_project/layers/dem?schema=my_schema"
+{
+  "bands": 1,
+  "bbox": "18.6662979442000001 45.77670143760000343, 18.70359794419999844 45.81170143760000002",
+  "crs": "EPSG:4326",
+  "current_style": "default",
+  "data_type": "float32",
+  "name": "dem",
+  "source": "/dem.tif",
+  "styles": [
+    "default"
+  ],
+  "type": "raster",
+  "valid": true
+}
 ````
 
 
