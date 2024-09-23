@@ -218,6 +218,9 @@ class QSAProject:
 
             if layer.type() == Qgis.LayerType.Vector:
                 infos["geometry"] = QgsWkbTypes.displayString(layer.wkbType())
+            elif layer.type() == Qgis.LayerType.Raster:
+                infos["bands"] = layer.bandCount()
+                infos["data_type"] = layer.dataProvider().dataType(1).name.lower()
 
             infos["source"] = layer.source()
             infos["crs"] = layer.crs().authid()
@@ -319,6 +322,10 @@ class QSAProject:
                 .projectStorageFromType("postgresql")
             )
             projects = storage.listProjects(uri)
+
+            # necessary step if the project has been created without QSA
+            if self.name in projects:
+                self._qgis_projects_dir().mkdir(parents=True, exist_ok=True)
 
             return self.name in projects and self._qgis_projects_dir().exists()
 
