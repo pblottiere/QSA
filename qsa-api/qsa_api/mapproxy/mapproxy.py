@@ -84,9 +84,13 @@ class QSAMapProxy:
             bucket.objects.filter(Prefix=cache_dir).delete()
         else:
             cache_dir = self._mapproxy_project.parent / "cache_data"
-            self.debug(f"Clear cache '{cache_dir}'")
+            self.debug(f"Clear tiles cache '{cache_dir}'")
             for d in cache_dir.glob(f"{layer_name}_cache_*"):
                 shutil.rmtree(d)
+
+            cache_dir = self._mapproxy_project.parent / "cache_data" / "legends"
+            self.debug(f"Clear legends cache '{cache_dir}'")
+            shutil.rmtree(cache_dir, ignore_errors=True)
 
     def add_layer(
         self,
