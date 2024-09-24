@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [1.1.0] - 2024-09-24
+
+### Added
+
+- Add Python files after installation of dependencies in Dockerfile : <https://github.com/pblottiere/QSA/pull/68>
+- Add basic cache entrypoints : <https://github.com/pblottiere/QSA/pull/74>
+- Add data type and band counts metadata for raster layers : <https://github.com/pblottiere/QSA/pull/80>
+
+### Fixed
+
+- Always create parent directory for internal sqlite database : <https://github.com/pblottiere/QSA/pull/73>
+- Clear MapProxy legends cache : <https://github.com/pblottiere/QSA/pull/78>
+
 ## [1.0.0] - 2024-07-31
 
 ### Added
