@@ -25,7 +25,12 @@ Examples:
 
 ```` shell
 # Return single symbol properties for polygon layers
-$ curl "http://localhost:5000/api/symbology/vector/polygon/single_symbol/fill/properties" | jq
+curl "http://localhost:5000/api/symbology/vector/polygon/single_symbol/fill/properties" | jq
+````
+
+returns
+
+```` json
 {
   "border_width_map_unit_scale": "3x:0,0,0,0,0,0",
   "color": "0,0,255,255",
@@ -39,9 +44,16 @@ $ curl "http://localhost:5000/api/symbology/vector/polygon/single_symbol/fill/pr
   "outline_width_unit": "MM",
   "style": "solid"
 }
+````
 
+```` console
 # Return multi band gray properties for raster layers
-$ curl "http://localhost:5000/api/symbology/raster/multibandcolor/properties" | jq
+curl "http://localhost:5000/api/symbology/raster/multibandcolor/properties" | jq
+````
+
+returns
+
+```` json
 {
   "blue": {
     "band": 3,

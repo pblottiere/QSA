@@ -5,7 +5,7 @@
 To add a style for a multiband raster layer:
 
 ```` shell
-$ curl "http://localhost:5000/api/projects/my_project/styles?schema=my_schema" \
+curl "http://localhost:5000/api/projects/my_project/styles?schema=my_schema" \
   -X POST \
   -H 'Content-Type: application/json' \
   -d '{
@@ -29,7 +29,6 @@ $ curl "http://localhost:5000/api/projects/my_project/styles?schema=my_schema" \
       "contrast": 100
     }
   }'
-true
 ````
 
 To list styles for a specific project:
@@ -44,14 +43,13 @@ $ curl "http://localhost:5000/api/projects/my_project/styles?schema=my_schema"
 To apply a specific style to a layer:
 
 ```` shell
-$ curl "http://localhost:5000/api/projects/my_project/layers/dem/style?schema=my_schema" \
+curl "http://localhost:5000/api/projects/my_project/layers/dem/style?schema=my_schema" \
   -X POST \
   -H 'Content-Type: application/json' \
   -d '{
     "name":"my_singlebandgray_style",
     "current":true
   }'
-true
 ````
 
 The layer rendering has changed now:

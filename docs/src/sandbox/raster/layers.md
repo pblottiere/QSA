@@ -7,7 +7,7 @@ Layer is based on the `landsat_4326.tif` file mounted in the Docker containers.
 To add a raster layer to a project:
 
 ```` shell
-$ curl "http://localhost:5000/api/projects/my_project/layers?schema=my_schema" \
+curl "http://localhost:5000/api/projects/my_project/layers?schema=my_schema" \
   -X POST \
   -H 'Content-Type: application/json' \
   -d '{
@@ -15,18 +15,26 @@ $ curl "http://localhost:5000/api/projects/my_project/layers?schema=my_schema" \
     "name":"dem",
     "type":"raster"
   }'
-true
 ````
 
 ## List layers and get metadata
 
+list layers
+
 ```` shell
-# list layers
 $ curl "http://localhost:5000/api/projects/my_project/layers?schema=my_schema"
 ["polygons","dem"]
+````
 
-# get metadata
-$ curl "http://localhost:5000/api/projects/my_project/layers/dem?schema=my_schema"
+get metadata
+
+```` shell
+curl "http://localhost:5000/api/projects/my_project/layers/dem?schema=my_schema"
+````
+
+returns
+
+```` json
 {
   "bands": 1,
   "bbox": "18.6662979442000001 45.77670143760000343, 18.70359794419999844 45.81170143760000002",

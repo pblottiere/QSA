@@ -8,8 +8,7 @@
 To list these instances with `qsa-cli`:
 
 ```` shell
-$ export QSA_SERVER_URL=http://localhost:5000
-$ qsa ps
+$ QSA_SERVER_URL=http://localhost:5000 qsa ps
 INSTANCE ID    IP          STATUS
 -------------  ----------  -----------------------
 6773ca08       172.20.0.2  Binded 1096 seconds ago
@@ -21,7 +20,12 @@ c0047e66       172.20.0.6  Binded 1096 seconds ago
 Or with the API:
 
 ```` shell
-$ curl http://localhost:5000/api/instances/ | jq
+curl http://localhost:5000/api/instances/ | jq
+````
+
+returns
+
+```` json
 {
   "servers": [
     {
@@ -53,7 +57,12 @@ $ curl http://localhost:5000/api/instances/ | jq
 To get some metadata about a specific QGIS Server instance with `qsa-cli`:
 
 ```` shell
-$ qsa inspect 4464d3c5
+qsa inspect 4464d3c5
+````
+
+returns
+
+```` json
 {
   "cache": {
     "projects": []
@@ -97,14 +106,19 @@ $ qsa inspect 4464d3c5
 }
 ````
 
-Or with the API ``curl http://localhost:5000/api/instances/4464d3c5``.
+Or with the API `curl http://localhost:5000/api/instances/4464d3c5`.
 
 ## Fetch the log
 
 A bad request to QGIS Server to have something in the log:
 
 ```` shell
-$ curl http://172.20.0.4/ogc/
+curl http://172.20.0.4/ogc/
+````
+
+returns
+
+````xml
 <?xml version="1.0" encoding="UTF-8"?>
 <ServerException>Project file error. For OWS services: please provide a SERVICE and a MAP parameter pointing to a valid QGIS project file</ServerException>
 ````
@@ -112,7 +126,12 @@ $ curl http://172.20.0.4/ogc/
 Then to fetch the log of the corresponding QGIS Server instance with `qsa-cli`:
 
 ```` shell
-$ qsa logs 4464d3c5
+qsa logs 4464d3c5
+````
+
+returns
+
+```` text
 Server plugin qsa loaded!
 Server python plugins loaded
 ******************** New request ***************
@@ -145,7 +164,12 @@ Request finished in 3 ms
 To display stats for all QGIS Server online instances:
 
 ```` shell
-$ qsa stats
+qsa stats
+````
+
+returns
+
+````text
 INSTANCE ID      COUNT  TIME        SERVICE    REQUEST    PROJECT
 -------------  -------  ----------  ---------  ---------  ---------
 4464d3c5             1

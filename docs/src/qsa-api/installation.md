@@ -3,11 +3,12 @@
 ## From sources
 
 ```` shell
-$ cd qsa-api
-$ virtualenv --system-site-packages venv  # system aware for pyqgis
-$ . venv/bin/activate
-(venv)$ pip install poetry
-(venv)$ poetry install
+cd qsa-api
+virtualenv --system-site-packages venv  # system aware for pyqgis
+. venv/bin/activate
+# now in (venv)
+pip install poetry
+poetry install
 ````
 
 ## Docker image

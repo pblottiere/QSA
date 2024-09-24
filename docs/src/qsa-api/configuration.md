@@ -30,8 +30,9 @@ The PostgreSQL support relies on a `service` defined in a [PostgreSQL connection
 service file](https://www.postgresql.org/docs/current/libpq-pgservice.html).
 For example with `QSA_QGISSERVER_PROJECTS_PSQL_SERVICE=qsa_projects`:
 
-```` shell
-$ cat ~/.pg_service.conf
+Ensure you have a valid `~/.pg_service.conf`
+
+```` conf
 [qsa_projects]
 host=localhost
 port=5432

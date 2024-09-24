@@ -1,27 +1,33 @@
 # Developers
 
-Documentation:
+## Documentation
 
 ```` console
 mdbook build docs
 ````
 
-Unit tests:
+## Unit tests
 
-```` console
-$ cat ~/.pg_service.conf
+ensure you have a valid `~/.pg_service.conf`
+
+```` conf
 [qsa_test]
 host=localhost
 port=5432
 dbname=qsa_test
 user=myusername
 password=
-$ createdb qsa_test
-$ cd qsa-api
-$ pytest -sv tests
 ````
 
-Integration tests:
+run the tests with:
+
+```` console
+createdb qsa_test
+cd qsa-api
+pytest -sv tests
+````
+
+## Integration tests
 
 ```` console
 cd sandbox

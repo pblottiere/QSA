@@ -7,7 +7,7 @@ Layers are based on the `data.gpkg` file mounted in the Docker containers.
 To add a polygon layer from a geopackage to a project:
 
 ```` shell
-$ curl "http://localhost:5000/api/projects/my_project/layers?schema=my_schema" \
+curl "http://localhost:5000/api/projects/my_project/layers?schema=my_schema" \
   -X POST \
   -H 'Content-Type: application/json' \
   -d '{
@@ -16,17 +16,16 @@ $ curl "http://localhost:5000/api/projects/my_project/layers?schema=my_schema" \
     "name":"polygons",
     "type":"vector"
   }'
-true
 ````
 
 And a line layer from PostGIS:
 
 ```` shell
 # copy geopackage table to PostGIS
-$ ogr2ogr -f PostgreSQL "PG:dbname=qsa password=qsa user=qsa port=5433 host=localhost" data.gpkg lines
+ogr2ogr -f PostgreSQL "PG:dbname=qsa password=qsa user=qsa port=5433 host=localhost" data.gpkg lines
 
 # add a line layer based on the PostGIS table
-$ curl "http://localhost:5000/api/projects/my_project/layers?schema=my_schema" \
+curl "http://localhost:5000/api/projects/my_project/layers?schema=my_schema" \
   -X POST \
   -H 'Content-Type: application/json' \
   -d '{
@@ -35,7 +34,6 @@ $ curl "http://localhost:5000/api/projects/my_project/layers?schema=my_schema" \
     "name":"lines",
     "type":"vector"
   }'
-true
 ````
 
 ## List layers and get metadata
@@ -43,8 +41,15 @@ true
 ```` shell
 $ curl "http://localhost:5000/api/projects/my_project/layers?schema=my_schema"
 ["lines","polygons"]
+````
 
-$ curl "http://localhost:5000/api/projects/my_project/layers/lines?schema=my_schema" | jq
+```` shell
+curl "http://localhost:5000/api/projects/my_project/layers/lines?schema=my_schema" | jq
+````
+
+returns
+
+```` json
 {
   "bbox": "-117.62319839219100004 23.20820580488510032, -82.32264950769270229 46.18290982947510059",
   "crs": "EPSG:4326",
@@ -73,8 +78,7 @@ curl "http://localhost:5000/api/projects/my_project/layers/polygons/map?schema=m
 ## Delete layers
 
 ```` shell
-$ curl -X DELETE "http://localhost:5000/api/projects/my_project/layers/lines?schema=my_schema"
-true
+curl -X DELETE "http://localhost:5000/api/projects/my_project/layers/lines?schema=my_schema"
 
 $ curl "http://localhost:5000/api/projects/my_project/layers?schema=my_schema"
 ["polygons"]

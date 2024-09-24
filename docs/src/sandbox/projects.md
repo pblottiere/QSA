@@ -12,7 +12,7 @@ CREATE SCHEMA
 Then we create a QSA project:
 
 ```` shell
-$ curl "http://localhost:5000/api/projects/" \
+curl "http://localhost:5000/api/projects/" \
     -X POST \
     -H 'Content-Type: application/json' \
     -d '{
@@ -20,7 +20,6 @@ $ curl "http://localhost:5000/api/projects/" \
         "author":"pblottiere",
         "schema":"my_schema"
     }'
-true
 ````
 
 In this case, a directory has been created on the filesystem with the internal
@@ -71,7 +70,12 @@ $ curl "http://localhost:5000/api/projects/"
 To list project metadata:
 
 ```` shell
-$ curl http://localhost:5000/api/projects/my_project?schema=my_schema | jq
+curl http://localhost:5000/api/projects/my_project?schema=my_schema | jq
+````
+
+returns
+
+```` json
 {
   "author": "pblottiere",
   "creation_datetime": "2024-03-14T20:17:45",
