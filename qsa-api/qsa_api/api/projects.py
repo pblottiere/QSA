@@ -417,7 +417,224 @@ def project_info_layer(name, layer_name):
     except Exception as e:
         logger().exception(str(e))
         return {"error": "internal server error"}, 415
+    
+@projects.get("/<name>/layers/wms")
+def project_layers_wms(name):
+    """
+    Get all published WMS layers
+    """
+    log_request()
+    try:
+        psql_schema = request.args.get("schema", default="public")
+        project = QSAProject(name, psql_schema)
+        if project.exists():
+            return jsonify(project.layers_wms), 201
+        else:
+            return {"error": "Project does not exist"}, 415
+    except Exception as e:
+        logger().exception(str(e))
+        return {"error": "internal server error"}, 415
+    
+@projects.get("/<name>/layers/wms/feature-info")
+def project_wms_feature_info(name):
+    """
+    Information about the WMS Feature Info settings
+    """
+    log_request()
+    try:
+        psql_schema = request.args.get("schema", default="public")
+        project = QSAProject(name, psql_schema)
+        if project.exists():
+            return jsonify(project.project_wms_feature_info), 201
+        else:
+            return {"error": "Project does not exist"}, 415
+    except Exception as e:
+        logger().exception(str(e))
+        return {"error": "internal server error"}, 415
 
+    
+@projects.get("/<name>/layers/wfs")
+def project_layers_wfs(name):
+    """
+    Get all published WFS layers
+    """
+    log_request()
+    try:
+        psql_schema = request.args.get("schema", default="public")
+        project = QSAProject(name, psql_schema)
+        if project.exists():
+            return jsonify(project.layers_wfs_info), 201
+        else:
+            return {"error": "Project does not exist"}, 415
+    except Exception as e:
+        logger().exception(str(e))
+        return {"error": "internal server error"}, 415
+
+@projects.get("/<name>/layers/<layer_name>/wfs")
+def project_info_layer_wfs(name, layer_name):
+    """
+    Get information about a single WFS layer
+    """
+    log_request()
+    try:
+        psql_schema = request.args.get("schema", default="public")
+        project = QSAProject(name, psql_schema)
+        if project.exists():
+            return jsonify(project.layer_wfs(layer_name)), 201
+        else:
+            return {"error": "Project does not exist"}, 415
+    except Exception as e:
+        logger().exception(str(e))
+        return {"error": "internal server error"}, 415
+
+@projects.get("/<name>/layers/<layer_name>/wms")
+def project_info_layer_wms(name, layer_name):
+    """
+    Get information about a single WMS layer
+    """
+    log_request()
+    try:
+        psql_schema = request.args.get("schema", default="public")
+        project = QSAProject(name, psql_schema)
+        if project.exists():
+            return jsonify(project.layer_wms(layer_name)), 201
+        else:
+            return {"error": "Project does not exist"}, 415
+    except Exception as e:
+        logger().exception(str(e))
+        return {"error": "internal server error"}, 415
+
+@projects.post("/<name>/layers/<layer_name>/wfs")
+def project_publish_wfs_layer(name, layer_name):
+    """
+    Change WFS publication status of an vector layer
+    """
+    log_request()
+    try:
+        json_schema = {
+            "type": "object",
+            "required": ["published"],
+            "properties": {
+                "published": {"type": "boolean"},
+                "geometry_precision": {"type": "integer"}
+            },
+        }
+        
+        psql_schema = request.args.get("schema", default="public")
+        project = QSAProject(name, psql_schema)
+
+        if project.exists():
+            data = request.get_json()
+            try:
+                validate(data, json_schema)
+            except ValidationError as e:
+                return {"error": e.message}, 415
+            
+            published = data["published"]
+
+            geometry_precision = 8 # default value in QGIS Server
+
+            if "geometry_precision" in data:
+                geometry_precision = data["geometry_precision"]
+            
+            project = QSAProject(name, psql_schema)
+
+            rc, err = project.publish_wfs_layer(layer_name, published, geometry_precision)
+
+            if err:
+                return {"error": err}, 415
+            return jsonify(rc), 201
+        
+        else:
+            return {"error": "Project does not exist"}, 415
+    
+    except Exception as e:
+        logger().exception(str(e))
+        return {"error": "internal server error"}, 415
+
+@projects.post("/<name>/layers/<layer_name>/wms")
+def project_publish_wms_layer(name, layer_name):
+    """
+    Change WMS publication status of an vector layer
+    """
+    log_request()
+    try:
+        json_schema = {
+            "type": "object",
+            "required": ["published"],
+            "properties": {
+                "published": {"type": "boolean"}
+            },
+        }
+        
+        psql_schema = request.args.get("schema", default="public")
+        project = QSAProject(name, psql_schema)
+
+        if project.exists():
+            data = request.get_json()
+            try:
+                validate(data, json_schema)
+            except ValidationError as e:
+                return {"error": e.message}, 415
+            
+            published = data["published"]
+
+            project = QSAProject(name, psql_schema)
+
+            rc, err = project.publish_wms_layer(layer_name, published)
+
+            if err:
+                return {"error": err}, 415
+            return jsonify(rc), 201
+        
+        else:
+            return {"error": "Project does not exist"}, 415
+    
+    except Exception as e:
+        logger().exception(str(e))
+        return {"error": "internal server error"}, 415
+    
+@projects.post("/<name>/layers/wms/feature-info")
+def project_wms_adjust_feature_info(name):
+    """
+    Adjust the WMS Feature Info settings
+    """ 
+    log_request()
+    try:
+        json_schema = {
+            "type": "object",
+            "required": ["publish_geometry"],
+            "properties": {
+                "publish_geometry": {"type": "boolean"}
+            },
+        }
+        
+        psql_schema = request.args.get("schema", default="public")
+        project = QSAProject(name, psql_schema)
+
+        if project.exists():
+            data = request.get_json()
+            try:
+                validate(data, json_schema)
+            except ValidationError as e:
+                return {"error": e.message}, 415
+            
+            publish_geometry = data["publish_geometry"]
+
+            project = QSAProject(name, psql_schema)
+
+            rc, err = project.wms_adjust_feature_info(publish_geometry)
+
+            if err:
+                return {"error": err}, 415
+            return jsonify(rc), 201
+        
+        else:
+            return {"error": "Project does not exist"}, 415
+    
+    except Exception as e:
+        logger().exception(str(e))
+        return {"error": "internal server error"}, 415
 
 @projects.delete("/<name>/layers/<layer_name>")
 def project_del_layer(name, layer_name):
