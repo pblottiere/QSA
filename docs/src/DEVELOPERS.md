@@ -3,7 +3,7 @@
 Documentation:
 
 ```` console
-$ mdbook build docs
+mdbook build docs
 ````
 
 Unit tests:
@@ -24,8 +24,15 @@ $ pytest -sv tests
 Integration tests:
 
 ```` console
-$ cd sandbox
-$ docker-compose up -d
-$ cd ../qsa-api
-$ QSA_GEOTIFF="/landsat_4326.tif" QSA_GPKG="/data.gpkg" QSA_HOST=127.0.01 QSA_PORT=5000 pytest -sv tests
+cd sandbox
+docker-compose up -d
+cd ../qsa-api
+QSA_GEOTIFF="/landsat_4326.tif" QSA_GPKG="/data.gpkg" QSA_HOST=127.0.01 QSA_PORT=5000 pytest -sv tests
+````
+
+Ensure your changes are correctly formatted with `pre-commit` (see [installation](https://pre-commit.com/#installation))
+
+```` console
+# activate in repository
+pre-commit install
 ````
