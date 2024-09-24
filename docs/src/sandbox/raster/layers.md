@@ -2,13 +2,12 @@
 
 Layer is based on the `landsat_4326.tif` file mounted in the Docker containers.
 
-
-### Add layers
+## Add layers
 
 To add a raster layer to a project:
 
 ```` shell
-$ curl "http://localhost:5000/api/projects/my_project/layers?schema=my_schema" \
+curl "http://localhost:5000/api/projects/my_project/layers?schema=my_schema" \
   -X POST \
   -H 'Content-Type: application/json' \
   -d '{
@@ -16,19 +15,26 @@ $ curl "http://localhost:5000/api/projects/my_project/layers?schema=my_schema" \
     "name":"dem",
     "type":"raster"
   }'
-true
 ````
 
+## List layers and get metadata
 
-### List layers and get metadata
+list layers
 
 ```` shell
-# list layers
 $ curl "http://localhost:5000/api/projects/my_project/layers?schema=my_schema"
 ["polygons","dem"]
+````
 
-# get metadata
-$ curl "http://localhost:5000/api/projects/my_project/layers/dem?schema=my_schema"
+get metadata
+
+```` shell
+curl "http://localhost:5000/api/projects/my_project/layers/dem?schema=my_schema"
+````
+
+returns
+
+```` json
 {
   "bands": 1,
   "bbox": "18.6662979442000001 45.77670143760000343, 18.70359794419999844 45.81170143760000002",
@@ -45,13 +51,12 @@ $ curl "http://localhost:5000/api/projects/my_project/layers/dem?schema=my_schem
 }
 ````
 
-
-### Map sample
+## Map sample
 
 To execute a WMS `GetMap` request with basic parameters:
 
 ```` shell
-$ curl "http://localhost:5000/api/projects/my_project/layers/dem/map?schema=my_schema" --output map.png
+curl "http://localhost:5000/api/projects/my_project/layers/dem/map?schema=my_schema" --output map.png
 ````
 
 <img src="../../images/raster_dem_map.png" width="300">

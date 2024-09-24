@@ -3,11 +3,12 @@
 ## From sources
 
 ```` shell
-$ cd qsa-api
-$ virtualenv --system-site-packages venv  # system aware for pyqgis
-$ . venv/bin/activate
-(venv)$ pip install poetry
-(venv)$ poetry install
+cd qsa-api
+virtualenv --system-site-packages venv  # system aware for pyqgis
+. venv/bin/activate
+# now in (venv)
+pip install poetry
+poetry install
 ````
 
 ## Docker image
@@ -15,7 +16,7 @@ $ . venv/bin/activate
 A prebuilt image can be found on `ghcr.io/pblottiere/qsa`:
 
 ```` shell
-$ docker pull ghcr.io/pblottiere/qsa:1.1.0
+docker pull ghcr.io/pblottiere/qsa:1.1.0
 ````
 
 Otherwise the image can manually be built using:
