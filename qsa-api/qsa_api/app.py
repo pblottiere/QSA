@@ -15,7 +15,6 @@ app = Flask(__name__)
 
 class QSA:
     def __init__(self) -> None:
-        print("FFFFF")
         self.cfg = QSAConfig()
         if not self.cfg.is_valid:
             return
