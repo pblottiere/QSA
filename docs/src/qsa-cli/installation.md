@@ -3,12 +3,11 @@
 From sources:
 
 ```` console
-cd qsa-cli
-virtualenv venv
-. venv/bin/activate
-# now in (venv)
-pip install poetry
-poetry install
+$ cd qsa-cli
+$ virtualenv venv
+$ . venv/bin/activate
+(venv)$ pip install poetry
+(venv)$ poetry install
 ````
 
 Binary distributions:

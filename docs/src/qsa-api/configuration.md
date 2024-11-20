@@ -28,9 +28,9 @@ well as QGIS QML styles.
 
 The PostgreSQL support relies on a `service` defined in a [PostgreSQL connection
 service file](https://www.postgresql.org/docs/current/libpq-pgservice.html).
-For example with `QSA_QGISSERVER_PROJECTS_PSQL_SERVICE=qsa_projects`:
 
-Ensure you have a valid `~/.pg_service.conf`
+For example with `QSA_QGISSERVER_PROJECTS_PSQL_SERVICE=qsa_projects`, a proper
+`qsa_projects` section is needed in `~/.pg_service.conf`:
 
 ```` conf
 [qsa_projects]

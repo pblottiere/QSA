@@ -13,7 +13,7 @@ When PostgreSQL support is enabled, a query string parameter `schema` may be
 used to specify the schema in which the QGIS project is stored in the database
 (`public` is used by default).
 
-```` shell
+```` console
 # call a specific endpoint using projects stored in PostgreSQL schema named `myschema`
-curl "http://localhost/api/xxx/yyy?schema=myschema"
+$ curl "http://localhost/api/xxx/yyy?schema=myschema"
 ````

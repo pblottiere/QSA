@@ -4,6 +4,7 @@
     "no-duplicate-heading": false,
     "no-alt-text": false,
     "first-line-heading": false,
+    "MD014": false,
     "globs": [
         "docs/**/*.md",
         "*.md"

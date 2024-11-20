@@ -7,7 +7,7 @@
 
 To list these instances with `qsa-cli`:
 
-```` shell
+```` console
 $ QSA_SERVER_URL=http://localhost:5000 qsa ps
 INSTANCE ID    IP          STATUS
 -------------  ----------  -----------------------
@@ -19,13 +19,8 @@ c0047e66       172.20.0.6  Binded 1096 seconds ago
 
 Or with the API:
 
-```` shell
-curl http://localhost:5000/api/instances/ | jq
-````
-
-returns
-
-```` json
+```` console
+$ curl http://localhost:5000/api/instances/ | jq
 {
   "servers": [
     {
@@ -56,13 +51,8 @@ returns
 
 To get some metadata about a specific QGIS Server instance with `qsa-cli`:
 
-```` shell
-qsa inspect 4464d3c5
-````
-
-returns
-
-```` json
+```` console
+$ qsa inspect 4464d3c5
 {
   "cache": {
     "projects": []
@@ -112,26 +102,16 @@ Or with the API `curl http://localhost:5000/api/instances/4464d3c5`.
 
 A bad request to QGIS Server to have something in the log:
 
-```` shell
-curl http://172.20.0.4/ogc/
-````
-
-returns
-
-````xml
+```` console
+$ curl http://172.20.0.4/ogc/
 <?xml version="1.0" encoding="UTF-8"?>
 <ServerException>Project file error. For OWS services: please provide a SERVICE and a MAP parameter pointing to a valid QGIS project file</ServerException>
 ````
 
 Then to fetch the log of the corresponding QGIS Server instance with `qsa-cli`:
 
-```` shell
-qsa logs 4464d3c5
-````
-
-returns
-
-```` text
+```` console
+$ qsa logs 4464d3c5
 Server plugin qsa loaded!
 Server python plugins loaded
 ******************** New request ***************
@@ -163,13 +143,8 @@ Request finished in 3 ms
 
 To display stats for all QGIS Server online instances:
 
-```` shell
-qsa stats
-````
-
-returns
-
-````text
+```` console
+$ qsa stats
 INSTANCE ID      COUNT  TIME        SERVICE    REQUEST    PROJECT
 -------------  -------  ----------  ---------  ---------  ---------
 4464d3c5             1

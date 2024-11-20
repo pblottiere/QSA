@@ -6,8 +6,8 @@ Layers are based on the `data.gpkg` file mounted in the Docker containers.
 
 To add a polygon layer from a geopackage to a project:
 
-```` shell
-curl "http://localhost:5000/api/projects/my_project/layers?schema=my_schema" \
+```` console
+$ curl "http://localhost:5000/api/projects/my_project/layers?schema=my_schema" \
   -X POST \
   -H 'Content-Type: application/json' \
   -d '{
@@ -20,12 +20,12 @@ curl "http://localhost:5000/api/projects/my_project/layers?schema=my_schema" \
 
 And a line layer from PostGIS:
 
-```` shell
+```` console
 # copy geopackage table to PostGIS
-ogr2ogr -f PostgreSQL "PG:dbname=qsa password=qsa user=qsa port=5433 host=localhost" data.gpkg lines
+$ ogr2ogr -f PostgreSQL "PG:dbname=qsa password=qsa user=qsa port=5433 host=localhost" data.gpkg lines
 
 # add a line layer based on the PostGIS table
-curl "http://localhost:5000/api/projects/my_project/layers?schema=my_schema" \
+$ curl "http://localhost:5000/api/projects/my_project/layers?schema=my_schema" \
   -X POST \
   -H 'Content-Type: application/json' \
   -d '{
@@ -38,18 +38,13 @@ curl "http://localhost:5000/api/projects/my_project/layers?schema=my_schema" \
 
 ## List layers and get metadata
 
-```` shell
+```` console
 $ curl "http://localhost:5000/api/projects/my_project/layers?schema=my_schema"
 ["lines","polygons"]
 ````
 
-```` shell
-curl "http://localhost:5000/api/projects/my_project/layers/lines?schema=my_schema" | jq
-````
-
-returns
-
-```` json
+```` console
+$ curl "http://localhost:5000/api/projects/my_project/layers/lines?schema=my_schema" | jq
 {
   "bbox": "-117.62319839219100004 23.20820580488510032, -82.32264950769270229 46.18290982947510059",
   "crs": "EPSG:4326",
@@ -69,16 +64,16 @@ returns
 
 To execute a WMS `GetMap` request with basic parameters:
 
-```` shell
-curl "http://localhost:5000/api/projects/my_project/layers/polygons/map?schema=my_schema" --output map.png
+```` console
+$ curl "http://localhost:5000/api/projects/my_project/layers/polygons/map?schema=my_schema" --output map.png
 ````
 
 <img src="../../images/map.png" width="300">
 
 ## Delete layers
 
-```` shell
-curl -X DELETE "http://localhost:5000/api/projects/my_project/layers/lines?schema=my_schema"
+```` console
+$ curl -X DELETE "http://localhost:5000/api/projects/my_project/layers/lines?schema=my_schema"
 
 $ curl "http://localhost:5000/api/projects/my_project/layers?schema=my_schema"
 ["polygons"]

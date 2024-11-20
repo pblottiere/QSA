@@ -6,8 +6,8 @@ Layer is based on the `landsat_4326.tif` file mounted in the Docker containers.
 
 To add a raster layer to a project:
 
-```` shell
-curl "http://localhost:5000/api/projects/my_project/layers?schema=my_schema" \
+```` console
+$ curl "http://localhost:5000/api/projects/my_project/layers?schema=my_schema" \
   -X POST \
   -H 'Content-Type: application/json' \
   -d '{
@@ -19,22 +19,13 @@ curl "http://localhost:5000/api/projects/my_project/layers?schema=my_schema" \
 
 ## List layers and get metadata
 
-list layers
-
-```` shell
+```` console
+# list layers
 $ curl "http://localhost:5000/api/projects/my_project/layers?schema=my_schema"
 ["polygons","dem"]
-````
 
-get metadata
-
-```` shell
-curl "http://localhost:5000/api/projects/my_project/layers/dem?schema=my_schema"
-````
-
-returns
-
-```` json
+# get metadata
+$ curl "http://localhost:5000/api/projects/my_project/layers/dem?schema=my_schema"
 {
   "bands": 1,
   "bbox": "18.6662979442000001 45.77670143760000343, 18.70359794419999844 45.81170143760000002",
@@ -55,8 +46,8 @@ returns
 
 To execute a WMS `GetMap` request with basic parameters:
 
-```` shell
-curl "http://localhost:5000/api/projects/my_project/layers/dem/map?schema=my_schema" --output map.png
+```` console
+$ curl "http://localhost:5000/api/projects/my_project/layers/dem/map?schema=my_schema" --output map.png
 ````
 
 <img src="../../images/raster_dem_map.png" width="300">

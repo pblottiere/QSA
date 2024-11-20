@@ -10,7 +10,7 @@ rasters or get histogram for raster layers.
 
 Examples:
 
-``` shell
+``` console
 # create a new layer based on a QGIS expression
 $ curl "http://localhost/api/projects/" \
      -X POST \

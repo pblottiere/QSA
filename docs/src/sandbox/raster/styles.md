@@ -4,8 +4,8 @@
 
 To add a style for a multiband raster layer:
 
-```` shell
-curl "http://localhost:5000/api/projects/my_project/styles?schema=my_schema" \
+```` console
+$ curl "http://localhost:5000/api/projects/my_project/styles?schema=my_schema" \
   -X POST \
   -H 'Content-Type: application/json' \
   -d '{
@@ -33,7 +33,7 @@ curl "http://localhost:5000/api/projects/my_project/styles?schema=my_schema" \
 
 To list styles for a specific project:
 
-```` shell
+```` console
 $ curl "http://localhost:5000/api/projects/my_project/styles?schema=my_schema"
 ["my_singlebandgray_style"]
 ````
@@ -42,8 +42,8 @@ $ curl "http://localhost:5000/api/projects/my_project/styles?schema=my_schema"
 
 To apply a specific style to a layer:
 
-```` shell
-curl "http://localhost:5000/api/projects/my_project/layers/dem/style?schema=my_schema" \
+```` console
+$ curl "http://localhost:5000/api/projects/my_project/layers/dem/style?schema=my_schema" \
   -X POST \
   -H 'Content-Type: application/json' \
   -d '{
@@ -54,8 +54,8 @@ curl "http://localhost:5000/api/projects/my_project/layers/dem/style?schema=my_s
 
 The layer rendering has changed now:
 
-```` shell
-curl "http://localhost:5000/api/projects/my_project/layers/dem/map?schema=my_schema" --output map.png
+```` console
+$ curl "http://localhost:5000/api/projects/my_project/layers/dem/map?schema=my_schema" --output map.png
 ````
 
 <img src="../../images/map_raster_style.png" width="300">

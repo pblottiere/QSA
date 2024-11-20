@@ -18,9 +18,9 @@ A QSA project is defined by:
 
 Examples:
 
-``` shell
+``` console
 # create a project and store the QGIS project in PostgreSQL within `my_schema`
-curl "http://localhost/api/projects/" \
+$ curl "http://localhost/api/projects/" \
      -X POST \
      -H 'Content-Type: application/json' \
      -d '{
@@ -30,7 +30,7 @@ curl "http://localhost/api/projects/" \
      }'
 
 # get metadata about the project stored in PostgreSQL
-curl "http://localhost/api/projects/my_project?schema=my_schema"
+$ curl "http://localhost/api/projects/my_project?schema=my_schema"
 ```
 
 ## Layer
@@ -69,9 +69,9 @@ A layer can be added to a project thanks to the next parameters:
 
 Example:
 
-```` shell
+```` console
 # Add a FlatGeobuf vector layer stored on S3 bucket in project `my_project`
-curl "http://localhost/api/projects/my_project/layers" \
+$ curl "http://localhost/api/projects/my_project/layers" \
   -X POST \
   -H 'Content-Type: application/json' \
   -d '{
@@ -108,9 +108,9 @@ For vector layers, a style can be defined with the parameters listed below:
 
 Example:
 
-```` shell
+```` console
 # Add a style for point geometry vector layers
-curl "http://localhost:5000/api/projects/my_project/styles" \
+$ curl "http://localhost:5000/api/projects/my_project/styles" \
   -X POST \
   -H 'Content-Type: application/json' \
   -d '{
@@ -146,9 +146,9 @@ For raster layers, a style can be defined with the parameters listed below:
 
 Example:
 
-```` shell
+```` console
 # Add a style for multiband raster
-curl "http://localhost:5000/api/projects/my_project/styles" \
+$ curl "http://localhost:5000/api/projects/my_project/styles" \
   -X POST \
   -H 'Content-Type: application/json' \
   -d '{
@@ -186,7 +186,7 @@ curl "http://localhost:5000/api/projects/my_project/styles" \
 
 Example:
 
-```` shell
+```` console
 $ curl "http://localhost:5000/api/projects/my_project/cache"
 {
   "valid":true,

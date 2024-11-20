@@ -4,13 +4,8 @@
 
 To list available properties for the polygon single symbol renderer:
 
-```` shell
-curl "http://localhost:5000/api/symbology/vector/polygon/single_symbol/fill/properties" | jq
-````
-
-returns
-
-````json
+```` console
+$ curl "http://localhost:5000/api/symbology/vector/polygon/single_symbol/fill/properties" | jq
 {
   "border_width_map_unit_scale": "3x:0,0,0,0,0,0",
   "color": "0,0,255,255",
@@ -28,8 +23,8 @@ returns
 
 To add a style for a polygon layer:
 
-```` shell
-curl "http://localhost:5000/api/projects/my_project/styles?schema=my_schema" \
+```` console
+$ curl "http://localhost:5000/api/projects/my_project/styles?schema=my_schema" \
   -X POST \
   -H 'Content-Type: application/json' \
   -d '{
@@ -51,7 +46,7 @@ curl "http://localhost:5000/api/projects/my_project/styles?schema=my_schema" \
 
 To list styles for a specific project:
 
-```` shell
+```` console
 $ curl "http://localhost:5000/api/projects/my_project/styles?schema=my_schema"
 ["my_fill_style"]
 ````
@@ -60,8 +55,8 @@ $ curl "http://localhost:5000/api/projects/my_project/styles?schema=my_schema"
 
 To apply a specific style to a layer:
 
-```` shell
-curl "http://localhost:5000/api/projects/my_project/layers/polygons/style?schema=my_schema" \
+```` console
+$ curl "http://localhost:5000/api/projects/my_project/layers/polygons/style?schema=my_schema" \
   -X POST \
   -H 'Content-Type: application/json' \
   -d '{
@@ -72,8 +67,8 @@ curl "http://localhost:5000/api/projects/my_project/layers/polygons/style?schema
 
 The layer rendering has changed now:
 
-```` shell
-curl "http://localhost:5000/api/projects/my_project/layers/polygons/map?schema=my_schema" --output map.png
+```` console
+$ curl "http://localhost:5000/api/projects/my_project/layers/polygons/map?schema=my_schema" --output map.png
 ````
 
 <img src="../../images/map_style.png" width="300">

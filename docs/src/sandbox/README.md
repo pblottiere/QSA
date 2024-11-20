@@ -5,9 +5,9 @@ QSA tools with PostgreSQL support enabled.
 
 First, a QSA REST API server is set up with 4 QGIS Server instances:
 
-```` shell
-cd sandbox
-docker-compose up --scale qgisserver=4 -d
+```` console
+$ cd sandbox
+$ docker-compose up --scale qgisserver=4 -d
 $ docker ps
 CONTAINER ID   IMAGE                              COMMAND                  CREATED       STATUS         PORTS                                       NAMES
 d2eaf6bdfae4   pblottiere/qsa          "gunicorn -b 0.0.0.0…"   2 hours ago   Up 10 seconds  0.0.0.0:5000->5000/tcp, :::5000->5000/tcp   sandbox-qsa-1
