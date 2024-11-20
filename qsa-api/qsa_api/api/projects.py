@@ -48,6 +48,53 @@ def project_info(name: str):
         return {"error": "internal server error"}, 415
 
 
+@projects.get("/<name>/properties")
+def project_properties(name: str):
+    log_request()
+    try:
+        psql_schema = request.args.get("schema", default="public")
+        project = QSAProject(name, psql_schema)
+
+        if project.exists():
+            return jsonify(project.properties)
+        return {"error": "Project does not exist"}, 415
+    except Exception as e:
+        logger().exception(str(e))
+        return {"error": "internal server error"}, 415
+
+
+@projects.post("/<name>/properties")
+def project_properties_update(name: str):
+    log_request()
+    try:
+        schema = {
+            "type": "object",
+            "required": [],
+            "properties": {
+            },
+        }
+
+        psql_schema = request.args.get("schema", default="public")
+        project = QSAProject(name, psql_schema)
+        if project.exists():
+            data = request.get_json()
+            try:
+                validate(data, schema)
+            except ValidationError as e:
+                return {"error": e.message}, 415
+
+            rc, err = project.properties_update(data)
+            if rc:
+                return jsonify(rc), 201
+            else:
+                return {"error": err}, 415
+        else:
+            return {"error": "Project does not exist"}, 415
+    except Exception as e:
+        logger().exception(str(e))
+        return {"error": "internal server error"}, 415
+
+
 @projects.post("/")
 def project_add():
     log_request()
@@ -156,7 +203,7 @@ def project_del_style(name, style):
             return {"error": "Project does not exist"}, 415
     except Exception as e:
         logger().exception(str(e))
-        return {"error": "internal server error"}, 415
+        return {"error": "internal server error"}, 414
 
 
 @projects.post("/<name>/layers/<layer_name>/style")

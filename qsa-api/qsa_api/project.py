@@ -29,12 +29,10 @@ from qgis.core import (
 )
 
 from .mapproxy import QSAMapProxy
+from .properties import ProjectProperties
 from .vector import VectorSymbologyRenderer
 from .utils import StorageBackend, config, logger
 from .raster import RasterSymbologyRenderer, RasterOverview
-
-
-RENDERER_TAG_NAME = "renderer-v2"  # constant from core/symbology/renderer.h
 
 
 class QSAProject:
@@ -62,6 +60,12 @@ class QSAProject:
             con.commit()
             con.close()
         return p
+
+    @property
+    def properties(self) -> dict:
+        props = ProjectProperties()
+        props.read(self.project)
+        return props.to_json()
 
     @staticmethod
     def projects(schema: str = "") -> list:
@@ -135,6 +139,18 @@ class QSAProject:
             m["cache"] = "mapproxy"
 
         return m
+
+    def properties_update(self, data) -> bool:
+        project = self.project
+
+        properties = ProjectProperties()
+        properties.read(project)
+        rc, err = properties.update(data)
+        if rc:
+            properties.write(project)
+            project.write()
+
+        return rc, err
 
     def cache_metadata(self) -> (dict, str):
         if self._mapproxy_enabled:
