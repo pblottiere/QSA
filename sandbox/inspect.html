@@ -1,5 +1,5 @@
 <!DOCTYPE HTML>
-<html lang="en" class="light" dir="ltr">
+<html lang="en" class="light sidebar-visible" dir="ltr">
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
@@ -7,7 +7,7 @@
 
 
         <!-- Custom HTML head -->
-        
+
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff">
@@ -31,15 +31,17 @@
         <!-- Custom theme stylesheets -->
         <link rel="stylesheet" href="../custom.css">
 
-    </head>
-    <body class="sidebar-visible no-js">
-    <div id="body-container">
+
         <!-- Provide site root to javascript -->
         <script>
             var path_to_root = "../";
             var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
         </script>
-
+        <!-- Start loading toc.js asap -->
+        <script src="../toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
         <!-- Work around some values being stored in localStorage wrapped in quotes -->
         <script>
             try {
@@ -61,19 +63,16 @@
             var theme;
             try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
             if (theme === null || theme === undefined) { theme = default_theme; }
-            var html = document.querySelector('html');
+            const html = document.documentElement;
             html.classList.remove('light')
             html.classList.add(theme);
-            var body = document.querySelector('body');
-            body.classList.remove('no-js')
-            body.classList.add('js');
+            html.classList.add("js");
         </script>
 
         <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
 
         <!-- Hide / unhide sidebar before it is displayed -->
         <script>
-            var body = document.querySelector('body');
             var sidebar = null;
             var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
             if (document.body.clientWidth >= 1080) {
@@ -83,45 +82,25 @@
                 sidebar = 'hidden';
             }
             sidebar_toggle.checked = sidebar === 'visible';
-            body.classList.remove('sidebar-visible');
-            body.classList.add("sidebar-" + sidebar);
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
         </script>
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
-            <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../index.html">Introduction</a></li><li class="chapter-item expanded "><a href="../qsa-api/index.html"><strong aria-hidden="true">1.</strong> QSA REST API</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../qsa-api/installation.html"><strong aria-hidden="true">1.1.</strong> Installation</a></li><li class="chapter-item expanded "><a href="../qsa-api/configuration.html"><strong aria-hidden="true">1.2.</strong> Configuration</a></li><li class="chapter-item expanded "><a href="../qsa-api/endpoints/index.html"><strong aria-hidden="true">1.3.</strong> Endpoints</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../qsa-api/endpoints/symbology.html"><strong aria-hidden="true">1.3.1.</strong> /api/symbology</a></li><li class="chapter-item expanded "><a href="../qsa-api/endpoints/projects.html"><strong aria-hidden="true">1.3.2.</strong> /api/projects</a></li><li class="chapter-item expanded "><a href="../qsa-api/endpoints/processing.html"><strong aria-hidden="true">1.3.3.</strong> /api/processing</a></li><li class="chapter-item expanded "><a href="../qsa-api/endpoints/instances.html"><strong aria-hidden="true">1.3.4.</strong> /api/instances</a></li></ol></li></ol></li><li class="chapter-item expanded "><a href="../qsa-plugin/index.html"><strong aria-hidden="true">2.</strong> QSA plugin</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../qsa-plugin/installation.html"><strong aria-hidden="true">2.1.</strong> Installation</a></li><li class="chapter-item expanded "><a href="../qsa-plugin/configuration.html"><strong aria-hidden="true">2.2.</strong> Configuration</a></li><li class="chapter-item expanded "><a href="../qsa-plugin/usage.html"><strong aria-hidden="true">2.3.</strong> Usage</a></li></ol></li><li class="chapter-item expanded "><a href="../qsa-cli/index.html"><strong aria-hidden="true">3.</strong> QSA cli</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../qsa-cli/installation.html"><strong aria-hidden="true">3.1.</strong> Installation</a></li><li class="chapter-item expanded "><a href="../qsa-cli/configuration.html"><strong aria-hidden="true">3.2.</strong> Configuration</a></li><li class="chapter-item expanded "><a href="../qsa-cli/commands.html"><strong aria-hidden="true">3.3.</strong> Commands</a></li></ol></li><li class="chapter-item expanded "><a href="../sandbox/index.html"><strong aria-hidden="true">4.</strong> Sandbox</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../sandbox/inspect.html" class="active"><strong aria-hidden="true">4.1.</strong> Introspection</a></li><li class="chapter-item expanded "><a href="../sandbox/projects.html"><strong aria-hidden="true">4.2.</strong> Projects</a></li><li class="chapter-item expanded "><a href="../sandbox/vector/index.html"><strong aria-hidden="true">4.3.</strong> Vector</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../sandbox/vector/layers.html"><strong aria-hidden="true">4.3.1.</strong> Layers</a></li><li class="chapter-item expanded "><a href="../sandbox/vector/styles.html"><strong aria-hidden="true">4.3.2.</strong> Styles</a></li></ol></li><li class="chapter-item expanded "><a href="../sandbox/raster/index.html"><strong aria-hidden="true">4.4.</strong> Raster</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../sandbox/raster/layers.html"><strong aria-hidden="true">4.4.1.</strong> Layers</a></li><li class="chapter-item expanded "><a href="../sandbox/raster/styles.html"><strong aria-hidden="true">4.4.2.</strong> Styles</a></li><li class="chapter-item expanded "><a href="../sandbox/raster/processing.html"><strong aria-hidden="true">4.4.3.</strong> Processing</a></li></ol></li></ol></li><li class="chapter-item expanded "><a href="../DEVELOPERS.html"><strong aria-hidden="true">5.</strong> Developers</a></li><li class="chapter-item expanded "><a href="../FUNDERS.html"><strong aria-hidden="true">6.</strong> Funders</a></li></ol>
-            </div>
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../toc.html"></iframe>
+            </noscript>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle">
                 <div class="sidebar-resize-indicator"></div>
             </div>
         </nav>
 
-        <!-- Track and set sidebar scroll position -->
-        <script>
-            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
-            sidebarScrollbox.addEventListener('click', function(e) {
-                if (e.target.tagName === 'A') {
-                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
-                }
-            }, { passive: true });
-            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
-            sessionStorage.removeItem('sidebar-scroll');
-            if (sidebarScrollTop) {
-                // preserve sidebar scroll position when navigating via links within sidebar
-                sidebarScrollbox.scrollTop = sidebarScrollTop;
-            } else {
-                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
-                var activeSection = document.querySelector('#sidebar .active');
-                if (activeSection) {
-                    activeSection.scrollIntoView({ block: 'center' });
-                }
-            }
-        </script>
-
         <div id="page-wrapper" class="page-wrapper">
 
             <div class="page">
-                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar-hover-placeholder"></div>
                 <div id="menu-bar" class="menu-bar sticky">
                     <div class="left-buttons">
                         <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
@@ -180,10 +159,9 @@
                         <h1 id="sandbox--introspection"><a class="header" href="#sandbox--introspection">Sandbox : introspection</a></h1>
 <p><code>qsa-cli</code> allows to inspect online QGIS Server instances registered to
 <code>qsa-api</code> server, but it’s also possible to use the REST API.</p>
-<h3 id="list-online-instances"><a class="header" href="#list-online-instances">List online instances</a></h3>
+<h2 id="list-online-instances"><a class="header" href="#list-online-instances">List online instances</a></h2>
 <p>To list these instances with <code>qsa-cli</code>:</p>
-<pre><code class="language-shell">$ export QSA_SERVER_URL=http://localhost:5000
-$ qsa ps
+<pre><code class="language-console">$ QSA_SERVER_URL=http://localhost:5000 qsa ps
 INSTANCE ID    IP          STATUS
 -------------  ----------  -----------------------
 6773ca08       172.20.0.2  Binded 1096 seconds ago
@@ -192,7 +170,7 @@ INSTANCE ID    IP          STATUS
 c0047e66       172.20.0.6  Binded 1096 seconds ago
 </code></pre>
 <p>Or with the API:</p>
-<pre><code class="language-shell">$ curl http://localhost:5000/api/instances/ | jq
+<pre><code class="language-console">$ curl http://localhost:5000/api/instances/ | jq
 {
   "servers": [
     {
@@ -218,9 +196,9 @@ c0047e66       172.20.0.6  Binded 1096 seconds ago
   ]
 }
 </code></pre>
-<h3 id="get-metadata"><a class="header" href="#get-metadata">Get metadata</a></h3>
+<h2 id="get-metadata"><a class="header" href="#get-metadata">Get metadata</a></h2>
 <p>To get some metadata about a specific QGIS Server instance with <code>qsa-cli</code>:</p>
-<pre><code class="language-shell">$ qsa inspect 4464d3c5
+<pre><code class="language-console">$ qsa inspect 4464d3c5
 {
   "cache": {
     "projects": []
@@ -264,14 +242,14 @@ c0047e66       172.20.0.6  Binded 1096 seconds ago
 }
 </code></pre>
 <p>Or with the API <code>curl http://localhost:5000/api/instances/4464d3c5</code>.</p>
-<h3 id="fetch-the-log"><a class="header" href="#fetch-the-log">Fetch the log</a></h3>
+<h2 id="fetch-the-log"><a class="header" href="#fetch-the-log">Fetch the log</a></h2>
 <p>A bad request to QGIS Server to have something in the log:</p>
-<pre><code class="language-shell">$ curl http://172.20.0.4/ogc/
+<pre><code class="language-console">$ curl http://172.20.0.4/ogc/
 &lt;?xml version="1.0" encoding="UTF-8"?&gt;
 &lt;ServerException&gt;Project file error. For OWS services: please provide a SERVICE and a MAP parameter pointing to a valid QGIS project file&lt;/ServerException&gt;
 </code></pre>
 <p>Then to fetch the log of the corresponding QGIS Server instance with <code>qsa-cli</code>:</p>
-<pre><code class="language-shell">$ qsa logs 4464d3c5
+<pre><code class="language-console">$ qsa logs 4464d3c5
 Server plugin qsa loaded!
 Server python plugins loaded
 ******************** New request ***************
@@ -298,9 +276,9 @@ Trying URL path: '/ogc/' for '/wfs3'
 
 Request finished in 3 ms
 </code></pre>
-<h3 id="display-stats"><a class="header" href="#display-stats">Display stats</a></h3>
+<h2 id="display-stats"><a class="header" href="#display-stats">Display stats</a></h2>
 <p>To display stats for all QGIS Server online instances:</p>
-<pre><code class="language-shell">$ qsa stats
+<pre><code class="language-console">$ qsa stats
 INSTANCE ID      COUNT  TIME        SERVICE    REQUEST    PROJECT
 -------------  -------  ----------  ---------  ---------  ---------
 4464d3c5             1

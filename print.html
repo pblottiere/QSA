@@ -1,5 +1,5 @@
 <!DOCTYPE HTML>
-<html lang="en" class="light" dir="ltr">
+<html lang="en" class="light sidebar-visible" dir="ltr">
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
@@ -8,7 +8,7 @@
 
 
         <!-- Custom HTML head -->
-        
+
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#ffffff">
@@ -32,15 +32,17 @@
         <!-- Custom theme stylesheets -->
         <link rel="stylesheet" href="custom.css">
 
-    </head>
-    <body class="sidebar-visible no-js">
-    <div id="body-container">
+
         <!-- Provide site root to javascript -->
         <script>
             var path_to_root = "";
             var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
         </script>
-
+        <!-- Start loading toc.js asap -->
+        <script src="toc.js"></script>
+    </head>
+    <body>
+    <div id="body-container">
         <!-- Work around some values being stored in localStorage wrapped in quotes -->
         <script>
             try {
@@ -62,19 +64,16 @@
             var theme;
             try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
             if (theme === null || theme === undefined) { theme = default_theme; }
-            var html = document.querySelector('html');
+            const html = document.documentElement;
             html.classList.remove('light')
             html.classList.add(theme);
-            var body = document.querySelector('body');
-            body.classList.remove('no-js')
-            body.classList.add('js');
+            html.classList.add("js");
         </script>
 
         <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
 
         <!-- Hide / unhide sidebar before it is displayed -->
         <script>
-            var body = document.querySelector('body');
             var sidebar = null;
             var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
             if (document.body.clientWidth >= 1080) {
@@ -84,45 +83,25 @@
                 sidebar = 'hidden';
             }
             sidebar_toggle.checked = sidebar === 'visible';
-            body.classList.remove('sidebar-visible');
-            body.classList.add("sidebar-" + sidebar);
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
         </script>
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
-            <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="index.html">Introduction</a></li><li class="chapter-item expanded "><a href="qsa-api/index.html"><strong aria-hidden="true">1.</strong> QSA REST API</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="qsa-api/installation.html"><strong aria-hidden="true">1.1.</strong> Installation</a></li><li class="chapter-item expanded "><a href="qsa-api/configuration.html"><strong aria-hidden="true">1.2.</strong> Configuration</a></li><li class="chapter-item expanded "><a href="qsa-api/endpoints/index.html"><strong aria-hidden="true">1.3.</strong> Endpoints</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="qsa-api/endpoints/symbology.html"><strong aria-hidden="true">1.3.1.</strong> /api/symbology</a></li><li class="chapter-item expanded "><a href="qsa-api/endpoints/projects.html"><strong aria-hidden="true">1.3.2.</strong> /api/projects</a></li><li class="chapter-item expanded "><a href="qsa-api/endpoints/processing.html"><strong aria-hidden="true">1.3.3.</strong> /api/processing</a></li><li class="chapter-item expanded "><a href="qsa-api/endpoints/instances.html"><strong aria-hidden="true">1.3.4.</strong> /api/instances</a></li></ol></li></ol></li><li class="chapter-item expanded "><a href="qsa-plugin/index.html"><strong aria-hidden="true">2.</strong> QSA plugin</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="qsa-plugin/installation.html"><strong aria-hidden="true">2.1.</strong> Installation</a></li><li class="chapter-item expanded "><a href="qsa-plugin/configuration.html"><strong aria-hidden="true">2.2.</strong> Configuration</a></li><li class="chapter-item expanded "><a href="qsa-plugin/usage.html"><strong aria-hidden="true">2.3.</strong> Usage</a></li></ol></li><li class="chapter-item expanded "><a href="qsa-cli/index.html"><strong aria-hidden="true">3.</strong> QSA cli</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="qsa-cli/installation.html"><strong aria-hidden="true">3.1.</strong> Installation</a></li><li class="chapter-item expanded "><a href="qsa-cli/configuration.html"><strong aria-hidden="true">3.2.</strong> Configuration</a></li><li class="chapter-item expanded "><a href="qsa-cli/commands.html"><strong aria-hidden="true">3.3.</strong> Commands</a></li></ol></li><li class="chapter-item expanded "><a href="sandbox/index.html"><strong aria-hidden="true">4.</strong> Sandbox</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="sandbox/inspect.html"><strong aria-hidden="true">4.1.</strong> Introspection</a></li><li class="chapter-item expanded "><a href="sandbox/projects.html"><strong aria-hidden="true">4.2.</strong> Projects</a></li><li class="chapter-item expanded "><a href="sandbox/vector/index.html"><strong aria-hidden="true">4.3.</strong> Vector</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="sandbox/vector/layers.html"><strong aria-hidden="true">4.3.1.</strong> Layers</a></li><li class="chapter-item expanded "><a href="sandbox/vector/styles.html"><strong aria-hidden="true">4.3.2.</strong> Styles</a></li></ol></li><li class="chapter-item expanded "><a href="sandbox/raster/index.html"><strong aria-hidden="true">4.4.</strong> Raster</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="sandbox/raster/layers.html"><strong aria-hidden="true">4.4.1.</strong> Layers</a></li><li class="chapter-item expanded "><a href="sandbox/raster/styles.html"><strong aria-hidden="true">4.4.2.</strong> Styles</a></li><li class="chapter-item expanded "><a href="sandbox/raster/processing.html"><strong aria-hidden="true">4.4.3.</strong> Processing</a></li></ol></li></ol></li><li class="chapter-item expanded "><a href="DEVELOPERS.html"><strong aria-hidden="true">5.</strong> Developers</a></li><li class="chapter-item expanded "><a href="FUNDERS.html"><strong aria-hidden="true">6.</strong> Funders</a></li></ol>
-            </div>
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle">
                 <div class="sidebar-resize-indicator"></div>
             </div>
         </nav>
 
-        <!-- Track and set sidebar scroll position -->
-        <script>
-            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
-            sidebarScrollbox.addEventListener('click', function(e) {
-                if (e.target.tagName === 'A') {
-                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
-                }
-            }, { passive: true });
-            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
-            sessionStorage.removeItem('sidebar-scroll');
-            if (sidebarScrollTop) {
-                // preserve sidebar scroll position when navigating via links within sidebar
-                sidebarScrollbox.scrollTop = sidebarScrollTop;
-            } else {
-                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
-                var activeSection = document.querySelector('#sidebar .active');
-                if (activeSection) {
-                    activeSection.scrollIntoView({ block: 'center' });
-                }
-            }
-        </script>
-
         <div id="page-wrapper" class="page-wrapper">
 
             <div class="page">
-                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar-hover-placeholder"></div>
                 <div id="menu-bar" class="menu-bar sticky">
                     <div class="left-buttons">
                         <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
@@ -223,7 +202,7 @@ plugin</a>)</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="qsa-rest-api--installation"><a class="header" href="#qsa-rest-api--installation">QSA REST API : installation</a></h1>
 <h2 id="from-sources"><a class="header" href="#from-sources">From sources</a></h2>
-<pre><code class="language-shell">$ cd qsa-api
+<pre><code class="language-console">$ cd qsa-api
 $ virtualenv --system-site-packages venv  # system aware for pyqgis
 $ . venv/bin/activate
 (venv)$ pip install poetry
@@ -231,7 +210,7 @@ $ . venv/bin/activate
 </code></pre>
 <h2 id="docker-image"><a class="header" href="#docker-image">Docker image</a></h2>
 <p>A prebuilt image can be found on <code>ghcr.io/pblottiere/qsa</code>:</p>
-<pre><code class="language-shell">$ docker pull ghcr.io/pblottiere/qsa:1.1.0
+<pre><code class="language-console">$ docker pull ghcr.io/pblottiere/qsa:1.1.0
 </code></pre>
 <p>Otherwise the image can manually be built using:
 <code>docker build -t my-custom-qsa-image .</code>. See <a href="qsa-api/../sandbox/index.html">Sandbox</a>
@@ -258,10 +237,10 @@ MapProxy
 <code>QSA_QGISSERVER_PROJECTS_DIR</code> is only used to store the QSA SQLite database as
 well as QGIS QML styles.</p>
 <p>The PostgreSQL support relies on a <code>service</code> defined in a <a href="https://www.postgresql.org/docs/current/libpq-pgservice.html">PostgreSQL connection
-service file</a>.
-For example with <code>QSA_QGISSERVER_PROJECTS_PSQL_SERVICE=qsa_projects</code>:</p>
-<pre><code class="language-shell">$ cat ~/.pg_service.conf
-[qsa_projects]
+service file</a>.</p>
+<p>For example with <code>QSA_QGISSERVER_PROJECTS_PSQL_SERVICE=qsa_projects</code>, a proper
+<code>qsa_projects</code> section is needed in <code>~/.pg_service.conf</code>:</p>
+<pre><code class="language-conf">[qsa_projects]
 host=localhost
 port=5432
 dbname=qsa_test
@@ -283,11 +262,11 @@ PostgreSQL when enabled.</p>
 <li><a href="qsa-api/endpoints/instances.html">/api/instances</a></li>
 <li><a href="qsa-api/endpoints/processing.html">/api/processing</a></li>
 </ul>
-<h3 id="postgresql-schema"><a class="header" href="#postgresql-schema">PostgreSQL schema</a></h3>
+<h2 id="postgresql-schema"><a class="header" href="#postgresql-schema">PostgreSQL schema</a></h2>
 <p>When PostgreSQL support is enabled, a query string parameter <code>schema</code> may be
 used to specify the schema in which the QGIS project is stored in the database
 (<code>public</code> is used by default).</p>
-<pre><code class="language-shell"># call a specific endpoint using projects stored in PostgreSQL schema named `myschema`
+<pre><code class="language-console"># call a specific endpoint using projects stored in PostgreSQL schema named `myschema`
 $ curl "http://localhost/api/xxx/yyy?schema=myschema"
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="qsa-rest-api--apisymbology"><a class="header" href="#qsa-rest-api--apisymbology">QSA REST API : /api/symbology</a></h1>
@@ -311,7 +290,7 @@ version.</p>
 </tbody></table>
 </div>
 <p>Examples:</p>
-<pre><code class="language-shell"># Return single symbol properties for polygon layers
+<pre><code class="language-console"># Return single symbol properties for polygon layers
 $ curl "http://localhost:5000/api/symbology/vector/polygon/single_symbol/fill/properties" | jq
 {
   "border_width_map_unit_scale": "3x:0,0,0,0,0,0",
@@ -368,7 +347,7 @@ $ curl "http://localhost:5000/api/symbology/raster/multibandcolor/properties" | 
 </tbody></table>
 </div>
 <p>Examples:</p>
-<pre><code class="language-shell"># create a project and store the QGIS project in PostgreSQL within `my_schema`
+<pre><code class="language-console"># create a project and store the QGIS project in PostgreSQL within `my_schema`
 $ curl "http://localhost/api/projects/" \
      -X POST \
      -H 'Content-Type: application/json' \
@@ -399,7 +378,7 @@ empty.</p>
 <tr><td>DELETE</td><td><code>/api/projects/{project}/layers/{layer}</code></td><td>Remove layer from project</td></tr>
 </tbody></table>
 </div>
-<h4 id="layer-definition"><a class="header" href="#layer-definition">Layer definition</a></h4>
+<h3 id="layer-definition"><a class="header" href="#layer-definition">Layer definition</a></h3>
 <p>A layer can be added to a project thanks to the next parameters:</p>
 <ul>
 <li><code>type</code> : <code>raster</code> or <code>vector</code></li>
@@ -415,7 +394,7 @@ empty.</p>
 <li><code>crs</code> (optional) : CRS (automatically detected by default)</li>
 </ul>
 <p>Example:</p>
-<pre><code class="language-shell"># Add a FlatGeobuf vector layer stored on S3 bucket in project `my_project`
+<pre><code class="language-console"># Add a FlatGeobuf vector layer stored on S3 bucket in project `my_project`
 $ curl "http://localhost/api/projects/my_project/layers" \
   -X POST \
   -H 'Content-Type: application/json' \
@@ -438,7 +417,7 @@ automatically used when a vector layer is added to a QSA project.</p>
 <tr><td>DELETE</td><td><code>/api/projects/{project}/styles/{style}</code></td><td>Remove style from project</td></tr>
 </tbody></table>
 </div>
-<h4 id="vector-style"><a class="header" href="#vector-style">Vector style</a></h4>
+<h3 id="vector-style"><a class="header" href="#vector-style">Vector style</a></h3>
 <p>For vector layers, a style can be defined with the parameters listed below:</p>
 <ul>
 <li><code>type</code> : <code>vector</code></li>
@@ -448,7 +427,7 @@ automatically used when a vector layer is added to a QSA project.</p>
 now), <code>symbol</code> and <code>properties</code></li>
 </ul>
 <p>Example:</p>
-<pre><code class="language-shell"># Add a style for point geometry vector layers
+<pre><code class="language-console"># Add a style for point geometry vector layers
 $ curl "http://localhost:5000/api/projects/my_project/styles" \
   -X POST \
   -H 'Content-Type: application/json' \
@@ -482,7 +461,7 @@ $ curl "http://localhost:5000/api/projects/my_project/styles" \
 <code>multibandcolor</code> are supported for now) and <code>properties</code></li>
 </ul>
 <p>Example:</p>
-<pre><code class="language-shell"># Add a style for multiband raster
+<pre><code class="language-console"># Add a style for multiband raster
 $ curl "http://localhost:5000/api/projects/my_project/styles" \
   -X POST \
   -H 'Content-Type: application/json' \
@@ -518,7 +497,7 @@ $ curl "http://localhost:5000/api/projects/my_project/styles" \
 </tbody></table>
 </div>
 <p>Example:</p>
-<pre><code class="language-shell">$ curl "http://localhost:5000/api/projects/my_project/cache"
+<pre><code class="language-console">$ curl "http://localhost:5000/api/projects/my_project/cache"
 {
   "valid":true,
   "storage":"filesystem"
@@ -539,7 +518,7 @@ rasters or get histogram for raster layers.</p>
 </tbody></table>
 </div>
 <p>Examples:</p>
-<pre><code class="language-shell"># create a new layer based on a QGIS expression
+<pre><code class="language-console"># create a new layer based on a QGIS expression
 $ curl "http://localhost/api/projects/" \
      -X POST \
      -H 'Content-Type: application/json' \
@@ -596,7 +575,7 @@ QSA REST API.</p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="qsa-cli--installation"><a class="header" href="#qsa-cli--installation">QSA cli : installation</a></h1>
 <p>From sources:</p>
 <pre><code class="language-console">$ cd qsa-cli
-$ virtualenv venv  
+$ virtualenv venv
 $ . venv/bin/activate
 (venv)$ pip install poetry
 (venv)$ poetry install
@@ -635,7 +614,7 @@ d11e11a4       172.20.0.6  Binded 1315 seconds ago
 <p>The sandbox directory provides a plug-and-play <code>Docker</code> environment to discover
 QSA tools with PostgreSQL support enabled.</p>
 <p>First, a QSA REST API server is set up with 4 QGIS Server instances:</p>
-<pre><code class="language-shell">$ cd sandbox
+<pre><code class="language-console">$ cd sandbox
 $ docker-compose up --scale qgisserver=4 -d
 $ docker ps
 CONTAINER ID   IMAGE                              COMMAND                  CREATED       STATUS         PORTS                                       NAMES
@@ -649,10 +628,9 @@ afd95ccaef9e   qgis/qgis-server:3.38   "/bin/sh -c /usr/loc…"   2 hours ago   
 <div style="break-before: page; page-break-before: always;"></div><h1 id="sandbox--introspection"><a class="header" href="#sandbox--introspection">Sandbox : introspection</a></h1>
 <p><code>qsa-cli</code> allows to inspect online QGIS Server instances registered to
 <code>qsa-api</code> server, but it’s also possible to use the REST API.</p>
-<h3 id="list-online-instances"><a class="header" href="#list-online-instances">List online instances</a></h3>
+<h2 id="list-online-instances"><a class="header" href="#list-online-instances">List online instances</a></h2>
 <p>To list these instances with <code>qsa-cli</code>:</p>
-<pre><code class="language-shell">$ export QSA_SERVER_URL=http://localhost:5000
-$ qsa ps
+<pre><code class="language-console">$ QSA_SERVER_URL=http://localhost:5000 qsa ps
 INSTANCE ID    IP          STATUS
 -------------  ----------  -----------------------
 6773ca08       172.20.0.2  Binded 1096 seconds ago
@@ -661,7 +639,7 @@ INSTANCE ID    IP          STATUS
 c0047e66       172.20.0.6  Binded 1096 seconds ago
 </code></pre>
 <p>Or with the API:</p>
-<pre><code class="language-shell">$ curl http://localhost:5000/api/instances/ | jq
+<pre><code class="language-console">$ curl http://localhost:5000/api/instances/ | jq
 {
   "servers": [
     {
@@ -687,9 +665,9 @@ c0047e66       172.20.0.6  Binded 1096 seconds ago
   ]
 }
 </code></pre>
-<h3 id="get-metadata"><a class="header" href="#get-metadata">Get metadata</a></h3>
+<h2 id="get-metadata"><a class="header" href="#get-metadata">Get metadata</a></h2>
 <p>To get some metadata about a specific QGIS Server instance with <code>qsa-cli</code>:</p>
-<pre><code class="language-shell">$ qsa inspect 4464d3c5
+<pre><code class="language-console">$ qsa inspect 4464d3c5
 {
   "cache": {
     "projects": []
@@ -733,14 +711,14 @@ c0047e66       172.20.0.6  Binded 1096 seconds ago
 }
 </code></pre>
 <p>Or with the API <code>curl http://localhost:5000/api/instances/4464d3c5</code>.</p>
-<h3 id="fetch-the-log"><a class="header" href="#fetch-the-log">Fetch the log</a></h3>
+<h2 id="fetch-the-log"><a class="header" href="#fetch-the-log">Fetch the log</a></h2>
 <p>A bad request to QGIS Server to have something in the log:</p>
-<pre><code class="language-shell">$ curl http://172.20.0.4/ogc/
+<pre><code class="language-console">$ curl http://172.20.0.4/ogc/
 &lt;?xml version="1.0" encoding="UTF-8"?&gt;
 &lt;ServerException&gt;Project file error. For OWS services: please provide a SERVICE and a MAP parameter pointing to a valid QGIS project file&lt;/ServerException&gt;
 </code></pre>
 <p>Then to fetch the log of the corresponding QGIS Server instance with <code>qsa-cli</code>:</p>
-<pre><code class="language-shell">$ qsa logs 4464d3c5
+<pre><code class="language-console">$ qsa logs 4464d3c5
 Server plugin qsa loaded!
 Server python plugins loaded
 ******************** New request ***************
@@ -767,9 +745,9 @@ Trying URL path: '/ogc/' for '/wfs3'
 
 Request finished in 3 ms
 </code></pre>
-<h3 id="display-stats"><a class="header" href="#display-stats">Display stats</a></h3>
+<h2 id="display-stats"><a class="header" href="#display-stats">Display stats</a></h2>
 <p>To display stats for all QGIS Server online instances:</p>
-<pre><code class="language-shell">$ qsa stats
+<pre><code class="language-console">$ qsa stats
 INSTANCE ID      COUNT  TIME        SERVICE    REQUEST    PROJECT
 -------------  -------  ----------  ---------  ---------  ---------
 4464d3c5             1
@@ -778,13 +756,13 @@ INSTANCE ID      COUNT  TIME        SERVICE    REQUEST    PROJECT
 c0047e66             0
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="sandbox--projects"><a class="header" href="#sandbox--projects">Sandbox : projects</a></h1>
-<h3 id="create-and-delete-projects-in-postgresql"><a class="header" href="#create-and-delete-projects-in-postgresql">Create and delete projects in PostgreSQL</a></h3>
+<h2 id="create-and-delete-projects-in-postgresql"><a class="header" href="#create-and-delete-projects-in-postgresql">Create and delete projects in PostgreSQL</a></h2>
 <p>First we create a schema to store QGIS projects:</p>
-<pre><code class="language-shell">$ psql -h localhost -p 5433 -U qsa qsa -c "create schema my_schema"
+<pre><code class="language-console">$ psql -h localhost -p 5433 -U qsa qsa -c "create schema my_schema"
 CREATE SCHEMA
 </code></pre>
 <p>Then we create a QSA project:</p>
-<pre><code class="language-shell">$ curl "http://localhost:5000/api/projects/" \
+<pre><code class="language-console">$ curl "http://localhost:5000/api/projects/" \
     -X POST \
     -H 'Content-Type: application/json' \
     -d '{
@@ -792,15 +770,14 @@ CREATE SCHEMA
         "author":"pblottiere",
         "schema":"my_schema"
     }'
-true
 </code></pre>
 <p>In this case, a directory has been created on the filesystem with the internal
 QSA database:</p>
-<pre><code class="language-shell">$ file projects/qsa/my_schema_my_project/qsa.db
+<pre><code class="language-console">$ file projects/qsa/my_schema_my_project/qsa.db
 SQLite 3.x database
 </code></pre>
 <p>And a QGIS project has been created in PostgreSQL:</p>
-<pre><code class="language-shell">$ psql -h localhost -p 5433 -U qsa qsa -c "select name from my_schema.qgis_projects"
+<pre><code class="language-console">$ psql -h localhost -p 5433 -U qsa qsa -c "select name from my_schema.qgis_projects"
     name
 ------------
  my_project
@@ -808,7 +785,7 @@ SQLite 3.x database
 </code></pre>
 <p>To create another project in <code>public</code> schema and list available projects thanks
 to the QSA API:</p>
-<pre><code class="language-shell">$ curl "http://localhost:5000/api/projects/" \
+<pre><code class="language-console">$ curl "http://localhost:5000/api/projects/" \
     -X POST \
     -H 'Content-Type: application/json' \
     -d '{
@@ -822,13 +799,13 @@ $ curl "http://localhost:5000/api/projects/?schema=my_schema"
 ["my_project"]
 </code></pre>
 <p>To delete a project:</p>
-<pre><code class="language-shell">$ curl -X DELETE "http://localhost:5000/api/projects/my_project_2"
+<pre><code class="language-console">$ curl -X DELETE "http://localhost:5000/api/projects/my_project_2"
 true
 $ curl "http://localhost:5000/api/projects/"
 []
 </code></pre>
 <p>To list project metadata:</p>
-<pre><code class="language-shell">$ curl http://localhost:5000/api/projects/my_project?schema=my_schema | jq
+<pre><code class="language-console">$ curl http://localhost:5000/api/projects/my_project?schema=my_schema | jq
 {
   "author": "pblottiere",
   "creation_datetime": "2024-03-14T20:17:45",
@@ -840,9 +817,9 @@ $ curl "http://localhost:5000/api/projects/"
 <div style="break-before: page; page-break-before: always;"></div><h1 id="vector"><a class="header" href="#vector">Vector</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="sandbox--vector-layers"><a class="header" href="#sandbox--vector-layers">Sandbox : vector layers</a></h1>
 <p>Layers are based on the <code>data.gpkg</code> file mounted in the Docker containers.</p>
-<h3 id="add-layers"><a class="header" href="#add-layers">Add layers</a></h3>
+<h2 id="add-layers"><a class="header" href="#add-layers">Add layers</a></h2>
 <p>To add a polygon layer from a geopackage to a project:</p>
-<pre><code class="language-shell">$ curl "http://localhost:5000/api/projects/my_project/layers?schema=my_schema" \
+<pre><code class="language-console">$ curl "http://localhost:5000/api/projects/my_project/layers?schema=my_schema" \
   -X POST \
   -H 'Content-Type: application/json' \
   -d '{
@@ -851,10 +828,9 @@ $ curl "http://localhost:5000/api/projects/"
     "name":"polygons",
     "type":"vector"
   }'
-true
 </code></pre>
 <p>And a line layer from PostGIS:</p>
-<pre><code class="language-shell"># copy geopackage table to PostGIS
+<pre><code class="language-console"># copy geopackage table to PostGIS
 $ ogr2ogr -f PostgreSQL "PG:dbname=qsa password=qsa user=qsa port=5433 host=localhost" data.gpkg lines
 
 # add a line layer based on the PostGIS table
@@ -867,13 +843,12 @@ $ curl "http://localhost:5000/api/projects/my_project/layers?schema=my_schema" \
     "name":"lines",
     "type":"vector"
   }'
-true
 </code></pre>
-<h3 id="list-layers-and-get-metadata"><a class="header" href="#list-layers-and-get-metadata">List layers and get metadata</a></h3>
-<pre><code class="language-shell">$ curl "http://localhost:5000/api/projects/my_project/layers?schema=my_schema"
+<h2 id="list-layers-and-get-metadata"><a class="header" href="#list-layers-and-get-metadata">List layers and get metadata</a></h2>
+<pre><code class="language-console">$ curl "http://localhost:5000/api/projects/my_project/layers?schema=my_schema"
 ["lines","polygons"]
-
-$ curl "http://localhost:5000/api/projects/my_project/layers/lines?schema=my_schema" | jq
+</code></pre>
+<pre><code class="language-console">$ curl "http://localhost:5000/api/projects/my_project/layers/lines?schema=my_schema" | jq
 {
   "bbox": "-117.62319839219100004 23.20820580488510032, -82.32264950769270229 46.18290982947510059",
   "crs": "EPSG:4326",
@@ -888,22 +863,21 @@ $ curl "http://localhost:5000/api/projects/my_project/layers/lines?schema=my_sch
   "valid": true
 }
 </code></pre>
-<h3 id="map-sample"><a class="header" href="#map-sample">Map sample</a></h3>
+<h2 id="map-sample"><a class="header" href="#map-sample">Map sample</a></h2>
 <p>To execute a WMS <code>GetMap</code> request with basic parameters:</p>
-<pre><code class="language-shell">$ curl "http://localhost:5000/api/projects/my_project/layers/polygons/map?schema=my_schema" --output map.png
+<pre><code class="language-console">$ curl "http://localhost:5000/api/projects/my_project/layers/polygons/map?schema=my_schema" --output map.png
 </code></pre>
 <img src="sandbox/vector/../../images/map.png" width="300">
-<h3 id="delete-layers"><a class="header" href="#delete-layers">Delete layers</a></h3>
-<pre><code class="language-shell">$ curl -X DELETE "http://localhost:5000/api/projects/my_project/layers/lines?schema=my_schema"
-true
+<h2 id="delete-layers"><a class="header" href="#delete-layers">Delete layers</a></h2>
+<pre><code class="language-console">$ curl -X DELETE "http://localhost:5000/api/projects/my_project/layers/lines?schema=my_schema"
 
 $ curl "http://localhost:5000/api/projects/my_project/layers?schema=my_schema"
 ["polygons"]
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="sandbox--vector-styles"><a class="header" href="#sandbox--vector-styles">Sandbox : vector styles</a></h1>
-<h3 id="add-style-to-project"><a class="header" href="#add-style-to-project">Add style to project</a></h3>
+<h2 id="add-style-to-project"><a class="header" href="#add-style-to-project">Add style to project</a></h2>
 <p>To list available properties for the polygon single symbol renderer:</p>
-<pre><code class="language-shell">$ curl "http://localhost:5000/api/symbology/vector/polygon/single_symbol/fill/properties" | jq
+<pre><code class="language-console">$ curl "http://localhost:5000/api/symbology/vector/polygon/single_symbol/fill/properties" | jq
 {
   "border_width_map_unit_scale": "3x:0,0,0,0,0,0",
   "color": "0,0,255,255",
@@ -919,7 +893,7 @@ $ curl "http://localhost:5000/api/projects/my_project/layers?schema=my_schema"
 }
 </code></pre>
 <p>To add a style for a polygon layer:</p>
-<pre><code class="language-shell">$ curl "http://localhost:5000/api/projects/my_project/styles?schema=my_schema" \
+<pre><code class="language-console">$ curl "http://localhost:5000/api/projects/my_project/styles?schema=my_schema" \
   -X POST \
   -H 'Content-Type: application/json' \
   -d '{
@@ -937,33 +911,31 @@ $ curl "http://localhost:5000/api/projects/my_project/layers?schema=my_schema"
     },
     "rendering": {}
   }'
-true
 </code></pre>
 <p>To list styles for a specific project:</p>
-<pre><code class="language-shell">$ curl "http://localhost:5000/api/projects/my_project/styles?schema=my_schema"
+<pre><code class="language-console">$ curl "http://localhost:5000/api/projects/my_project/styles?schema=my_schema"
 ["my_fill_style"]
 </code></pre>
-<h3 id="apply-style-to-layer"><a class="header" href="#apply-style-to-layer">Apply style to layer</a></h3>
+<h2 id="apply-style-to-layer"><a class="header" href="#apply-style-to-layer">Apply style to layer</a></h2>
 <p>To apply a specific style to a layer:</p>
-<pre><code class="language-shell">$ curl "http://localhost:5000/api/projects/my_project/layers/polygons/style?schema=my_schema" \
+<pre><code class="language-console">$ curl "http://localhost:5000/api/projects/my_project/layers/polygons/style?schema=my_schema" \
   -X POST \
   -H 'Content-Type: application/json' \
   -d '{
     "name":"my_fill_style",
     "current":true
   }'
-true
 </code></pre>
 <p>The layer rendering has changed now:</p>
-<pre><code class="language-shell">$ curl "http://localhost:5000/api/projects/my_project/layers/polygons/map?schema=my_schema" --output map.png
+<pre><code class="language-console">$ curl "http://localhost:5000/api/projects/my_project/layers/polygons/map?schema=my_schema" --output map.png
 </code></pre>
 <img src="sandbox/vector/../../images/map_style.png" width="300">
 <div style="break-before: page; page-break-before: always;"></div><h1 id="raster"><a class="header" href="#raster">Raster</a></h1>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="sandbox--raster-layers"><a class="header" href="#sandbox--raster-layers">Sandbox : raster layers</a></h1>
 <p>Layer is based on the <code>landsat_4326.tif</code> file mounted in the Docker containers.</p>
-<h3 id="add-layers-1"><a class="header" href="#add-layers-1">Add layers</a></h3>
+<h2 id="add-layers-1"><a class="header" href="#add-layers-1">Add layers</a></h2>
 <p>To add a raster layer to a project:</p>
-<pre><code class="language-shell">$ curl "http://localhost:5000/api/projects/my_project/layers?schema=my_schema" \
+<pre><code class="language-console">$ curl "http://localhost:5000/api/projects/my_project/layers?schema=my_schema" \
   -X POST \
   -H 'Content-Type: application/json' \
   -d '{
@@ -971,10 +943,9 @@ true
     "name":"dem",
     "type":"raster"
   }'
-true
 </code></pre>
-<h3 id="list-layers-and-get-metadata-1"><a class="header" href="#list-layers-and-get-metadata-1">List layers and get metadata</a></h3>
-<pre><code class="language-shell"># list layers
+<h2 id="list-layers-and-get-metadata-1"><a class="header" href="#list-layers-and-get-metadata-1">List layers and get metadata</a></h2>
+<pre><code class="language-console"># list layers
 $ curl "http://localhost:5000/api/projects/my_project/layers?schema=my_schema"
 ["polygons","dem"]
 
@@ -995,15 +966,15 @@ $ curl "http://localhost:5000/api/projects/my_project/layers/dem?schema=my_schem
   "valid": true
 }
 </code></pre>
-<h3 id="map-sample-1"><a class="header" href="#map-sample-1">Map sample</a></h3>
+<h2 id="map-sample-1"><a class="header" href="#map-sample-1">Map sample</a></h2>
 <p>To execute a WMS <code>GetMap</code> request with basic parameters:</p>
-<pre><code class="language-shell">$ curl "http://localhost:5000/api/projects/my_project/layers/dem/map?schema=my_schema" --output map.png
+<pre><code class="language-console">$ curl "http://localhost:5000/api/projects/my_project/layers/dem/map?schema=my_schema" --output map.png
 </code></pre>
 <img src="sandbox/raster/../../images/raster_dem_map.png" width="300">
 <div style="break-before: page; page-break-before: always;"></div><h1 id="sandbox--raster-styles"><a class="header" href="#sandbox--raster-styles">Sandbox : raster styles</a></h1>
-<h3 id="add-style-to-project-1"><a class="header" href="#add-style-to-project-1">Add style to project</a></h3>
+<h2 id="add-style-to-project-1"><a class="header" href="#add-style-to-project-1">Add style to project</a></h2>
 <p>To add a style for a multiband raster layer:</p>
-<pre><code class="language-shell">$ curl "http://localhost:5000/api/projects/my_project/styles?schema=my_schema" \
+<pre><code class="language-console">$ curl "http://localhost:5000/api/projects/my_project/styles?schema=my_schema" \
   -X POST \
   -H 'Content-Type: application/json' \
   -d '{
@@ -1027,60 +998,64 @@ $ curl "http://localhost:5000/api/projects/my_project/layers/dem?schema=my_schem
       "contrast": 100
     }
   }'
-true
 </code></pre>
 <p>To list styles for a specific project:</p>
-<pre><code class="language-shell">$ curl "http://localhost:5000/api/projects/my_project/styles?schema=my_schema"
+<pre><code class="language-console">$ curl "http://localhost:5000/api/projects/my_project/styles?schema=my_schema"
 ["my_singlebandgray_style"]
 </code></pre>
-<h3 id="apply-style-to-layer-1"><a class="header" href="#apply-style-to-layer-1">Apply style to layer</a></h3>
+<h2 id="apply-style-to-layer-1"><a class="header" href="#apply-style-to-layer-1">Apply style to layer</a></h2>
 <p>To apply a specific style to a layer:</p>
-<pre><code class="language-shell">$ curl "http://localhost:5000/api/projects/my_project/layers/dem/style?schema=my_schema" \
+<pre><code class="language-console">$ curl "http://localhost:5000/api/projects/my_project/layers/dem/style?schema=my_schema" \
   -X POST \
   -H 'Content-Type: application/json' \
   -d '{
     "name":"my_singlebandgray_style",
     "current":true
   }'
-true
 </code></pre>
 <p>The layer rendering has changed now:</p>
-<pre><code class="language-shell">$ curl "http://localhost:5000/api/projects/my_project/layers/dem/map?schema=my_schema" --output map.png
+<pre><code class="language-console">$ curl "http://localhost:5000/api/projects/my_project/layers/dem/map?schema=my_schema" --output map.png
 </code></pre>
 <img src="sandbox/raster/../../images/map_raster_style.png" width="300">
 <div style="break-before: page; page-break-before: always;"></div><h1 id="sandbox--raster-processing"><a class="header" href="#sandbox--raster-processing">Sandbox : raster processing</a></h1>
-<h3 id="histogram"><a class="header" href="#histogram">Histogram</a></h3>
+<h2 id="histogram"><a class="header" href="#histogram">Histogram</a></h2>
 <p>To get an histogram for a specific raster layer:</p>
-<pre><code class="language-shell">$ curl "http://localhost:5000/api/processing/raster/histogram/my_project/dem?schema=my_schema" \
+<pre><code class="language-console">$ curl "http://localhost:5000/api/processing/raster/histogram/my_project/dem?schema=my_schema" \
   -X POST \
   -H 'Content-Type: application/json' \
   -d '{
     "min": 0,
     "count": 100
   }'
-true
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="developers"><a class="header" href="#developers">Developers</a></h1>
-<p>Documentation:</p>
+<h2 id="documentation"><a class="header" href="#documentation">Documentation</a></h2>
 <pre><code class="language-console">$ mdbook build docs
 </code></pre>
-<p>Unit tests:</p>
-<pre><code class="language-console">$ cat ~/.pg_service.conf
-[qsa_test]
+<h2 id="unit-tests"><a class="header" href="#unit-tests">Unit tests</a></h2>
+<p>Ensure you have a valid <code>qsa_test</code> section in <code>~/.pg_service.conf</code>:</p>
+<pre><code class="language-conf">[qsa_test]
 host=localhost
 port=5432
 dbname=qsa_test
 user=myusername
 password=
-$ createdb qsa_test
+</code></pre>
+<p>Run the tests with:</p>
+<pre><code class="language-console">$ createdb qsa_test
 $ cd qsa-api
 $ pytest -sv tests
 </code></pre>
-<p>Integration tests:</p>
+<h2 id="integration-tests"><a class="header" href="#integration-tests">Integration tests</a></h2>
 <pre><code class="language-console">$ cd sandbox
 $ docker-compose up -d
 $ cd ../qsa-api
 $ QSA_GEOTIFF="/landsat_4326.tif" QSA_GPKG="/data.gpkg" QSA_HOST=127.0.01 QSA_PORT=5000 pytest -sv tests
+</code></pre>
+<h2 id="quality-tests"><a class="header" href="#quality-tests">Quality tests</a></h2>
+<p>Ensure your changes are correctly formatted with <code>pre-commit</code> (see <a href="https://pre-commit.com/#installation">installation</a>):</p>
+<pre><code class="language-console"># activate in repository
+$ pre-commit install
 </code></pre>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="funders"><a class="header" href="#funders">Funders</a></h1>
 <a href="https://www.promethee.earth/en//" target="_blank">
