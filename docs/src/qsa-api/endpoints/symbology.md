@@ -39,9 +39,7 @@ $ curl "http://localhost:5000/api/symbology/vector/polygon/single_symbol/fill/pr
   "outline_width_unit": "MM",
   "style": "solid"
 }
-````
 
-```` console
 # Return multi band gray properties for raster layers
 $ curl "http://localhost:5000/api/symbology/raster/multibandcolor/properties" | jq
 {
