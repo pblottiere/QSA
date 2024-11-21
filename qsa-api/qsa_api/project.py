@@ -114,6 +114,56 @@ class QSAProject:
         return layers
 
     @property
+    def layers_wfs_info(self) -> list:
+        """
+        List WFS layers with additional information
+        """
+        wfs_layers = []
+
+        p = QgsProject()
+        p.read(self._qgis_project_uri, Qgis.ProjectReadFlag.DontResolveLayers)
+
+        for layer_id in p.readListEntry('WFSLayers', '/')[0]:
+            layer_infos = p.mapLayer(layer_id)
+            if layer_infos:
+                wfs_layers.append({
+                    "name": layer_infos.name(),
+                    "precision": self._wfs_precision_from_layer_id(p, layer_id)
+                    })
+
+        self.debug(f"{len(wfs_layers)} layers found")
+        return wfs_layers
+
+    @property
+    def layers_wfs(self) -> list:
+        return [wfs_layer["name"] for wfs_layer in self.layers_wfs_info]
+
+    @property
+    def layers_wms(self) -> list:
+        p = QgsProject()
+        p.read(self._qgis_project_uri, Qgis.ProjectReadFlag.DontResolveLayers)
+
+        hidden_wms_layers = p.readListEntry('WMSRestrictedLayers', '/')[0]
+
+        wms_layers = []
+        for layer in self.layers:
+            if layer not in hidden_wms_layers:
+                wms_layers.append(layer)
+
+        return wms_layers
+
+    @property
+    def project_wms_feature_info(self) -> list:
+        p = QgsProject()
+        p.read(self._qgis_project_uri, Qgis.ProjectReadFlag.DontResolveLayers)
+
+        publish_geometry = p.readBoolEntry('WMSAddWktGeometry', '/')[0]
+
+        return {
+            "publish_geometry": publish_geometry
+        }
+
+    @property
     def metadata(self) -> dict:
         m = {}
 
@@ -230,6 +280,31 @@ class QSAProject:
             infos["bbox"] = layer.extent().asWktCoordinates()
 
             return infos
+        return {}
+
+    def layer_wfs(self, name: str) -> dict:
+        if name not in self.layers_wfs:
+            return {}
+
+        project = QgsProject()
+        project.read(self._qgis_project_uri)
+        layers = project.mapLayersByName(name)
+
+        if not layers:
+            return {}
+
+        layer = layers[0]
+        infos = {}
+        infos["name"] = layer.name()
+        infos["precision"] = self._wfs_precision_from_layer_id(project, layer.id())
+        return infos
+
+
+    def layer_wms(self, name: str) -> dict:
+        if name in self.layers_wms:
+            return {
+                "name": name
+            }
         return {}
 
     def layer_update_style(
@@ -483,6 +558,93 @@ class QSAProject:
                 return False, err
 
             mp.write()
+
+        return True, ""
+
+    def publish_wfs_layer(
+        self,
+        name: str,
+        do_publish: bool,
+        geometry_precision: int
+    ) -> (bool, str):
+        project = QgsProject()
+        project.read(self._qgis_project_uri, Qgis.ProjectReadFlag.DontResolveLayers)
+
+        # get layer ID
+        layers = project.mapLayersByName(name)
+        if not layers:
+            return False, f"Layer '{name}' does not exist"
+        layer_id = layers[0].id()
+
+        wfs_layer_names = self.layers_wfs
+        wfs_layer_ids = self._layer_ids_from_names(project, wfs_layer_names)
+
+        already_published = name in wfs_layer_names
+
+        if do_publish and already_published:
+            return f"Layer '{name}' is already published", ""
+
+        if not do_publish and not already_published:
+            return f"Layer '{name}' is not published", ""
+
+        if do_publish:
+            wfs_layer_ids.append(layer_id)
+            project.writeEntry("WFSLayersPrecision", f"/{layer_id}", geometry_precision)
+        else:
+            wfs_layer_ids.remove(layer_id)
+            project.removeEntry('WFSLayersPrecision', f"/{layer_id}")
+
+        project.writeEntry("WFSLayers", "/", wfs_layer_ids)
+
+        self.debug("Write QGIS project")
+        project.write()
+
+        return True, ""
+
+    def publish_wms_layer(
+        self,
+        name: str,
+        do_publish: bool,
+    ) -> (bool, str):
+        project = QgsProject()
+        project.read(self._qgis_project_uri, Qgis.ProjectReadFlag.DontResolveLayers)
+
+        layers = project.mapLayersByName(name)
+        if not layers:
+            return False, f"Layer '{name}' does not exist"
+
+        already_published = name in self.layers_wms
+
+        if do_publish and already_published:
+            return f"Layer '{name}' is already published", ""
+
+        if not do_publish and not already_published:
+            return f"Layer '{name}' is not published", ""
+
+        hidden_wms_layers = project.readListEntry('WMSRestrictedLayers', '/')[0]
+        if do_publish:
+            hidden_wms_layers.remove(name)
+        else:
+            hidden_wms_layers.append(name)
+
+        project.writeEntry( "WMSRestrictedLayers" , "/", hidden_wms_layers)
+
+        self.debug("Write QGIS project")
+        project.write()
+
+        return True, ""
+
+    def wms_adjust_feature_info(
+            self,
+            publish_geometry: bool
+    ) -> (bool, str):
+        project = QgsProject()
+        project.read(self._qgis_project_uri, Qgis.ProjectReadFlag.DontResolveLayers)
+
+        project.writeEntry('WMSAddWktGeometry','/', publish_geometry)
+
+        self.debug("Write QGIS project")
+        project.write()
 
         return True, ""
 
@@ -764,6 +926,19 @@ class QSAProject:
                 .split(" "),
             )
         )
+
+    @staticmethod
+    def _wfs_precision_from_layer_id(qgis_project: QgsProject, wfs_layer_id: str) -> int:
+        return qgis_project.readEntry('WFSLayersPrecision', '/' + wfs_layer_id)[0]
+
+    @staticmethod
+    def _layer_ids_from_names(qgis_project: QgsProject, layer_names: list[str]) -> list[str]:
+        layer_ids = []
+        for layer_name in layer_names:
+            layers = qgis_project.mapLayersByName(layer_name)
+            if layers:
+                layer_ids.append(layers[0].id())
+        return layer_ids
 
     @property
     def _qgis_project_uri(self) -> str:
