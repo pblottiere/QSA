@@ -2,7 +2,7 @@
 
 ## From sources
 
-```` shell
+```` console
 $ cd qsa-api
 $ virtualenv --system-site-packages venv  # system aware for pyqgis
 $ . venv/bin/activate
@@ -14,10 +14,10 @@ $ . venv/bin/activate
 
 A prebuilt image can be found on `ghcr.io/pblottiere/qsa`:
 
-```` shell
-$ docker pull ghcr.io/pblottiere/qsa:1.0.0
+```` console
+$ docker pull ghcr.io/pblottiere/qsa:1.1.0
 ````
 
 Otherwise the image can manually be built using:
-`docker build -t my-custom-qsa-image .`. See [Sandbox](sandbox/) for details
-how to use it.
+`docker build -t my-custom-qsa-image .`. See [Sandbox](../sandbox/index.html)
+for details how to use it.
